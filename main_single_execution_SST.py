@@ -12,20 +12,7 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 import logging
 
-import dgl
-from dgl.data.tree import SST, SSTBatch
-
-from tree_lstm import TreeLSTM
-
-SSTBatch = collections.namedtuple('SSTBatch', ['graph', 'mask', 'wordid', 'label'])
-def batcher(device):
-    def batcher_dev(batch):
-        batch_trees = dgl.batch(batch)
-        return SSTBatch(graph=batch_trees,
-                        mask=batch_trees.ndata['mask'].to(device),
-                        wordid=batch_trees.ndata['x'].to(device),
-                        label=batch_trees.ndata['y'].to(device))
-    return batcher_dev
+from treeLSTM import SSTDataset, train_and_validate, TreeLSTM
 
 
 def main(args):
@@ -68,26 +55,12 @@ def main(args):
         th.set_num_threads(10)
 
     # TODO: use logging in SST
-    trainset = SST()
-    train_loader = DataLoader(dataset=trainset,
-                              batch_size=args.batch_size,
-                              collate_fn=batcher(device),
-                              shuffle=True,
-                              num_workers=0)
-    devset = SST(mode='dev')
-    dev_loader = DataLoader(dataset=devset,
-                            batch_size=100,
-                            collate_fn=batcher(device),
-                            shuffle=False,
-                            num_workers=0)
-
-    testset = SST(mode='test')
-    test_loader = DataLoader(dataset=testset,
-                             batch_size=100,
-                             collate_fn=batcher(device),
-                             shuffle=False,
-                             num_workers=0)
-
+    trainset = SSTDataset('data/sst/', 'train.txt',glove300_file='data/glove.840B.300d.txt')
+    train_loader = trainset.get_loader(args.batch_size, device, shuffle=True)
+    devset = SSTDataset('data/sst/', 'dev.txt',glove300_file='data/glove.840B.300d.txt')
+    dev_loader = devset.get_loader(args.batch_size, device)
+    testset = SSTDataset('data/sst/', 'test.txt', glove300_file='data/glove.840B.300d.txt')
+    test_loader = testset.get_loader(args.batch_size, device)
 
     model = TreeLSTM(trainset.num_vocabs,
                      args.x_size,

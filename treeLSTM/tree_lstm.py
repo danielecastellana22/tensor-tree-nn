@@ -202,6 +202,8 @@ class TreeLSTM(nn.Module):
                  cell_type='nary', **cell_args):
         super(TreeLSTM, self).__init__()
         self.x_size = x_size
+        self.h_size = h_size
+        self.num_classes = num_classes
         self.embedding = nn.Embedding(num_vocabs, x_size)
         if pretrained_emb is not None:
             print('Using glove')
