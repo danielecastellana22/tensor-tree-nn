@@ -47,24 +47,30 @@ def get_train_and_validate_fun(args):
             {'params': params_ex_emb, 'lr': params['lr'], 'weight_decay': args.weight_decay},
             {'params': params_emb, 'lr': 0.1}])
 
-        best_dev_metrics, best_model = train_and_validate(model, optimizer, trainset, devset, device,
-                                                          metrics_class=[LabelAccuracy, RootAccuracy, LeavesAccuracy])
+        best_model, best_dev_metrics = train_and_validate(model, optimizer, trainset, devset, device,
+                                                          metrics_class=[LabelAccuracy, RootAccuracy, LeavesAccuracy],
+                                                          batch_size=args.batch_size,
+                                                          n_epochs=args.epochs,
+                                                          early_stopping_patience=args.early_stopping)
 
         th.save(best_model.state_dict(), os.path.join(log_dir, 'best.pkl'))
 
         #test on training set
-        training_metrics = test(best_model, trainset, device, batch_size=25, metrics_class=None)
+        training_metrics = test(best_model, trainset, device,
+                                metrics_class=[LabelAccuracy, RootAccuracy, LeavesAccuracy],
+                                batch_size=args.batch_size)
         ris = {}
         ris['tr_loss'] = training_metrics[0].get_value()
         ris['tr_acc'] = training_metrics[1].get_value()
         ris['vl_loss'] = best_dev_metrics[0].get_value()
-        ris['vl_loss'] = best_dev_metrics[1].get_value()
+        ris['vl_acc'] = best_dev_metrics[1].get_value()
         return ris
 
     return train_foo
 
 
 if __name__ == '__main__':
+    # TODO: add early stopping as parameter
     parser = argparse.ArgumentParser()
     parser.add_argument('--gpu', type=int, default=-1)
     parser.add_argument('--seed', type=int, default=41)
@@ -73,6 +79,7 @@ if __name__ == '__main__':
     parser.add_argument('--x-size', type=int, default=300)
     #parser.add_argument('--h-size', type=int, default=150)
     parser.add_argument('--epochs', type=int, default=100)
+    parser.add_argument('--early-stopping', type=int, default=10)
     parser.add_argument('--log-every', type=int, default=5)
     #parser.add_argument('--lr', type=float, default=0.05)
     parser.add_argument('--weight-decay', type=float, default=1e-4)

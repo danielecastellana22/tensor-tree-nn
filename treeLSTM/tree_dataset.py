@@ -11,6 +11,8 @@ from tqdm import tqdm
 import os
 import torch
 
+# TODO: use nltk/Tree
+
 class TreeDataset(ABC):
 
     def __init__(self, path_dir, file_name):
