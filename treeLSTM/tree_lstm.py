@@ -206,7 +206,6 @@ class TreeLSTM(nn.Module):
         self.num_classes = num_classes
         self.embedding = nn.Embedding(num_vocabs, x_size)
         if pretrained_emb is not None:
-            print('Using glove')
             self.embedding.weight.data.copy_(pretrained_emb)
             self.embedding.weight.requires_grad = True
         self.dropout = nn.Dropout(dropout)

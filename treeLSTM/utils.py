@@ -1,16 +1,30 @@
 import logging
 import os
 
+NAME_VAR = 'main'
 
-def get_logger(name, log_dir):
-    logger = logging.getLogger(name)
+def set_main_logger_settings(log_dir, name):
+    global NAME_VAR
+
+    NAME_VAR = name
+
+    logger = logging.getLogger(NAME_VAR)
     logger.setLevel(logging.DEBUG)
     formatter = logging.Formatter("[%(asctime)s] %(levelname)s:%(name)s: %(message)s")
+
     # file logger
-    fh = logging.FileHandler(os.path.join(log_dir, name) + '.log', mode='w')
+    fh = logging.FileHandler(os.path.join(log_dir, NAME_VAR) + '.log', mode='w')
     fh.setLevel(logging.INFO)
     fh.setFormatter(formatter)
     logger.addHandler(fh)
+
+
+def get_new_logger(name):
+    global  NAME_VAR
+    logger = logging.getLogger(NAME_VAR+'.'+name)
+    logger.setLevel(logging.DEBUG)
+    formatter = logging.Formatter("[%(asctime)s] %(levelname)s:%(name)s: %(message)s")
+
     # console logger
     ch = logging.StreamHandler()
     ch.setLevel(logging.DEBUG)
