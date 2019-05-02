@@ -191,6 +191,7 @@ class ChildSumTreeLSTMCell(nn.Module):
         return {'h': h, 'c': c}
 
 
+# TODO: add general superclass TreeLSTM with input/output module modifiable
 class TreeLSTM(nn.Module):
     def __init__(self,
                  num_vocabs,
@@ -235,12 +236,13 @@ class TreeLSTM(nn.Module):
         g.register_apply_node_func(self.cell.apply_node_func)
         # feed embedding
         embeds = self.embedding(batch.wordid * batch.mask)
-        g.ndata['iou'] = self.cell.W_iou(self.dropout(embeds)) * batch.mask.float().unsqueeze(-1)
+        g.ndata['iou'] = self.cell.W_iou(embeds) * batch.mask.float().unsqueeze(-1)
         g.ndata['h'] = h
         g.ndata['c'] = c
         # propagate
         dgl.prop_nodes_topo(g)
         # compute logits
-        h = self.dropout(g.ndata.pop('h'))
+        #h = self.dropout(g.ndata.pop('h'))
+        h = g.ndata.pop('h')
         logits = self.linear(h)
         return logits

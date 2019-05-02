@@ -3,6 +3,7 @@ import networkx as nx
 import dgl
 import dgl.backend as F
 from nltk.corpus.reader import BracketParseCorpusReader
+from nltk import Tree
 from collections import namedtuple, OrderedDict
 import numpy as np
 from torch.utils.data import DataLoader
@@ -37,28 +38,7 @@ class TreeDataset(ABC):
         raise NotImplementedError('users must define __load__ to use this base class')
 
 
-class BracketTreeDataset(TreeDataset):
-
-    def __init__(self, path_dir, file_name):
-        TreeDataset.__init__(self,path_dir, file_name)
-
-    def __load_trees__(self):
-        corpus = BracketParseCorpusReader(self.path_dir, [self.file_name])
-        sents = corpus.parsed_sents(self.file_name)
-
-        self.logger.debug('Loading trees.'.format(len(self.trees)))
-        # build trees
-        for sent in tqdm(sents, desc='Loading trees: '):
-            self.trees.append(self.__build_tree__(sent))
-
-        self.logger.info('{} trees loaded.'.format(len(self.trees)))
-
-    @abstractmethod
-    def __build_tree__(self, root):
-        raise NotImplementedError('users must define __load__ to use this base class')
-
-
-class SSTDataset(BracketTreeDataset):
+class SSTDataset(TreeDataset):
         """Stanford Sentiment Treebank dataset.
 
         Each sample is the constituency tree of a sentence. The leaf nodes
@@ -87,7 +67,7 @@ class SSTDataset(BracketTreeDataset):
         SSTBatch = namedtuple('SSTBatch', ['graph', 'mask', 'wordid', 'label'])
 
         def __init__(self, path_dir, file_name, glove300_file=None):
-            BracketTreeDataset.__init__(self, path_dir, file_name)
+            TreeDataset.__init__(self, path_dir, file_name)
             self.pretrained_emb = None
             self.num_classes = 5
             #print('Preprocessing...')
@@ -114,7 +94,6 @@ class SSTDataset(BracketTreeDataset):
                 torch.save(self.vocab, object_file)
 
             self.logger.info('Vocabulary loaded.')
-
 
         def __load_embeddings__(self, pretrained_emb_file):
 
@@ -144,6 +123,17 @@ class SSTDataset(BracketTreeDataset):
                 torch.save(self.pretrained_emb, object_file)
 
             self.logger.info('Pretrained embeddigns loaded.')
+
+        def __load_trees__(self):
+            corpus = BracketParseCorpusReader(self.path_dir, [self.file_name])
+            sents = corpus.parsed_sents(self.file_name)
+
+            self.logger.debug('Loading trees.'.format(len(self.trees)))
+            # build trees
+            for sent in tqdm(sents, desc='Loading trees: '):
+                self.trees.append(self.__build_tree__(sent))
+
+            self.logger.info('{} trees loaded.'.format(len(self.trees)))
 
         def __build_tree__(self, root):
             g = nx.DiGraph()
@@ -181,3 +171,55 @@ class SSTDataset(BracketTreeDataset):
         @property
         def num_vocabs(self):
             return len(self.vocab)
+
+
+class ToyDataset(TreeDataset):
+
+    ToyBatch = namedtuple('XORBatch', ['graph', 'mask', 'wordid', 'label'])
+
+    def __init__(self, path_dir, file_name):
+        TreeDataset.__init__(self, path_dir, file_name)
+        self.__load_trees__()
+
+    def __load_trees__(self):
+        self.logger.debug('Loading trees.'.format(len(self.trees)))
+        # build trees
+        with open(os.path.join(self.path_dir, self.file_name),'r') as txtfile:
+            for sent in tqdm(txtfile.readlines(), desc='Loading trees: '):
+                t = Tree.fromstring(sent)
+                self.trees.append(self.__build_tree__(t))
+
+        self.logger.info('{} trees loaded.'.format(len(self.trees)))
+
+    def __build_tree__(self, root):
+        g = nx.DiGraph()
+
+        def _rec_build(nid, node):
+            for child in node:
+                cid = g.number_of_nodes()
+                if isinstance(child[0], str) or isinstance(child[0], bytes):
+                    # leaf node
+                    word = 0 if child[0].lower() == 'a' else 1
+                    g.add_node(cid, x=word, y=int(child.label()), mask=1)
+                else:
+                    g.add_node(cid, x=-1    , y=int(child.label()), mask=0)
+                    _rec_build(cid, child)
+                g.add_edge(cid, nid)
+
+        # add root
+        g.add_node(0, x=-1, y=int(root.label()), mask=0)
+        _rec_build(0, root)
+        ret = dgl.DGLGraph()
+        ret.from_networkx(g, node_attrs=['x', 'y', 'mask'])
+        return ret
+
+    def get_loader(self, batch_size, device, shuffle=False):
+        def batcher_dev(batch):
+            batch_trees = dgl.batch(batch)
+            return ToyDataset.ToyBatch(graph=batch_trees,
+                                       mask=batch_trees.ndata['mask'].to(device),
+                                       wordid=batch_trees.ndata['x'].to(device),
+                                       label=batch_trees.ndata['y'].to(device))
+
+        return DataLoader(dataset=self, batch_size=batch_size, collate_fn=batcher_dev, shuffle=shuffle,
+                          num_workers=0)
