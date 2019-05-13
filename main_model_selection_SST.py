@@ -44,7 +44,7 @@ def get_train_and_validate_fun(args):
                 INIT.xavier_uniform_(p)
 
         optimizer = optim.Adagrad([
-            {'params': params_ex_emb, 'lr': params['lr'], 'weight_decay': args.weight_decay},
+            {'params': params_ex_emb, 'lr': params['lr'], 'weight_decay':  params['wd']},
             {'params': params_emb, 'lr': 0.1}])
 
         best_model, best_dev_metrics = train_and_validate(model, optimizer, trainset, devset, device,
@@ -92,15 +92,26 @@ if __name__ == '__main__':
     #Model selection experiment
     exp_dir = os.path.join(args.save, args.expname)
 
-    lr_list = [0.005, 0.01, 0.02]
-    hsize_list = [20, 50, 100, 150]
+    wd_list = [1e-2]#, 1e-3, 1e-2]
+    lr_list = [0.01, 0.02, 0.05]
+    if args.cell_type == 'nary':
+        hsize_list = [10, 25, 66, 255, 714, 937, 1308, 2010]
+    else:
+        #hsize_list = [5, 10, 20, 50, 100, 120, 150, 200]
+        hsize_list = [50, 100, 120]
+
+    it_list = list(range(1, 6))
     param_list = []
     for lr in lr_list:
         for hsize in hsize_list:
-            d = {}
-            d['lr'] = lr
-            d['h_size'] = hsize
-            param_list.append(d)
+            for wd in wd_list:
+                for it in it_list:
+                    d = {}
+                    d['lr'] = lr
+                    d['h_size'] = hsize
+                    d['wd'] = wd
+                    d['it'] = it
+                    param_list.append(d)
 
     m_sel = ParamListTrainer(exp_dir, param_list, trainer_fun)
     m_sel.foo()

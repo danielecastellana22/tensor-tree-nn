@@ -94,11 +94,11 @@ if __name__ == '__main__':
 
     lr_list = [0.01, 0.02, 0.05]
     if args.cell_type == 'nary':
-        hsize_list = [10, 25, 66, 255, 714]
+        hsize_list = [10, 25, 66, 255, 714, 937, 1308, 2010]
     else:
-        hsize_list = [5, 10, 20, 50, 100]
+        hsize_list = [5, 10, 20, 50, 100, 120, 150, 200]
 
-    it_list = list(range(1,6))
+    it_list = list(range(1, 6))
     param_list = []
     for lr in lr_list:
         for hsize in hsize_list:
