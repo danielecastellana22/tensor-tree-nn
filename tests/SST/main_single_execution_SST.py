@@ -1,18 +1,14 @@
 import os
 
 import argparse
-import collections
 import numpy as np
 import torch as th
-import torch.nn.functional as F
 import torch.nn.init as INIT
 import torch.optim as optim
-from torch.utils.data import DataLoader
 
-from tqdm import tqdm
-import logging
 
-from treeLSTM import SSTDataset, train_and_validate, test, TreeLSTM, LeavesAccuracy, LabelAccuracy, RootAccuracy, set_main_logger_settings
+from treeLSTM import *
+from .SST_model import create_sst_model
 
 
 def main(args):
@@ -44,7 +40,7 @@ def main(args):
     testset = SSTDataset('data/sst/', 'test.txt', glove300_file='data/glove.840B.300d.txt')
 
     # create the model
-    model = TreeLSTM(trainset.num_vocabs,
+    model = create_sst_model(trainset.num_vocabs,
                      args.x_size,
                      args.h_size,
                      trainset.num_classes,
@@ -84,7 +80,6 @@ if __name__ == '__main__':
     parser.add_argument('--x-size', type=int, default=300)
     parser.add_argument('--h-size', type=int, default=150)
     parser.add_argument('--epochs', type=int, default=100)
-    parser.add_argument('--log-every', type=int, default=5)
     parser.add_argument('--lr', type=float, default=0.05)
     parser.add_argument('--weight-decay', type=float, default=1e-4)
     parser.add_argument('--dropout', type=float, default=0.5)

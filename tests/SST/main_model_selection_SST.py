@@ -3,6 +3,7 @@ import argparse
 import torch as th
 import torch.nn.init as INIT
 import torch.optim as optim
+from .SST_model import create_sst_model
 from treeLSTM import *
 from cannon import ParamListTrainer
 
@@ -25,7 +26,7 @@ def get_train_and_validate_fun(args):
         set_main_logger_settings(log_dir, 'exp{}'.format(id))
         logger = get_new_logger('main')
 
-        model = TreeLSTM(trainset.num_vocabs,
+        model = create_sst_model(trainset.num_vocabs,
                          args.x_size,
                          params["h_size"],
                          trainset.num_classes,

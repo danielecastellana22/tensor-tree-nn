@@ -64,7 +64,7 @@ class SSTDataset(TreeDataset):
         PAD_WORD = -1  # special pad word id
         UNK_WORD = -1  # out-of-vocabulary word id
 
-        SSTBatch = namedtuple('SSTBatch', ['graph', 'mask', 'wordid', 'label'])
+        SSTBatch = namedtuple('SSTBatch', ['graph', 'mask', 'x', 'label'])
 
         def __init__(self, path_dir, file_name, glove300_file=None):
             TreeDataset.__init__(self, path_dir, file_name)
@@ -162,7 +162,7 @@ class SSTDataset(TreeDataset):
                 batch_trees = dgl.batch(batch)
                 return SSTDataset.SSTBatch(graph=batch_trees,
                                 mask=batch_trees.ndata['mask'].to(device),
-                                wordid=batch_trees.ndata['x'].to(device),
+                                x=batch_trees.ndata['x'].to(device),
                                 label=batch_trees.ndata['y'].to(device))
 
             return DataLoader(dataset=self, batch_size=batch_size, collate_fn=batcher_dev, shuffle=shuffle,
@@ -175,7 +175,7 @@ class SSTDataset(TreeDataset):
 
 class ToyDataset(TreeDataset):
 
-    ToyBatch = namedtuple('XORBatch', ['graph', 'mask', 'wordid', 'label'])
+    ToyBatch = namedtuple('XORBatch', ['graph', 'mask', 'x', 'label'])
 
     def __init__(self, path_dir, file_name):
         TreeDataset.__init__(self, path_dir, file_name)
@@ -218,7 +218,7 @@ class ToyDataset(TreeDataset):
             batch_trees = dgl.batch(batch)
             return ToyDataset.ToyBatch(graph=batch_trees,
                                        mask=batch_trees.ndata['mask'].to(device),
-                                       wordid=batch_trees.ndata['x'].to(device),
+                                       x=batch_trees.ndata['x'].to(device),
                                        label=batch_trees.ndata['y'].to(device))
 
         return DataLoader(dataset=self, batch_size=batch_size, collate_fn=batcher_dev, shuffle=shuffle,
