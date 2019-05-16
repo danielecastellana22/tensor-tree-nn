@@ -3,9 +3,12 @@ import argparse
 import torch as th
 import torch.nn.init as INIT
 import torch.optim as optim
-from .SST_model import create_sst_model
-from treeLSTM import *
+
 from cannon import ParamListTrainer
+
+from treeLSTM import *
+
+from utils import create_sst_model, load_sst_dataset
 
 
 def get_train_and_validate_fun(args):
@@ -18,9 +21,7 @@ def get_train_and_validate_fun(args):
 
 
     # load the data
-    trainset = SSTDataset('data/sst/', 'train.txt', glove300_file='data/glove.840B.300d.txt')
-    devset = SSTDataset('data/sst/', 'dev.txt', glove300_file='data/glove.840B.300d.txt')
-    #testset = SSTDataset('data/sst/', 'test.txt', glove300_file='data/glove.840B.300d.txt')
+    trainset, devset, testset = load_sst_dataset()
 
     def train_foo(id, log_dir, params):
         set_main_logger_settings(log_dir, 'exp{}'.format(id))
@@ -38,7 +39,7 @@ def get_train_and_validate_fun(args):
         logger.info(str(model))
 
         params_ex_emb =[x for x in list(model.parameters()) if x.requires_grad and x.size(0)!=trainset.num_vocabs]
-        params_emb = list(model.embedding.parameters())
+        params_emb = list(model.input_module.parameters())
 
         for p in params_ex_emb:
             if p.dim() > 1:
@@ -71,7 +72,7 @@ def get_train_and_validate_fun(args):
 
 
 if __name__ == '__main__':
-    # TODO: add early stopping as parameter
+    #TODO: expanme anch savedit can be decided programmatically
     parser = argparse.ArgumentParser()
     parser.add_argument('--gpu', type=int, default=-1)
     parser.add_argument('--seed', type=int, default=41)

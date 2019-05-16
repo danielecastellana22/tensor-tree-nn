@@ -164,14 +164,14 @@ class GenericTreeLSTMCell(nn.Module):
             self.f_aggregator = SumChildAggregator()
             self.iou_aggregator = self.f_aggregator
         elif cell_type == 'hosvd':
-            self.f_aggregator = HOSVDAggregator(h_size, 2*h_size, max_output_degree, cell_args)
-            self.iou_aggregator = HOSVDAggregator(h_size, 3*h_size, max_output_degree, cell_args)
+            self.f_aggregator = HOSVDAggregator(h_size, 2*h_size, max_output_degree, **cell_args)
+            self.iou_aggregator = HOSVDAggregator(h_size, 3*h_size, max_output_degree, **cell_args)
         elif cell_type == 'tt':
-            self.f_aggregator = TTAggregator(h_size, 2*h_size, max_output_degree, cell_args)
-            self.iou_aggregator = TTAggregator(h_size, 3*h_size, max_output_degree, cell_args)
+            self.f_aggregator = TTAggregator(h_size, 2*h_size, max_output_degree, **cell_args)
+            self.iou_aggregator = TTAggregator(h_size, 3*h_size, max_output_degree, **cell_args)
         elif cell_type == 'cd':
-            self.f_aggregator = CANCOMPAggregator(h_size, 2 * h_size, max_output_degree, cell_args)
-            self.iou_aggregator = CANCOMPAggregator(h_size, 3 * h_size, max_output_degree, cell_args)
+            self.f_aggregator = CANCOMPAggregator(h_size, 2 * h_size, max_output_degree, **cell_args)
+            self.iou_aggregator = CANCOMPAggregator(h_size, 3 * h_size, max_output_degree, **cell_args)
         elif cell_type == 'full':
             if max_output_degree > 2:
                 raise ValueError('Full cel type can be use only with a maximum output degree of 2')
@@ -233,7 +233,7 @@ class TreeLSTM(nn.Module):
         g.register_reduce_func(self.cell.reduce_func)
         g.register_apply_node_func(self.cell.apply_node_func)
         # feed embedding
-        embeds = self.embedding(batch.x * batch.mask)
+        embeds = self.input_module(batch.x * batch.mask)
         g.ndata['iou'] = self.cell.W_iou(embeds) * batch.mask.float().unsqueeze(-1)
         g.ndata['h'] = h
         g.ndata['c'] = c

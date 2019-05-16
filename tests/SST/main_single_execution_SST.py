@@ -6,9 +6,9 @@ import torch as th
 import torch.nn.init as INIT
 import torch.optim as optim
 
-
 from treeLSTM import *
-from .SST_model import create_sst_model
+
+from utils import create_sst_model,load_sst_dataset
 
 
 def main(args):
@@ -35,9 +35,7 @@ def main(args):
         th.set_num_threads(10)
 
     # load the data
-    trainset = SSTDataset('data/sst/', 'train.txt',glove300_file='data/glove.840B.300d.txt')
-    devset = SSTDataset('data/sst/', 'dev.txt',glove300_file='data/glove.840B.300d.txt')
-    testset = SSTDataset('data/sst/', 'test.txt', glove300_file='data/glove.840B.300d.txt')
+    trainset, devset, testset = load_sst_dataset()
 
     # create the model
     model = create_sst_model(trainset.num_vocabs,
@@ -49,7 +47,7 @@ def main(args):
                      cell_type=args.cell_type).to(device)
 
     params_ex_emb = [x for x in list(model.parameters()) if x.requires_grad and x.size(0) != trainset.num_vocabs]
-    params_emb = list(model.embedding.parameters())
+    params_emb = list(model.input_module.parameters())
 
     for p in params_ex_emb:
         if p.dim() > 1:
@@ -64,7 +62,7 @@ def main(args):
     best_model, best_dev_metrics = train_and_validate(model, optimizer, trainset, devset, device,
                                                       metrics_class=[LabelAccuracy, RootAccuracy, LeavesAccuracy],
                                                       batch_size=args.batch_size,
-                                                      n_epochs=args.epochs)
+                                                      n_epochs=args.epochs, early_stopping_patience=args.early_stopping)
 
     test(best_model, testset, device,
          metrics_class=[LabelAccuracy, RootAccuracy, LeavesAccuracy],
@@ -72,6 +70,7 @@ def main(args):
 
 
 if __name__ == '__main__':
+    #TODO: expanme anch savedit can be decided programmatically
     parser = argparse.ArgumentParser()
     parser.add_argument('--gpu', type=int, default=-1)
     parser.add_argument('--seed', type=int, default=41)
@@ -80,6 +79,7 @@ if __name__ == '__main__':
     parser.add_argument('--x-size', type=int, default=300)
     parser.add_argument('--h-size', type=int, default=150)
     parser.add_argument('--epochs', type=int, default=100)
+    parser.add_argument('--early-stopping', type=int, default=10)
     parser.add_argument('--lr', type=float, default=0.05)
     parser.add_argument('--weight-decay', type=float, default=1e-4)
     parser.add_argument('--dropout', type=float, default=0.5)
