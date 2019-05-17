@@ -1,7 +1,6 @@
 import os
 from tqdm import tqdm
 import torch as th
-import torch.nn.functional as F
 from .utils import get_new_logger
 import copy
 
@@ -9,7 +8,7 @@ def train(model, trainset):
     raise Exception('This function is not implemented yet!')
 
 
-def train_and_validate(model, optimizer, trainset, devset, device, metrics_class, batch_size=25, n_epochs=200, early_stopping_patience=20):
+def train_and_validate(model, loss_function, optimizer, trainset, devset, device, metrics_class, batch_size=25, n_epochs=200, early_stopping_patience=20):
     logger = get_new_logger('train_and_validate')
 
     best_dev_metric = 0
@@ -34,9 +33,8 @@ def train_and_validate(model, optimizer, trainset, devset, device, metrics_class
                 h = th.zeros((n, model.h_size)).to(device)
                 c = th.zeros((n, model.h_size)).to(device)
 
-                logits = model(batch, h, c)
-                logp = F.log_softmax(logits, 1)
-                loss = F.nll_loss(logp, batch.label, reduction='sum')
+                model_output = model(batch, h, c)
+                loss = loss_function(model_output,batch.label)
 
                 optimizer.zero_grad()
                 loss.backward()

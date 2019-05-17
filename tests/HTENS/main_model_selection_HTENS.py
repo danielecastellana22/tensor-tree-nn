@@ -5,7 +5,7 @@ import torch.nn.init as INIT
 import torch.optim as optim
 from treeLSTM import *
 from cannon import ParamListTrainer
-from utils import load_htens_dataset, create_htens_model
+from utils import load_htens_dataset, create_htens_model, htens_loss_function
 
 
 def get_train_and_validate_fun(args):
@@ -38,7 +38,7 @@ def get_train_and_validate_fun(args):
         optimizer = optim.Adagrad([
             {'params': params_ex_emb, 'lr': params['lr'], 'weight_decay': args.weight_decay}])
 
-        best_model, best_dev_metrics = train_and_validate(model, optimizer, trainset, devset, device,
+        best_model, best_dev_metrics = train_and_validate(model, htens_loss_function, optimizer, trainset, devset, device,
                                                           metrics_class=[LabelAccuracy, RootAccuracy, LeavesAccuracy],
                                                           batch_size=args.batch_size,
                                                           n_epochs=args.epochs,

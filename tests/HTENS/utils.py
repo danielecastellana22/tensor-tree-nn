@@ -1,34 +1,46 @@
 import torch.nn as nn
+import torch.nn.functional as F
 from treeLSTM import TreeLSTM, TreeDataset
 
-import networkx as nx
-import dgl
 from collections import namedtuple
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 import os
 from nltk import Tree
+import dgl
+import networkx as nx
 
+class HTENSDataset(TreeDataset):
 
-class ToyDataset(TreeDataset):
-
-    ToyBatch = namedtuple('XORBatch', ['graph', 'mask', 'x', 'label'])
+    HTENSBatch = namedtuple('XORBatch', ['graph', 'mask', 'x', 'label'])
 
     def __init__(self, path_dir, file_name):
         TreeDataset.__init__(self, path_dir, file_name)
         self.__load_trees__()
 
     def __load_trees__(self):
-        self.logger.debug('Loading trees.'.format(len(self.trees)))
+        self.logger.debug('Loading trees.')
         # build trees
         with open(os.path.join(self.path_dir, self.file_name),'r') as txtfile:
             for sent in tqdm(txtfile.readlines(), desc='Loading trees: '):
                 t = Tree.fromstring(sent)
-                self.trees.append(self.__build_tree__(t))
+                self.data.append(self.__build_dgl_tree__(t))
 
-        self.logger.info('{} trees loaded.'.format(len(self.trees)))
+        self.logger.info('{} trees loaded.'.format(len(self.data)))
 
-    def __build_tree__(self, root):
+    def get_loader(self, batch_size, device, shuffle=False):
+        def batcher_dev(batch):
+            batch_trees = dgl.batch(batch)
+            return HTENSDataset.HTENSBatch(graph=batch_trees,
+                                       mask=batch_trees.ndata['mask'].to(device),
+                                       x=batch_trees.ndata['x'].to(device),
+                                       label=batch_trees.ndata['y'].to(device))
+
+        return DataLoader(dataset=self, batch_size=batch_size, collate_fn=batcher_dev, shuffle=shuffle,
+                          num_workers=0)
+
+
+    def __build_dgl_tree__(self, root):
         g = nx.DiGraph()
 
         def _rec_build(nid, node):
@@ -39,7 +51,7 @@ class ToyDataset(TreeDataset):
                     word = 0 if child[0].lower() == 'a' else 1
                     g.add_node(cid, x=word, y=int(child.label()), mask=1)
                 else:
-                    g.add_node(cid, x=-1    , y=int(child.label()), mask=0)
+                    g.add_node(cid, x=-1, y=int(child.label()), mask=0)
                     _rec_build(cid, child)
                 g.add_edge(cid, nid)
 
@@ -49,17 +61,6 @@ class ToyDataset(TreeDataset):
         ret = dgl.DGLGraph()
         ret.from_networkx(g, node_attrs=['x', 'y', 'mask'])
         return ret
-
-    def get_loader(self, batch_size, device, shuffle=False):
-        def batcher_dev(batch):
-            batch_trees = dgl.batch(batch)
-            return ToyDataset.ToyBatch(graph=batch_trees,
-                                       mask=batch_trees.ndata['mask'].to(device),
-                                       x=batch_trees.ndata['x'].to(device),
-                                       label=batch_trees.ndata['y'].to(device))
-
-        return DataLoader(dataset=self, batch_size=batch_size, collate_fn=batcher_dev, shuffle=shuffle,
-                          num_workers=0)
 
 
 class HTENSOutputModule(nn.Module):
@@ -96,3 +97,7 @@ def load_htens_dataset():
 
     return trainset, devset, testset
 
+
+def htens_loss_function(output_model, true_label):
+    logp = F.log_softmax(output_model, 1)
+    return F.nll_loss(logp, true_label, reduction='sum')

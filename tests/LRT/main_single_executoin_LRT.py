@@ -7,7 +7,7 @@ import torch.nn.init as INIT
 import torch.optim as optim
 
 from treeLSTM import *
-from utils import load_htens_dataset, create_htens_model, htens_loss_function
+from utils import load_lrt_dataset, create_lrt_model, lrt_loss_function
 
 def main(args):
 
@@ -33,10 +33,10 @@ def main(args):
         th.set_num_threads(10)
 
     # load the data
-    trainset, devset, testset = load_htens_dataset()
+    trainset, devset, testset = load_lrt_dataset(10)
 
     # create the model
-    model = create_htens_model(args.x_size, args.h_size, args.dropout, cell_type=args.cell_type).to(device)
+    model = create_lrt_model(args.x_size, args.h_size, cell_type=args.cell_type).to(device)
 
     params_ex_emb = [x for x in list(model.parameters()) if x.requires_grad]
 
@@ -49,7 +49,7 @@ def main(args):
         {'params':params_ex_emb, 'lr':args.lr, 'weight_decay':args.weight_decay}])
 
     # train and validate
-    best_model, best_dev_metrics = train_and_validate(model, htens_loss_function, optimizer, trainset, devset, device,
+    best_model, best_dev_metrics = train_and_validate(model, lrt_loss_function, optimizer, trainset, devset, device,
                                                       metrics_class=[LabelAccuracy, RootAccuracy, LeavesAccuracy],
                                                       batch_size=args.batch_size,
                                                       n_epochs=args.epochs)
@@ -72,9 +72,8 @@ if __name__ == '__main__':
     parser.add_argument('--log-every', type=int, default=5)
     parser.add_argument('--lr', type=float, default=0.05)
     parser.add_argument('--weight-decay', type=float, default=1e-4)
-    parser.add_argument('--dropout', type=float, default=0.5)
     parser.add_argument('--save', default='checkpoints/')
-    parser.add_argument('--expname', default='test')
+    parser.add_argument('--expname', default='lrt-test')
     args = parser.parse_args()
     #print(args)
     main(args)
