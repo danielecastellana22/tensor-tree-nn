@@ -26,14 +26,14 @@ class BinaryFullTensorAggregator(nn.Module):
 class NaryAggregator(nn.Module):
     def __init__(self, in_size, out_size, max_output_degree, **kwargs):
         super(NaryAggregator, self).__init__()
-
+        self.max_output_degree = max_output_degree
         self.U = nn.Linear(max_output_degree * in_size, out_size, kwargs)
 
     # neighbour_states has shape batch_size x n_neighbours x insize
     def forward(self, neighbour_states):
+        # no missing children
         h_cat = neighbour_states.view(neighbour_states.size(0), -1)
         return self.U(h_cat)
-
 
 # h = h1 + h2 + ... + hn
 class SumChildAggregator(nn.Module):
@@ -45,7 +45,7 @@ class SumChildAggregator(nn.Module):
         return th.sum(neighbour_states, 1)
 
 
-# todo: what about bias
+# TODO: what about bias
 # h = U3*r3, where r3 = G*r1*r2, r1 = U1*h1 and r2 = U2*h2
 class HOSVDAggregator(nn.Module):
     def __init__(self, in_size, out_size, max_output_degree, rank):
@@ -140,7 +140,7 @@ class TTAggregator(nn.Module):
         h = neighbour_states[:, 0, :].view(neighbour_states.size(0), -1)
         U = self.U_list[0]
         ris = th.einsum('bc,nb->nc',U,h)
-        for i in range(1,self.max_output_degree):
+        for i in range(1, self.max_output_degree):
             h = neighbour_states[:, i, :].view(neighbour_states.size(0), -1)
             U = self.U_list[i]
             ris = th.einsum('abc,na,nb->nc',U,ris,h)
@@ -150,16 +150,26 @@ class TTAggregator(nn.Module):
         return h_out
 
 
+# TODO: consider to use this as superclass of other modules
 class GenericTreeLSTMCell(nn.Module):
+
     def __init__(self, x_size, h_size, max_output_degree, cell_type, **cell_args):
         super(GenericTreeLSTMCell, self).__init__()
+        self.bottom_h = nn.Parameter(th.zeros(h_size))
+        self.bottom_c = nn.Parameter(th.zeros(h_size))
+
         # for the input
+        self.max_output_degree = max_output_degree
+
         self.W_iou = nn.Linear(x_size, 3 * h_size, bias=False)
         self.b_iou = nn.Parameter(th.zeros(1, 3 * h_size))
+        # TODO: 2 must be replaced by max_output_degree
+        self.W_f = nn.Linear(x_size, h_size, bias=False)
+        self.b_f = nn.Parameter(th.zeros(1, h_size))
 
         if cell_type == 'nary':
             self.f_aggregator = NaryAggregator(h_size, 2 * h_size, max_output_degree, bias=False)
-            self.iou_aggregator = NaryAggregator(h_size, 3 * h_size, max_output_degree, bias=True)
+            self.iou_aggregator = NaryAggregator(h_size, 3 * h_size, max_output_degree, bias=False)
         elif cell_type == 'sum':
             self.f_aggregator = SumChildAggregator()
             self.iou_aggregator = self.f_aggregator
@@ -178,24 +188,48 @@ class GenericTreeLSTMCell(nn.Module):
             self.f_aggregator = BinaryFullTensorAggregator(h_size, 2*h_size)
             self.iou_aggregator = BinaryFullTensorAggregator(h_size, 3*h_size)
 
+    def check_missing_children(self, neighbour_h,  neighbour_c):
+        n_missing = self.max_output_degree - neighbour_h.size(1)
+        if n_missing > 0:
+            n_nodes = neighbour_h.size(0)
+            h_size = neighbour_h.size(2)
+            neighbour_h = th.cat((neighbour_h, self.bottom_h.reshape(1, 1, h_size).expand(n_nodes, n_missing, h_size)), dim=1)
+            neighbour_c = th.cat((neighbour_c, self.bottom_c.reshape(1, 1, h_size).expand(n_nodes, n_missing, h_size)), dim=1)
+
+        return neighbour_h, neighbour_c
+
     def message_func(self, edges):
         return {'h': edges.src['h'], 'c': edges.src['c']}
 
     def reduce_func(self, nodes):
-        f_aggr = self.f_aggregator(nodes.mailbox['h'])
-        iou_aggr = self.iou_aggregator(nodes.mailbox['h'])
+        # add the input contribution
+        neighbour_h, neighbour_c = self.check_missing_children(nodes.mailbox['h'], nodes.mailbox['c'])
+        #TODO: 2 must be the max_output_degree
+        f_aggr = self.f_aggregator(neighbour_h) + (nodes.data['f_input'] + self.b_f).repeat((1,2))
+        iou_aggr = self.iou_aggregator(neighbour_h) + nodes.data['iou_input']
 
-        f = th.sigmoid(f_aggr).view(*nodes.mailbox['h'].size())
-        c = th.sum(f * nodes.mailbox['c'], 1)
-        return {'iou': iou_aggr, 'c': c}
+        f = th.sigmoid(f_aggr).view(*neighbour_c.size())
+        c = th.sum(f * neighbour_c, 1)
+        return {'iou_aggr': iou_aggr, 'c_aggr': c}
 
     def apply_node_func(self, nodes):
-        iou = nodes.data['iou'] + self.b_iou
+        iou = nodes.data['iou_input'] + self.b_iou
+        if 'iou_aggr' in nodes.data:
+            # internal nodes
+            iou += nodes.data['iou_aggr']
+
         i, o, u = th.chunk(iou, 3, 1)
         i, o, u = th.sigmoid(i), th.sigmoid(o), th.tanh(u)
-        c = i * u + nodes.data['c']
+        c = i * u
+
+        if 'c_aggr' in nodes.data:
+            # internal nodes
+            c += nodes.data['c_aggr']
+
         h = o * th.tanh(c)
-        return {'h' : h, 'c' : c}
+        return {'h': h, 'c': c}
+
+
 
 
 class TreeLSTM(nn.Module):
@@ -213,11 +247,11 @@ class TreeLSTM(nn.Module):
         self.output_module = output_module
         self.cell = GenericTreeLSTMCell(x_size, h_size, max_output_degree, cell_type, **cell_args)
 
-    def forward(self, batch, h, c):
+    def forward(self, g, x, mask):
         """Compute tree-lstm prediction given a batch.
         Parameters
         ----------
-        batch : dgl.data.SSTBatch
+        batch : TreeDataset.TreeBatch
             The data batch.
         h : Tensor
             Initial hidden state.
@@ -228,15 +262,13 @@ class TreeLSTM(nn.Module):
         logits : Tensor
             The prediction of each node.
         """
-        g = batch.graph
         g.register_message_func(self.cell.message_func)
         g.register_reduce_func(self.cell.reduce_func)
         g.register_apply_node_func(self.cell.apply_node_func)
         # feed embedding
-        embeds = self.input_module(batch.x * batch.mask)
-        g.ndata['iou'] = self.cell.W_iou(embeds) * batch.mask.float().unsqueeze(-1)
-        g.ndata['h'] = h
-        g.ndata['c'] = c
+        embeds = self.input_module(x * mask)
+        g.ndata['iou_input'] = self.cell.W_iou(embeds) * mask.float().unsqueeze(-1)
+        g.ndata['f_input'] = self.cell.W_f(embeds) * mask.float().unsqueeze(-1)
         # propagate
         dgl.prop_nodes_topo(g)
         # compute output

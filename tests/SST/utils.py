@@ -1,3 +1,4 @@
+import torch as th
 import torch.nn as nn
 from treeLSTM import TreeLSTM, TreeDataset
 
@@ -38,8 +39,6 @@ class SSTDataset(TreeDataset):
     """
     PAD_WORD = -1  # special pad word id
     UNK_WORD = -1  # out-of-vocabulary word id
-
-    SSTBatch = namedtuple('SSTBatch', ['graph', 'mask', 'x', 'label'])
 
     def __init__(self, path_dir, file_name, glove300_file=None):
         TreeDataset.__init__(self, path_dir, file_name)
@@ -112,11 +111,11 @@ class SSTDataset(TreeDataset):
 
     def get_loader(self, batch_size, device, shuffle=False):
         def batcher_dev(batch):
-            batch_trees = dgl.batch(batch)
-            return SSTDataset.SSTBatch(graph=batch_trees,
-                                       mask=batch_trees.ndata['mask'].to(device),
-                                       x=batch_trees.ndata['x'].to(device),
-                                       label=batch_trees.ndata['y'].to(device))
+            batched_trees = dgl.batch(batch)
+            return SSTDataset.TreeBatch(graph=batched_trees,
+                                        mask=batched_trees.ndata['mask'].to(device),
+                                        x=batched_trees.ndata['x'].to(device),
+                                        y=batched_trees.ndata['y'].to(device))
 
         return DataLoader(dataset=self, batch_size=batch_size, collate_fn=batcher_dev, shuffle=shuffle,
                           num_workers=0)
@@ -188,3 +187,11 @@ def load_sst_dataset():
 def sst_loss_function(output_model, true_label):
     logp = F.log_softmax(output_model, 1)
     return F.nll_loss(logp, true_label, reduction='sum')
+
+
+def sst_extract_batch_data(batch):
+    g = batch.graph
+    x = batch.x
+    mask = batch.mask
+    y = batch.y
+    return [g, x, mask], y, g

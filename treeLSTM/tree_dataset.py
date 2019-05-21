@@ -1,9 +1,14 @@
 from abc import ABC, abstractmethod
 from .utils import get_new_logger
+from collections import namedtuple
 import os
 
 
+#TODO: mnaybe you need to inehirt from torch dataset
 class TreeDataset(ABC):
+
+    TreeBatch = namedtuple('TreeBatch', ['graph', 'mask', 'x', 'y'])
+
     def __init__(self, path_dir, file_name):
         self.data = []
         self.path_dir = path_dir

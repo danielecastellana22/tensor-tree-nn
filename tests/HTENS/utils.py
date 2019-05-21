@@ -1,3 +1,4 @@
+import torch as th
 import torch.nn as nn
 import torch.nn.functional as F
 from treeLSTM import TreeLSTM, TreeDataset
@@ -10,9 +11,8 @@ from nltk import Tree
 import dgl
 import networkx as nx
 
-class HTENSDataset(TreeDataset):
 
-    HTENSBatch = namedtuple('XORBatch', ['graph', 'mask', 'x', 'label'])
+class HTENSDataset(TreeDataset):
 
     def __init__(self, path_dir, file_name):
         TreeDataset.__init__(self, path_dir, file_name)
@@ -30,11 +30,11 @@ class HTENSDataset(TreeDataset):
 
     def get_loader(self, batch_size, device, shuffle=False):
         def batcher_dev(batch):
-            batch_trees = dgl.batch(batch)
-            return HTENSDataset.HTENSBatch(graph=batch_trees,
-                                       mask=batch_trees.ndata['mask'].to(device),
-                                       x=batch_trees.ndata['x'].to(device),
-                                       label=batch_trees.ndata['y'].to(device))
+            batched_trees = dgl.batch(batch)
+            return HTENSDataset.TreeBatch(graph=batched_trees,
+                                          mask=batched_trees.ndata['mask'].to(device),
+                                          x=batched_trees.ndata['x'].to(device),
+                                          y=batched_trees.ndata['y'].to(device))
 
         return DataLoader(dataset=self, batch_size=batch_size, collate_fn=batcher_dev, shuffle=shuffle,
                           num_workers=0)
@@ -91,9 +91,9 @@ def create_htens_model(x_size,
 
 
 def load_htens_dataset():
-    trainset = ToyDataset('data/htens/', 'train.txt')
-    devset = ToyDataset('data/htens/', 'dev.txt')
-    testset = ToyDataset('data/htens/', 'test.txt')
+    trainset = HTENSDataset('data/htens/', 'train.txt')
+    devset = HTENSDataset('data/htens/', 'dev.txt')
+    testset = HTENSDataset('data/htens/', 'test.txt')
 
     return trainset, devset, testset
 
@@ -101,3 +101,11 @@ def load_htens_dataset():
 def htens_loss_function(output_model, true_label):
     logp = F.log_softmax(output_model, 1)
     return F.nll_loss(logp, true_label, reduction='sum')
+
+
+def htens_extract_batch_data(batch):
+    g = batch.graph
+    x = batch.x
+    mask = batch.mask
+    y = batch.y
+    return [g, x, mask], y, g

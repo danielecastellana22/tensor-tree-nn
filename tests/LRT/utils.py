@@ -1,14 +1,14 @@
 import torch.nn as nn
 import torch as th
-
+import torch.nn.functional as F
 from treeLSTM import TreeLSTM, TreeDataset
-
 import networkx as nx
 import dgl
 from collections import namedtuple
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 import os
+
 
 class MyTree:
 
@@ -91,9 +91,9 @@ def parse_string_tree(s, start):
 
 class LRTDataset(TreeDataset):
 
-    LRTBatch = namedtuple('XORBatch', ['graph', 'mask', 'x', 'label'])
+    LRTBatch = namedtuple('LRTBatch', ['batch_a', 'batch_b', 'symbol'])
 
-    NUM_CLASSES = 6
+    NUM_CLASSES = 7
     NUM_VOCABS = 9
 
     def __init__(self, path_dir, file_name):
@@ -132,7 +132,7 @@ class LRTDataset(TreeDataset):
         with open(os.path.join(self.path_dir, self.file_name),'r') as txtfile:
             for sent in tqdm(txtfile.readlines(), desc='Loading trees: '):
                 l_sent = sent[:-1].split('\t')
-                symbol = l_sent[0]
+                symbol = self.output_vocabulary[l_sent[0]]
                 if len(l_sent[1]) == 1:
                     l_sent[1] = '( ' + l_sent[1] + ' )'
                 if len(l_sent[2]) == 1:
@@ -154,25 +154,39 @@ class LRTDataset(TreeDataset):
 
             for ch in node.child:
                 cid = g.number_of_nodes()
-                g.add_node(cid, x=self.input_vocabulary[ch.w], mask=0)
+                g.add_node(cid, x=self.input_vocabulary[ch.w], y=-1, mask=1)
                 _rec_build(cid, ch)
+                g.add_edge(cid, nid)
+
+            #assert (g.in_degree(nid) == 2 or g.in_degree(nid) == 0)
+
 
         # add root
-        g.add_node(0, x=self.input_vocabulary[root.w], mask=0)
+        g.add_node(0, x=self.input_vocabulary[root.w], y=-1, mask=1)
         _rec_build(0, root)
         ret = dgl.DGLGraph()
-        ret.from_networkx(g, node_attrs=['x', 'mask'])
+        ret.from_networkx(g, node_attrs=['x', 'y', 'mask'])
         return ret
 
     def get_loader(self, batch_size, device, shuffle=False):
         def batcher_dev(tuple_data):
             #tuple data contains (symbol,ltree,rtree)
-            #TODO: find a way to batch trees correctly
-            batched_trees = dgl.batch(tuple_data)
-            return LRTDataset.LRTBatch(graph=batched_trees,
-                                       mask=batched_trees.ndata['mask'].to(device),
-                                       x=batched_trees.ndata['x'].to(device),
-                                       label=2)
+            symbol_list, graph_a_list, graph_b_list = zip(*tuple_data)
+            batched_a_trees = dgl.batch(graph_a_list)
+            batched_b_trees = dgl.batch(graph_b_list)
+            tupled_batch_a = LRTDataset.TreeBatch(graph=batched_a_trees,
+                                                  mask=batched_a_trees.ndata['mask'].to(device),
+                                                  x=batched_a_trees.ndata['x'].to(device),
+                                                  y=batched_a_trees.ndata['y'].to(device))
+
+            tupled_batch_b = LRTDataset.TreeBatch(graph=batched_b_trees,
+                                                  mask=batched_b_trees.ndata['mask'].to(device),
+                                                  x=batched_b_trees.ndata['x'].to(device),
+                                                  y=batched_a_trees.ndata['y'].to(device))
+
+            return LRTDataset.LRTBatch(batch_a=tupled_batch_a,
+                                       batch_b=tupled_batch_b,
+                                       symbol=th.LongTensor(symbol_list).to(device))
 
         return DataLoader(dataset=self, batch_size=batch_size, collate_fn=batcher_dev, shuffle=shuffle,
                           num_workers=0)
@@ -187,46 +201,68 @@ class LRTComparisonModule(nn.Module):
         self.U2 = nn.Linear(in_size, out_size, bias=False)
         self.b = nn.Parameter(th.rand(out_size))
 
-        # neighbour_states has shape batch_size x n_neighbours x insize
-        def forward(self, h_lsent, h_rsent):
-            h_comb = th.einsum('ijk,ni,nj->nk', self.A, h_lsent, h_rsent) + self.U1(h_lsent) + self.U2(h_rsent) + self.b
-            return th.tanh(h_comb)
+    # neighbour_states has shape batch_size x n_neighbours x insize
+    def forward(self, h_lsent, h_rsent):
+        h_comb = th.einsum('ijk,ni,nj->nk', self.A, h_lsent, h_rsent) + self.U1(h_lsent) + self.U2(h_rsent) + self.b
+        return th.tanh(h_comb)
 
 
 class LRTModel(nn.Module):
 
     def __init__(self, x_size, h_size, cell_type='nary', **cell_args):
         super(LRTModel, self).__init__()
-        self.tree_model = create_lrt_model(x_size, h_size, cell_type, **cell_args)
+        num_vocabs = LRTDataset.NUM_VOCABS
+        input_module = nn.Embedding(num_vocabs, x_size)
+        output_module = nn.Identity()
+        self.tree_model = TreeLSTM(x_size, h_size, 2, input_module, output_module, cell_type, **cell_args)
         self.comb_module = LRTComparisonModule(h_size, LRTDataset.NUM_CLASSES)
 
-    def forward(self, l_trees_batched, r_trees_batched):
-        h_ltree = self.tree_model(l_trees_batched)
-        h_rtree = self.tree_model(r_trees_batched)
+    def forward(self, data_a, data_b):
+        h_a_tree = self.tree_model(*data_a)
+        h_b_tree = self.tree_model(*data_b)
+
+        g_a = data_a[0]
+        g_b = data_b[0]
+
+        root_id_a = [i for i in range(g_a.number_of_nodes()) if g_a.out_degree(i) == 0]
+        root_id_b = [i for i in range(g_b.number_of_nodes()) if g_b.out_degree(i) == 0]
+
+        h_root_a = h_a_tree[root_id_a]
+        h_root_b = h_b_tree[root_id_b]
+
+        return self.comb_module(h_root_a, h_root_b)
 
 
-def create_lrt_model(x_size,
-                     h_size,
-                     cell_type='nary', **cell_args):
-
-    num_vocabs = LRTDataset.NUM_VOCABS
-    input_module = nn.Embedding(num_vocabs, x_size)
-
-    output_module = nn.Identity()
-
-    m = TreeLSTM(x_size, h_size, 2, input_module, output_module, cell_type, **cell_args)
-
-    return m
+def create_lrt_model(x_size, h_size, cell_type='nary', **cell_args):
+    return LRTModel(x_size, h_size, cell_type, **cell_args)
 
 
 def load_lrt_dataset(max_len_tree):
     #TODO: choose the number of operator
-    #TODO: do split
+
     train_ds = LRTDataset('data/lrt', 'train1')
-    dev_ds = LRTDataset('data/lrt', 'train2')
+    dev_ds = LRTDataset('data/lrt', 'train1')
     test_ds = LRTDataset('data/lrt', 'test1')
 
     return train_ds, dev_ds, test_ds
 
+
 def lrt_loss_function(output_model, true_label):
-    aa = 4
+    logp = F.log_softmax(output_model, 1)
+    return F.nll_loss(logp, true_label, reduction='sum')
+
+
+def lrt_extract_batch_data(batch):
+    a_batched = batch.batch_a
+    b_batched = batch.batch_a
+    sym = batch.symbol
+
+    g_a = a_batched.graph
+    x_a = a_batched.x
+    mask_a = a_batched.mask
+
+    g_b = b_batched.graph
+    x_b = b_batched.x
+    mask_b = b_batched.mask
+
+    return [[g_a, x_a, mask_a], [g_b, x_b, mask_b]], sym, None

@@ -7,7 +7,7 @@ import torch.nn.init as INIT
 import torch.optim as optim
 
 from treeLSTM import *
-from utils import load_htens_dataset, create_htens_model, htens_loss_function
+from utils import load_htens_dataset, create_htens_model, htens_loss_function, htens_extract_batch_data
 
 def main(args):
 
@@ -49,13 +49,13 @@ def main(args):
         {'params':params_ex_emb, 'lr':args.lr, 'weight_decay':args.weight_decay}])
 
     # train and validate
-    best_model, best_dev_metrics = train_and_validate(model, htens_loss_function, optimizer, trainset, devset, device,
-                                                      metrics_class=[LabelAccuracy, RootAccuracy, LeavesAccuracy],
+    best_model, best_dev_metrics = train_and_validate(model, htens_extract_batch_data, htens_loss_function, optimizer, trainset, devset, device,
+                                                      metrics_class=[Accuracy, RootAccuracy, LeavesAccuracy],
                                                       batch_size=args.batch_size,
                                                       n_epochs=args.epochs)
 
-    test(best_model, testset, device,
-         metrics_class=[LabelAccuracy, RootAccuracy, LeavesAccuracy],
+    test(best_model, htens_extract_batch_data, testset, device,
+         metrics_class=[Accuracy, RootAccuracy, LeavesAccuracy],
          batch_size=args.batch_size)
 
 

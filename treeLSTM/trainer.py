@@ -1,14 +1,14 @@
-import os
 from tqdm import tqdm
 import torch as th
 from .utils import get_new_logger
 import copy
+from .metrics import ValueMetric, TreeMetric
 
 def train(model, trainset):
     raise Exception('This function is not implemented yet!')
 
 
-def train_and_validate(model, loss_function, optimizer, trainset, devset, device, metrics_class, batch_size=25, n_epochs=200, early_stopping_patience=20):
+def train_and_validate(model, extract_batch_data, loss_function, optimizer, trainset, devset, device, metrics_class, batch_size=25, n_epochs=200, early_stopping_patience=20):
     logger = get_new_logger('train_and_validate')
 
     best_dev_metric = 0
@@ -28,36 +28,34 @@ def train_and_validate(model, loss_function, optimizer, trainset, devset, device
 
         with tqdm(total=len(trainset), desc='Training epoch ' + str(epoch) + ': ') as pbar:
             for step, batch in enumerate(trainloader):
-                g = batch.graph
-                n = g.number_of_nodes()
-                h = th.zeros((n, model.h_size)).to(device)
-                c = th.zeros((n, model.h_size)).to(device)
 
-                model_output = model(batch, h, c)
-                loss = loss_function(model_output,batch.label)
+                in_data, out_data, _ = extract_batch_data(batch)
+                model_output = model(*in_data)
+                loss = loss_function(model_output, out_data)
 
                 optimizer.zero_grad()
                 loss.backward()
                 optimizer.step()
 
-                pbar.update(g.batch_size)
+                pbar.update(out_data.size(0))
 
         # eval on dev set
         model.eval()
         with tqdm(total=len(devset), desc='Validate epoch ' + str(epoch) + ' on dev set: ') as pbar:
             for step, batch in enumerate(devloader):
-                g = batch.graph
-                n = g.number_of_nodes()
+                in_data, out_data, graph = extract_batch_data(batch)
                 with th.no_grad():
-                    h = th.zeros((n, model.h_size)).to(device)
-                    c = th.zeros((n, model.h_size)).to(device)
-                    out = model(batch, h, c)
+                    out = model(*in_data)
 
                 # update all metrics
                 for v in metrics:
-                    v.update_metric(out, batch)
+                    if isinstance(v, ValueMetric):
+                        v.update_metric(out, out_data)
 
-                pbar.update(g.batch_size)
+                    if isinstance(v, TreeMetric):
+                        v.update_metric(out, out_data, graph)
+
+                pbar.update(out_data.size(0))
 
         # print metrics
         s = "Dev Test: Epoch {:03d} | ".format(epoch)
@@ -85,7 +83,7 @@ def train_and_validate(model, loss_function, optimizer, trainset, devset, device
     return best_model, best_metrics
 
 
-def test(model, testset, device, metrics_class, batch_size=25):
+def test(model, extract_batch_data, testset, device, metrics_class, batch_size=25):
     logger = get_new_logger('test')
 
     testloader = testset.get_loader(batch_size, device)
@@ -97,18 +95,19 @@ def test(model, testset, device, metrics_class, batch_size=25):
     model.eval()
     with tqdm(total=len(testset), desc='Testing on test set: ') as pbar:
         for step, batch in enumerate(testloader):
-            g = batch.graph
-            n = g.number_of_nodes()
+            in_data, out_data, graph = extract_batch_data(batch)
             with th.no_grad():
-                h = th.zeros((n, model.h_size)).to(device)
-                c = th.zeros((n, model.h_size)).to(device)
-                out = model(batch, h, c)
+                out_model = model(*in_data)
 
             # update all metrics
             for v in test_metrics:
-                v.update_metric(out, batch)
+                if v is ValueMetric:
+                    v.update_metric(out_model, out_data)
 
-            pbar.update(g.batch_size)
+                if v is TreeMetric:
+                    v.update_metric(out_model, out_data, graph)
+
+            pbar.update(out_data.size(0))
 
     # print metrics
     s = "Test: "
