@@ -29,7 +29,7 @@ def train_and_validate(model, extract_batch_data, loss_function, optimizer, trai
         with tqdm(total=len(trainset), desc='Training epoch ' + str(epoch) + ': ') as pbar:
             for step, batch in enumerate(trainloader):
 
-                in_data, out_data, _ = extract_batch_data(batch)
+                in_data, out_data, n_samples,  _ = extract_batch_data(batch)
                 model_output = model(*in_data)
                 loss = loss_function(model_output, out_data)
 
@@ -37,13 +37,13 @@ def train_and_validate(model, extract_batch_data, loss_function, optimizer, trai
                 loss.backward()
                 optimizer.step()
 
-                pbar.update(out_data.size(0))
+                pbar.update(n_samples)
 
         # eval on dev set
         model.eval()
         with tqdm(total=len(devset), desc='Validate epoch ' + str(epoch) + ' on dev set: ') as pbar:
             for step, batch in enumerate(devloader):
-                in_data, out_data, graph = extract_batch_data(batch)
+                in_data, out_data, n_samples, graph = extract_batch_data(batch)
                 with th.no_grad():
                     out = model(*in_data)
 
@@ -55,7 +55,7 @@ def train_and_validate(model, extract_batch_data, loss_function, optimizer, trai
                     if isinstance(v, TreeMetric):
                         v.update_metric(out, out_data, graph)
 
-                pbar.update(out_data.size(0))
+                pbar.update(n_samples)
 
         # print metrics
         s = "Dev Test: Epoch {:03d} | ".format(epoch)
@@ -95,19 +95,19 @@ def test(model, extract_batch_data, testset, device, metrics_class, batch_size=2
     model.eval()
     with tqdm(total=len(testset), desc='Testing on test set: ') as pbar:
         for step, batch in enumerate(testloader):
-            in_data, out_data, graph = extract_batch_data(batch)
+            in_data, out_data, n_samples, graph = extract_batch_data(batch)
             with th.no_grad():
                 out_model = model(*in_data)
 
             # update all metrics
             for v in test_metrics:
-                if v is ValueMetric:
+                if isinstance(v, ValueMetric):
                     v.update_metric(out_model, out_data)
 
-                if v is TreeMetric:
+                if isinstance(v, TreeMetric):
                     v.update_metric(out_model, out_data, graph)
 
-            pbar.update(out_data.size(0))
+            pbar.update(n_samples)
 
     # print metrics
     s = "Test: "

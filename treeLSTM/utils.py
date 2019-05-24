@@ -18,17 +18,17 @@ def set_main_logger_settings(log_dir, name):
     fh.setFormatter(formatter)
     logger.addHandler(fh)
 
-
-def get_new_logger(name):
-    global  NAME_VAR
-    logger = logging.getLogger(NAME_VAR+'.'+name)
-    logger.setLevel(logging.DEBUG)
-    formatter = logging.Formatter("[%(asctime)s] %(levelname)s:%(name)s: %(message)s")
-
     # console logger
     ch = logging.StreamHandler()
     ch.setLevel(logging.DEBUG)
     ch.setFormatter(formatter)
     logger.addHandler(ch)
 
+    return logger
+
+def get_new_logger(name):
+    global NAME_VAR
+    logger = logging.getLogger(NAME_VAR+'.'+name)
+    #logger.setLevel(logging.DEBUG)
+    #formatter = logging.Formatter("[%(asctime)s] %(levelname)s:%(name)s: %(message)s")
     return logger

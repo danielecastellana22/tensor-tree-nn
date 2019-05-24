@@ -50,7 +50,7 @@ def get_train_and_validate_fun(args):
             {'params': params_emb, 'lr': 0.1}])
 
         best_model, best_dev_metrics = train_and_validate(model, sst_extract_batch_data,  sst_loss_function, optimizer, trainset, devset, device,
-                                                          metrics_class=[LabelAccuracy, RootAccuracy, LeavesAccuracy],
+                                                          metrics_class=[Accuracy, RootAccuracy, LeavesAccuracy],
                                                           batch_size=args.batch_size,
                                                           n_epochs=args.epochs,
                                                           early_stopping_patience=args.early_stopping)
@@ -59,7 +59,7 @@ def get_train_and_validate_fun(args):
 
         #test on training set
         training_metrics = test(best_model, sst_extract_batch_data, trainset, device,
-                                metrics_class=[LabelAccuracy, RootAccuracy, LeavesAccuracy],
+                                metrics_class=[Accuracy, RootAccuracy, LeavesAccuracy],
                                 batch_size=args.batch_size)
         ris = {}
         ris['tr_loss'] = training_metrics[0].get_value()

@@ -1,7 +1,7 @@
 import torch.nn as nn
 import torch as th
 import torch.nn.functional as F
-from treeLSTM import TreeLSTM, TreeDataset
+from treeLSTM import TreeLSTM, TreeRNN, TreeDataset
 import networkx as nx
 import dgl
 from collections import namedtuple
@@ -10,11 +10,30 @@ from tqdm import tqdm
 import os
 
 
-class MyTree:
+class LogicalTree:
 
     def __init__(self):
         self.child = []
         self.w = None
+
+    def check_tree(self):
+        if not self.child:
+            #is a leaf
+            # must be a variable
+            assert len(self.w) == 1
+        else:
+            # it is internal node
+            # MUST BE AN OPERATOR
+            assert len(self.w) > 1
+
+            if self.w == 'not':
+                assert len(self.child) == 1
+            else:
+                assert len(self.child) == 2
+
+            for c in self.child:
+                c.check_tree()
+
 
 
 def parse_string_tree(s, start):
@@ -35,7 +54,9 @@ def parse_string_tree(s, start):
         if s[idx] == '(':
             t, idx = parse_string_tree(s, idx)
 
-        t.child.insert(0,tl)
+        # is a leaf
+
+        t.child.insert(0, tl)
 
         # match closing bracket
         while s[idx] != ')':
@@ -50,7 +71,7 @@ def parse_string_tree(s, start):
             aux = aux+1
         w = s[idx:aux]
         idx = aux
-        t = MyTree()
+        t = LogicalTree()
         t.w = w
 
         while s[idx] == ' ':
@@ -64,7 +85,7 @@ def parse_string_tree(s, start):
                     aux = aux + 1
                 wr = s[idx:aux]
                 idx = aux
-                tr = MyTree()
+                tr = LogicalTree()
                 tr.w = wr
 
                 t.child.append(tr)
@@ -79,7 +100,13 @@ def parse_string_tree(s, start):
         else:
             new_t, idx = parse_string_tree(s, idx)
 
-            t.child.append(new_t)
+            if len(t.w) == 1:
+                # is a variable
+                new_t.child.insert(0, t)
+                t = new_t
+            else:
+                # is an operator
+                t.child.append(new_t)
 
             # match closing bracket
             while s[idx] != ')':
@@ -96,8 +123,8 @@ class LRTDataset(TreeDataset):
     NUM_CLASSES = 7
     NUM_VOCABS = 9
 
-    def __init__(self, path_dir, file_name):
-        TreeDataset.__init__(self, path_dir, file_name)
+    def __init__(self, path_dir, file_name_list, name):
+        TreeDataset.__init__(self, path_dir, file_name_list, name)
 
         self.__create_input_vocabulary()
         self.__create_output_vocabulary()
@@ -129,43 +156,52 @@ class LRTDataset(TreeDataset):
     def __load_trees__(self):
         self.logger.debug('Loading trees.')
         # build trees
-        with open(os.path.join(self.path_dir, self.file_name),'r') as txtfile:
-            for sent in tqdm(txtfile.readlines(), desc='Loading trees: '):
-                l_sent = sent[:-1].split('\t')
-                symbol = self.output_vocabulary[l_sent[0]]
-                if len(l_sent[1]) == 1:
-                    l_sent[1] = '( ' + l_sent[1] + ' )'
-                if len(l_sent[2]) == 1:
-                    l_sent[2] = '( ' + l_sent[2] + ' )'
+        f_names = [os.path.join(self.path_dir,x) for x in self.file_name_list]
 
-                a_t, _ = parse_string_tree(l_sent[1], 0)
-                a_t = self.__build_dgl_tree__(a_t)
-                b_t, _ = parse_string_tree(l_sent[2], 0)
-                b_t = self.__build_dgl_tree__(b_t)
+        for f in f_names:
+            with open(f, 'r') as txtfile:
+                for sent in tqdm(txtfile.readlines(), desc='Loading trees: '):
+                    l_sent = sent[:-1].split('\t')
+                    symbol = self.output_vocabulary[l_sent[0]]
+                    if len(l_sent[1]) == 1:
+                        l_sent[1] = '( ' + l_sent[1] + ' )'
+                    if len(l_sent[2]) == 1:
+                        l_sent[2] = '( ' + l_sent[2] + ' )'
 
-                self.data.append((symbol, a_t, b_t))
+                    a_t, _ = parse_string_tree(l_sent[1], 0)
+                    a_t.check_tree()
+                    a_t = self.__build_dgl_tree__(a_t)
+                    b_t, _ = parse_string_tree(l_sent[2], 0)
+                    b_t.check_tree()
+                    b_t = self.__build_dgl_tree__(b_t)
+
+                    self.data.append((symbol, a_t, b_t))
 
         self.logger.info('{} trees loaded.'.format(len(self.data)))
 
     def __build_dgl_tree__(self, root):
         g = nx.DiGraph()
+        vars_used = {}
 
         def _rec_build(nid, node):
 
+            g.add_node(nid, x=self.input_vocabulary[node.w], y=-1, mask=1)
+
+            if not node.child:
+                # is a leaf
+                vars_used[node.w] = 1
+
             for ch in node.child:
                 cid = g.number_of_nodes()
-                g.add_node(cid, x=self.input_vocabulary[ch.w], y=-1, mask=1)
                 _rec_build(cid, ch)
                 g.add_edge(cid, nid)
 
-            #assert (g.in_degree(nid) == 2 or g.in_degree(nid) == 0)
-
-
-        # add root
-        g.add_node(0, x=self.input_vocabulary[root.w], y=-1, mask=1)
         _rec_build(0, root)
         ret = dgl.DGLGraph()
         ret.from_networkx(g, node_attrs=['x', 'y', 'mask'])
+
+        n_vars = len(vars_used)
+        #assert  n_vars <= 4
         return ret
 
     def get_loader(self, batch_size, device, shuffle=False):
@@ -205,6 +241,8 @@ class LRTComparisonModule(nn.Module):
     def forward(self, h_lsent, h_rsent):
         h_comb = th.einsum('ijk,ni,nj->nk', self.A, h_lsent, h_rsent) + self.U1(h_lsent) + self.U2(h_rsent) + self.b
         return th.tanh(h_comb)
+        #tz = th.zeros_like(h_comb)
+        #return th.max(h_comb, tz) + 0.01* th.min(h_comb, tz)
 
 
 class LRTModel(nn.Module):
@@ -213,8 +251,17 @@ class LRTModel(nn.Module):
         super(LRTModel, self).__init__()
         num_vocabs = LRTDataset.NUM_VOCABS
         input_module = nn.Embedding(num_vocabs, x_size)
+
+        #emb_matrix = th.zeros(num_vocabs,x_size, requires_grad=False)
+        #emb_matrix[:num_vocabs-3, :] = th.randn(num_vocabs-3, x_size, requires_grad=False)*0.01
+        #emb_matrix[num_vocabs-3, 0] = 1
+        #emb_matrix[num_vocabs-2, 1] = 1
+        #emb_matrix[num_vocabs-1, 2] = 1
+        #input_module = nn.Embedding.from_pretrained(emb_matrix, freeze=True)
+
         output_module = nn.Identity()
         self.tree_model = TreeLSTM(x_size, h_size, 2, input_module, output_module, cell_type, **cell_args)
+        #self.tree_model = TreeRNN(x_size, h_size, 2, input_module, output_module, cell_type, **cell_args)
         self.comb_module = LRTComparisonModule(h_size, LRTDataset.NUM_CLASSES)
 
     def forward(self, data_a, data_b):
@@ -227,6 +274,9 @@ class LRTModel(nn.Module):
         root_id_a = [i for i in range(g_a.number_of_nodes()) if g_a.out_degree(i) == 0]
         root_id_b = [i for i in range(g_b.number_of_nodes()) if g_b.out_degree(i) == 0]
 
+        #a_list = dgl.unbatch(g_a)
+        #b_list = dgl.unbatch(g_b)
+
         h_root_a = h_a_tree[root_id_a]
         h_root_b = h_b_tree[root_id_b]
 
@@ -237,24 +287,30 @@ def create_lrt_model(x_size, h_size, cell_type='nary', **cell_args):
     return LRTModel(x_size, h_size, cell_type, **cell_args)
 
 
-def load_lrt_dataset(max_len_tree):
-    #TODO: choose the number of operator
+def load_lrt_dataset(max_n_operator):
+    max_n_operator=1
+    tr_files = ['train' + str(x) for x in range(max_n_operator+1)]
+    dev_files = ['dev' + str(x) for x in range(max_n_operator+1)]
+    train_ds = LRTDataset('data/lrt', tr_files, name='train_set')
+    dev_ds = LRTDataset('data/lrt', dev_files, name='dev_set')
 
-    train_ds = LRTDataset('data/lrt', 'train1')
-    dev_ds = LRTDataset('data/lrt', 'train1')
-    test_ds = LRTDataset('data/lrt', 'test1')
+    test_ds_list = []
+    for x in range(1):
+        ds = LRTDataset('data/lrt', ['test'+str(x)], name='test_set'+str(x))
+        test_ds_list.append(ds)
 
-    return train_ds, dev_ds, test_ds
+    return train_ds, dev_ds, test_ds_list
 
 
 def lrt_loss_function(output_model, true_label):
-    logp = F.log_softmax(output_model, 1)
-    return F.nll_loss(logp, true_label, reduction='sum')
+    #logp = F.log_softmax(output_model, 1)
+    #return F.nll_loss(logp, true_label, reduction='sum')
+    return F.cross_entropy(output_model, true_label, reduction='sum')
 
 
 def lrt_extract_batch_data(batch):
     a_batched = batch.batch_a
-    b_batched = batch.batch_a
+    b_batched = batch.batch_b
     sym = batch.symbol
 
     g_a = a_batched.graph
@@ -265,4 +321,6 @@ def lrt_extract_batch_data(batch):
     x_b = b_batched.x
     mask_b = b_batched.mask
 
-    return [[g_a, x_a, mask_a], [g_b, x_b, mask_b]], sym, None
+    n_batch = sym.size(0)
+
+    return [[g_a, x_a, mask_a], [g_b, x_b, mask_b]], sym, n_batch, None

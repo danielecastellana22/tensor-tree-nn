@@ -1,7 +1,7 @@
 import torch as th
 import torch.nn as nn
 import dgl
-
+import torch.nn.functional as F
 
 # TODO: maybe is reasonable a flag for positional stationarity
 # The Full aggregator is available only when maxOutput Degree is 2
@@ -150,13 +150,13 @@ class TTAggregator(nn.Module):
         return h_out
 
 
-# TODO: consider to use this as superclass of other modules
 class GenericTreeLSTMCell(nn.Module):
 
     def __init__(self, x_size, h_size, max_output_degree, cell_type, **cell_args):
         super(GenericTreeLSTMCell, self).__init__()
-        self.bottom_h = nn.Parameter(th.zeros(h_size))
-        self.bottom_c = nn.Parameter(th.zeros(h_size))
+        # TODO: add parameter to choose to freeze or not the bottom values
+        self.bottom_h = nn.Parameter(th.zeros(h_size), requires_grad=False)
+        self.bottom_c = nn.Parameter(th.zeros(h_size), requires_grad=False)
 
         # for the input
         self.max_output_degree = max_output_degree
@@ -187,6 +187,9 @@ class GenericTreeLSTMCell(nn.Module):
                 raise ValueError('Full cel type can be use only with a maximum output degree of 2')
             self.f_aggregator = BinaryFullTensorAggregator(h_size, 2*h_size)
             self.iou_aggregator = BinaryFullTensorAggregator(h_size, 3*h_size)
+
+    def forward(self, *input):
+        pass
 
     def check_missing_children(self, neighbour_h,  neighbour_c):
         n_missing = self.max_output_degree - neighbour_h.size(1)
@@ -230,8 +233,6 @@ class GenericTreeLSTMCell(nn.Module):
         return {'h': h, 'c': c}
 
 
-
-
 class TreeLSTM(nn.Module):
     def __init__(self,
                  x_size,
@@ -269,6 +270,111 @@ class TreeLSTM(nn.Module):
         embeds = self.input_module(x * mask)
         g.ndata['iou_input'] = self.cell.W_iou(embeds) * mask.float().unsqueeze(-1)
         g.ndata['f_input'] = self.cell.W_f(embeds) * mask.float().unsqueeze(-1)
+        # propagate
+        dgl.prop_nodes_topo(g)
+        # compute output
+        #h = g.ndata.pop('h')
+        h = g.ndata['h']
+        out = self.output_module(h)
+        return out
+
+
+class GenericTreeRNNCell(nn.Module):
+
+    def __init__(self, x_size, h_size, max_output_degree, cell_type, **cell_args):
+        super(GenericTreeRNNCell, self).__init__()
+        # TODO: add parameter to choose to freeze or not the bottom values
+        self.bottom_h = nn.Parameter(th.zeros(h_size), requires_grad=False)
+
+        # for the input
+        self.max_output_degree = max_output_degree
+
+        # TODO: 2 must be replaced by max_output_degree
+        self.W_f = nn.Linear(x_size, h_size, bias=False)
+        self.b_f = nn.Parameter(th.zeros(1, h_size))
+
+        if cell_type == 'nary':
+            self.h_aggregator = NaryAggregator(h_size, h_size, max_output_degree, bias=False)
+        elif cell_type == 'sum':
+            self.h_aggregator = SumChildAggregator()
+        elif cell_type == 'hosvd':
+            self.h_aggregator = HOSVDAggregator(h_size, h_size, max_output_degree, **cell_args)
+        elif cell_type == 'tt':
+            self.h_aggregator = TTAggregator(h_size, h_size, max_output_degree, **cell_args)
+        elif cell_type == 'cd':
+            self.h_aggregator = CANCOMPAggregator(h_size, h_size, max_output_degree, **cell_args)
+        elif cell_type == 'full':
+            if max_output_degree > 2:
+                raise ValueError('Full cel type can be use only with a maximum output degree of 2')
+            self.h_aggregator = BinaryFullTensorAggregator(h_size, h_size)
+
+    def forward(self, *input):
+        pass
+
+    def check_missing_children(self, neighbour_h):
+        n_missing = self.max_output_degree - neighbour_h.size(1)
+        if n_missing > 0:
+            n_nodes = neighbour_h.size(0)
+            h_size = neighbour_h.size(2)
+            neighbour_h = th.cat((neighbour_h, self.bottom_h.reshape(1, 1, h_size).expand(n_nodes, n_missing, h_size)), dim=1)
+
+        return neighbour_h
+
+    def message_func(self, edges):
+        return {'h': edges.src['h']}
+
+    def reduce_func(self, nodes):
+        # add the input contribution
+        neighbour_h = self.check_missing_children(nodes.mailbox['h'])
+        h_aggr = self.h_aggregator(neighbour_h)
+        return {'h': h_aggr}
+
+    def apply_node_func(self, nodes):
+        h = nodes.data['f_input'] + self.b_f
+        if 'h' in nodes.data:
+            # internal nodes
+            h += nodes.data['h']
+        h = F.tanh(h)
+        return {'h': h}
+
+
+class TreeRNN(nn.Module):
+    def __init__(self,
+                 x_size,
+                 h_size,
+                 max_output_degree,
+                 input_module,
+                 output_module,
+                 cell_type='nary', **cell_args):
+        super(TreeRNN, self).__init__()
+        self.x_size = x_size
+        self.h_size = h_size
+        self.input_module = input_module
+        self.output_module = output_module
+        self.cell = GenericTreeRNNCell(x_size, h_size, max_output_degree, cell_type, **cell_args)
+
+    def forward(self, g, x, mask):
+        """Compute tree-lstm prediction given a batch.
+        Parameters
+        ----------
+        batch : TreeDataset.TreeBatch
+            The data batch.
+        h : Tensor
+            Initial hidden state.
+        c : Tensor
+            Initial cell state.
+        Returns
+        -------
+        logits : Tensor
+            The prediction of each node.
+        """
+        g.register_message_func(self.cell.message_func)
+        g.register_reduce_func(self.cell.reduce_func)
+        g.register_apply_node_func(self.cell.apply_node_func)
+        # feed embedding
+        embeds = self.input_module(x * mask)
+        g.ndata['f_input'] = self.cell.W_f(embeds) * mask.float().unsqueeze(-1)
+        g.ndata['x'] = x
         # propagate
         dgl.prop_nodes_topo(g)
         # compute output

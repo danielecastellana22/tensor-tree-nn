@@ -4,17 +4,18 @@ from collections import namedtuple
 import os
 
 
-#TODO: mnaybe you need to inehirt from torch dataset
+# TODO: mnaybe you need to inehirt from torch dataset
 class TreeDataset(ABC):
 
     TreeBatch = namedtuple('TreeBatch', ['graph', 'mask', 'x', 'y'])
 
-    def __init__(self, path_dir, file_name):
+    def __init__(self, path_dir, file_name_list, name):
         self.data = []
         self.path_dir = path_dir
-        self.file_name = file_name
+        self.file_name_list = file_name_list
+        self.name = name
 
-        self.logger = get_new_logger('loading.{}'.format(os.path.join(path_dir,file_name)))
+        self.logger = get_new_logger('loading.{}'.format(self.name))
 
     def __getitem__(self, idx):
         return self.data[idx]

@@ -1,7 +1,7 @@
 import torch as th
 import torch.nn as nn
 import torch.nn.functional as F
-from treeLSTM import TreeLSTM, TreeDataset
+from treeLSTM import TreeLSTM, TreeRNN, TreeDataset
 
 from collections import namedtuple
 from torch.utils.data import DataLoader
@@ -12,19 +12,22 @@ import dgl
 import networkx as nx
 
 
+# TODO: modfy the dataset class according to TreeDataset
 class HTENSDataset(TreeDataset):
 
-    def __init__(self, path_dir, file_name):
-        TreeDataset.__init__(self, path_dir, file_name)
+    def __init__(self, path_dir, file_name_list, name):
+        TreeDataset.__init__(self, path_dir, file_name_list, name)
         self.__load_trees__()
 
     def __load_trees__(self):
         self.logger.debug('Loading trees.')
         # build trees
-        with open(os.path.join(self.path_dir, self.file_name),'r') as txtfile:
-            for sent in tqdm(txtfile.readlines(), desc='Loading trees: '):
-                t = Tree.fromstring(sent)
-                self.data.append(self.__build_dgl_tree__(t))
+        name_list = [os.path.join(self.path_dir, x) for x in self.file_name_list]
+        for f_name in name_list:
+            with open(f_name,'r') as txtfile:
+                for sent in tqdm(txtfile.readlines(), desc='Loading trees: '):
+                    t = Tree.fromstring(sent)
+                    self.data.append(self.__build_dgl_tree__(t))
 
         self.logger.info('{} trees loaded.'.format(len(self.data)))
 
@@ -86,14 +89,15 @@ def create_htens_model(x_size,
     output_module = HTENSOutputModule(h_size, num_classes, dropout)
 
     m = TreeLSTM(x_size, h_size, 2, input_module, output_module, cell_type, **cell_args)
+    #m = TreeRNN(x_size, h_size, 2, input_module, output_module, cell_type, **cell_args)
 
     return m
 
 
 def load_htens_dataset():
-    trainset = HTENSDataset('data/htens/', 'train.txt')
-    devset = HTENSDataset('data/htens/', 'dev.txt')
-    testset = HTENSDataset('data/htens/', 'test.txt')
+    trainset = HTENSDataset('data/htens/', ['train.txt'], name='train')
+    devset = HTENSDataset('data/htens/', ['dev.txt'], name='dev')
+    testset = HTENSDataset('data/htens/', ['test.txt'], name='test')
 
     return trainset, devset, testset
 
@@ -108,4 +112,5 @@ def htens_extract_batch_data(batch):
     x = batch.x
     mask = batch.mask
     y = batch.y
-    return [g, x, mask], y, g
+    n_batch = batch.graph.batch_size
+    return [g, x, mask], y, n_batch, g

@@ -1,10 +1,10 @@
 import torch as th
 import torch.nn as nn
-from treeLSTM import TreeLSTM, TreeDataset
+from treeLSTM import TreeLSTM, TreeRNN, TreeDataset
 
 import networkx as nx
 import dgl
-import dgl.backend as F
+import torch.nn.functional as F
 from nltk.corpus.reader import BracketParseCorpusReader
 from collections import namedtuple, OrderedDict
 import numpy as np
@@ -14,34 +14,14 @@ import os
 import torch
 
 
+# TODO: modfy the dataset class according to TreeDataset
 class SSTDataset(TreeDataset):
-    """Stanford Sentiment Treebank dataset.
 
-    Each sample is the constituency tree of a sentence. The leaf nodes
-    represent words. The word is a int value stored in the ``x`` feature field.
-    The non-leaf node has a special value ``PAD_WORD`` in the ``x`` field.
-    Each node also has a sentiment annotation: 5 classes (very negative,
-    negative, neutral, positive and very positive). The sentiment label is a
-    int value stored in the ``y`` feature field.
-
-    .. note::
-        This dataset class is compatible with pytorch's :class:`Dataset` class.
-
-    .. note::
-        All the samples will be loaded and preprocessed in the memory first.
-
-    Parameters
-    ----------
-    mode : str, optional
-        Can be ``'train'``, ``'val'``, ``'test'`` and specifies which data file to use.
-    vocab_file : str, optional
-        Optional vocabulary file.
-    """
     PAD_WORD = -1  # special pad word id
     UNK_WORD = -1  # out-of-vocabulary word id
 
-    def __init__(self, path_dir, file_name, glove300_file=None):
-        TreeDataset.__init__(self, path_dir, file_name)
+    def __init__(self, path_dir, file_name_list, name, glove300_file=None):
+        TreeDataset.__init__(self, path_dir, file_name_list, name)
         self.pretrained_emb = None
         self.num_classes = 5
         # print('Preprocessing...')
@@ -99,8 +79,8 @@ class SSTDataset(TreeDataset):
         self.logger.info('Pretrained embeddigns loaded.')
 
     def __load_trees__(self):
-        corpus = BracketParseCorpusReader(self.path_dir, [self.file_name])
-        sents = corpus.parsed_sents(self.file_name)
+        corpus = BracketParseCorpusReader(self.path_dir, self.file_name_list)
+        sents = corpus.parsed_sents(self.file_name_list)
 
         self.logger.debug('Loading trees.')
         # build trees
@@ -173,14 +153,15 @@ def create_sst_model(num_vocabs,
     output_module = SSTOutputModule(h_size, num_classes, dropout)
 
     m = TreeLSTM(x_size, h_size, 2, input_module, output_module, cell_type, **cell_args)
+    #m = TreeRNN(x_size, h_size, 2, input_module, output_module, cell_type, **cell_args)
 
     return m
 
 
 def load_sst_dataset():
-    trainset = SSTDataset('data/sst/', 'train.txt', glove300_file='data/glove.840B.300d.txt')
-    devset = SSTDataset('data/sst/', 'dev.txt', glove300_file='data/glove.840B.300d.txt')
-    testset = SSTDataset('data/sst/', 'test.txt', glove300_file='data/glove.840B.300d.txt')
+    trainset = SSTDataset('data/sst/', ['train.txt'], glove300_file='data/glove.840B.300d.txt', name='train')
+    devset = SSTDataset('data/sst/', ['dev.txt'], glove300_file='data/glove.840B.300d.txt', name='dev')
+    testset = SSTDataset('data/sst/', ['test.txt'], glove300_file='data/glove.840B.300d.txt', name='test')
     return trainset, devset, testset
 
 
@@ -194,4 +175,5 @@ def sst_extract_batch_data(batch):
     x = batch.x
     mask = batch.mask
     y = batch.y
-    return [g, x, mask], y, g
+    n_batch = batch.graph.batch_size
+    return [g, x, mask], y, n_batch, g

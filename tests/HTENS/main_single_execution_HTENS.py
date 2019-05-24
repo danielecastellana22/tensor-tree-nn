@@ -52,7 +52,7 @@ def main(args):
     best_model, best_dev_metrics = train_and_validate(model, htens_extract_batch_data, htens_loss_function, optimizer, trainset, devset, device,
                                                       metrics_class=[Accuracy, RootAccuracy, LeavesAccuracy],
                                                       batch_size=args.batch_size,
-                                                      n_epochs=args.epochs)
+                                                      n_epochs=args.epochs, early_stopping_patience=args.early_stopping)
 
     test(best_model, htens_extract_batch_data, testset, device,
          metrics_class=[Accuracy, RootAccuracy, LeavesAccuracy],
@@ -66,10 +66,10 @@ if __name__ == '__main__':
     parser.add_argument('--seed', type=int, default=41)
     parser.add_argument('--batch-size', type=int, default=25)
     parser.add_argument('--cell-type', default='nary')
-    parser.add_argument('--x-size', type=int, default=3)
-    parser.add_argument('--h-size', type=int, default=5)
+    parser.add_argument('--x-size', type=int, default=10)
+    parser.add_argument('--h-size', type=int, default=25)
     parser.add_argument('--epochs', type=int, default=100)
-    parser.add_argument('--log-every', type=int, default=5)
+    parser.add_argument('--early-stopping', type=int, default=10)
     parser.add_argument('--lr', type=float, default=0.05)
     parser.add_argument('--weight-decay', type=float, default=1e-4)
     parser.add_argument('--dropout', type=float, default=0.5)

@@ -17,7 +17,7 @@ def main(args):
         os.makedirs(log_dir)
 
     # initiliase the main ogger
-    set_main_logger_settings(log_dir, 'main')
+    main_logger = set_main_logger_settings(log_dir, 'main')
 
     # set the seed
     np.random.seed(args.seed)
@@ -33,7 +33,7 @@ def main(args):
         th.set_num_threads(10)
 
     # load the data
-    trainset, devset, testset = load_lrt_dataset(10)
+    trainset, devset, testset_list = load_lrt_dataset(args.max_n_operator)
 
     # create the model
     model = create_lrt_model(args.x_size, args.h_size, cell_type=args.cell_type).to(device)
@@ -52,11 +52,13 @@ def main(args):
     best_model, best_dev_metrics = train_and_validate(model, lrt_extract_batch_data, lrt_loss_function, optimizer, trainset, devset, device,
                                                       metrics_class=[Accuracy],
                                                       batch_size=args.batch_size,
-                                                      n_epochs=args.epochs)
+                                                      n_epochs=args.epochs, early_stopping_patience=args.early_stopping)
 
-    test(best_model, lrt_extract_batch_data, testset, device,
-         metrics_class=[Accuracy],
-         batch_size=args.batch_size)
+    for i,testset in enumerate(testset_list):
+        main_logger.info('Test set of len '+str(i))
+        test(best_model, lrt_extract_batch_data, testset, device,
+             metrics_class=[Accuracy],
+             batch_size=args.batch_size)
 
 
 if __name__ == '__main__':
@@ -66,11 +68,12 @@ if __name__ == '__main__':
     parser.add_argument('--seed', type=int, default=41)
     parser.add_argument('--batch-size', type=int, default=25)
     parser.add_argument('--cell-type', default='nary')
-    parser.add_argument('--x-size', type=int, default=25)
-    parser.add_argument('--h-size', type=int, default=25)
+    parser.add_argument('--max-n-operator', type=int, default=4)
+    parser.add_argument('--x-size', type=int, default=75)
+    parser.add_argument('--h-size', type=int, default=75)
     parser.add_argument('--epochs', type=int, default=100)
-    parser.add_argument('--log-every', type=int, default=5)
-    parser.add_argument('--lr', type=float, default=0.05)
+    parser.add_argument('--early-stopping', type=int, default=10)
+    parser.add_argument('--lr', type=float, default=0.01)
     parser.add_argument('--weight-decay', type=float, default=1e-4)
     parser.add_argument('--save', default='checkpoints/')
     parser.add_argument('--expname', default='lrt-test')

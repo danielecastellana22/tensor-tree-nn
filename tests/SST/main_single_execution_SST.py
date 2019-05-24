@@ -60,12 +60,12 @@ def main(args):
 
     # train and validate
     best_model, best_dev_metrics = train_and_validate(model, sst_extract_batch_data, sst_loss_function, optimizer, trainset, devset, device,
-                                                      metrics_class=[LabelAccuracy, RootAccuracy, LeavesAccuracy],
+                                                      metrics_class=[Accuracy, RootAccuracy, LeavesAccuracy],
                                                       batch_size=args.batch_size,
                                                       n_epochs=args.epochs, early_stopping_patience=args.early_stopping)
 
     test(best_model, sst_extract_batch_data,  testset, device,
-         metrics_class=[LabelAccuracy, RootAccuracy, LeavesAccuracy],
+         metrics_class=[Accuracy, RootAccuracy, LeavesAccuracy],
          batch_size=args.batch_size)
 
 
@@ -77,7 +77,7 @@ if __name__ == '__main__':
     parser.add_argument('--batch-size', type=int, default=25)
     parser.add_argument('--cell-type', default='nary')
     parser.add_argument('--x-size', type=int, default=300)
-    parser.add_argument('--h-size', type=int, default=150)
+    parser.add_argument('--h-size', type=int, default=160)
     parser.add_argument('--epochs', type=int, default=100)
     parser.add_argument('--early-stopping', type=int, default=10)
     parser.add_argument('--lr', type=float, default=0.05)
