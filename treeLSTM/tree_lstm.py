@@ -208,7 +208,7 @@ class GenericTreeLSTMCell(nn.Module):
         # add the input contribution
         neighbour_h, neighbour_c = self.check_missing_children(nodes.mailbox['h'], nodes.mailbox['c'])
         #TODO: 2 must be the max_output_degree
-        f_aggr = self.f_aggregator(neighbour_h) + (nodes.data['f_input'] + self.b_f).repeat((1,2))
+        f_aggr = self.f_aggregator(neighbour_h) + (nodes.data['f_input'] + self.b_f).repeat((1, 2))
         iou_aggr = self.iou_aggregator(neighbour_h) + nodes.data['iou_input']
 
         f = th.sigmoid(f_aggr).view(*neighbour_c.size())

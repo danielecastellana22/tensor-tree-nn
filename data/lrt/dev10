@@ -1,0 +1,818 @@
+|	( ( not ( ( ( not a ) ( or b ) ) ( or ( ( not b ) ( and ( not a ) ) ) ) ) ) ( and ( not ( d ( and a ) ) ) ) )	b
+<	( ( not ( ( ( not f ) ( or e ) ) ( and f ) ) ) ( and ( ( not ( ( not a ) ( and ( not a ) ) ) ) ( and d ) ) ) )	a
+v	( ( not e ) ( or f ) )	( not ( ( not ( e ( and ( not ( f ( and ( not c ) ) ) ) ) ) ) ( or ( ( c ( or f ) ) ( and ( b ( and f ) ) ) ) ) ) )
+#	( not ( ( ( not ( a ( or ( not b ) ) ) ) ( or ( f ( and ( not a ) ) ) ) ) ( and ( ( not f ) ( or c ) ) ) ) )	( ( not ( a ( or ( a ( and b ) ) ) ) ) ( and c ) )
+#	f	( not ( ( ( not d ) ( and ( not ( d ( and c ) ) ) ) ) ( and ( ( ( not d ) ( and f ) ) ( or ( not c ) ) ) ) ) )
+#	c	( ( not ( a ( and ( not ( c ( or e ) ) ) ) ) ) ( and ( not ( a ( and ( not ( e ( or ( not a ) ) ) ) ) ) ) ) )
+#	( ( not ( ( ( not a ) ( or f ) ) ( and f ) ) ) ( and ( not ( ( not b ) ( or ( not ( f ( or e ) ) ) ) ) ) ) )	( not ( ( not b ) ( or ( not ( ( not ( a ( or ( not e ) ) ) ) ( or ( not b ) ) ) ) ) ) )
+<	( f ( and ( not d ) ) )	( not ( ( ( f ( or c ) ) ( or c ) ) ( and ( not ( ( ( not e ) ( or f ) ) ( or ( not ( c ( or e ) ) ) ) ) ) ) ) )
+<	( not f )	( ( ( c ( and ( not f ) ) ) ( or ( b ( and f ) ) ) ) ( or ( not ( ( not c ) ( and ( ( not a ) ( and f ) ) ) ) ) ) )
+>	( ( a ( or ( not d ) ) ) ( and ( not ( ( ( not f ) ( and a ) ) ( and ( ( not b ) ( and b ) ) ) ) ) ) )	( not ( ( not ( ( d ( and a ) ) ( and ( not f ) ) ) ) ( or ( ( not a ) ( and ( not ( f ( and f ) ) ) ) ) ) ) )
+#	e	( ( ( e ( or ( not f ) ) ) ( or ( not e ) ) ) ( and ( ( ( not c ) ( and ( not e ) ) ) ( or ( not f ) ) ) ) )
+>	( not ( ( d ( or ( not ( f ( and ( not a ) ) ) ) ) ) ( and ( a ( and ( not ( d ( or ( not f ) ) ) ) ) ) ) ) )	( not a )
+|	( not ( ( ( not c ) ( and ( b ( or ( not e ) ) ) ) ) ( or ( b ( or ( not ( d ( or ( not b ) ) ) ) ) ) ) ) )	b
+<	a	( not ( ( ( not d ) ( or ( c ( or ( not d ) ) ) ) ) ( and ( ( not a ) ( and ( b ( or ( not c ) ) ) ) ) ) ) )
+>	( not b )	( not ( ( not ( ( f ( or ( not c ) ) ) ( or a ) ) ) ( or ( not ( ( a ( and ( not b ) ) ) ( and c ) ) ) ) ) )
+#	( ( ( b ( or a ) ) ( and ( not d ) ) ) ( and ( ( not ( a ( or d ) ) ) ( or ( ( not f ) ( or ( not d ) ) ) ) ) ) )	( ( f ( or ( f ( and b ) ) ) ) ( or ( f ( or ( b ( or b ) ) ) ) ) )
+#	( not ( ( not a ) ( and ( ( ( not a ) ( or ( not d ) ) ) ( or ( not ( d ( and ( not e ) ) ) ) ) ) ) ) )	( not e )
+|	( ( not ( ( not f ) ( or ( f ( and b ) ) ) ) ) ( and ( ( ( not a ) ( or ( not f ) ) ) ( or ( b ( or a ) ) ) ) ) )	( a ( and ( b ( or ( not a ) ) ) ) )
+<	( c ( and ( not ( ( b ( or ( not e ) ) ) ( and ( ( not b ) ( or b ) ) ) ) ) ) )	( ( not ( ( not ( ( not b ) ( or e ) ) ) ( and ( a ( or ( not b ) ) ) ) ) ) ( and ( c ( or ( not b ) ) ) ) )
+#	( not ( ( not ( b ( or e ) ) ) ( or ( ( d ( or ( not e ) ) ) ( and ( not ( ( not d ) ( and c ) ) ) ) ) ) ) )	( not b )
+>	( not ( c ( and ( not e ) ) ) )	( ( ( not ( e ( and a ) ) ) ( and d ) ) ( and ( not ( ( not ( ( not d ) ( and ( not a ) ) ) ) ( and c ) ) ) ) )
+|	( not ( f ( or ( not ( ( not ( c ( or f ) ) ) ( and ( not ( ( not e ) ( or ( not e ) ) ) ) ) ) ) ) ) )	f
+#	( not ( ( not a ) ( and ( ( not ( ( not e ) ( and f ) ) ) ( and ( not ( ( not d ) ( and f ) ) ) ) ) ) ) )	( not d )
+#	( f ( and ( ( ( not f ) ( or f ) ) ( or a ) ) ) )	( not ( ( d ( and ( not a ) ) ) ( or ( not ( ( e ( or ( not e ) ) ) ( or ( not ( e ( and a ) ) ) ) ) ) ) ) )
+|	( ( ( not a ) ( and ( not ( f ( and ( not f ) ) ) ) ) ) ( and ( ( b ( or e ) ) ( and ( ( not b ) ( or a ) ) ) ) ) )	( e ( and ( ( ( not f ) ( and b ) ) ( or a ) ) ) )
+#	c	( ( not ( ( f ( and ( not f ) ) ) ( or ( ( not f ) ( or b ) ) ) ) ) ( and ( f ( and ( b ( or ( not b ) ) ) ) ) ) )
+<	b	( not ( ( not b ) ( and ( not ( ( d ( and d ) ) ( and ( not ( ( not d ) ( and ( not b ) ) ) ) ) ) ) ) ) )
+<	( not ( ( not b ) ( or a ) ) )	( not ( ( not b ) ( and ( not ( ( not ( ( not b ) ( and a ) ) ) ( and ( not ( b ( or f ) ) ) ) ) ) ) ) )
+#	( ( ( d ( and a ) ) ( or ( not d ) ) ) ( and c ) )	( ( not ( ( not ( f ( and f ) ) ) ( and ( not d ) ) ) ) ( and ( not ( ( not a ) ( or ( not d ) ) ) ) ) )
+#	( not ( ( ( not f ) ( and ( b ( and ( not c ) ) ) ) ) ( or ( ( c ( and f ) ) ( or ( not ( e ( or b ) ) ) ) ) ) ) )	( not ( f ( and ( not c ) ) ) )
+#	( not ( ( ( b ( and e ) ) ( and ( not b ) ) ) ( or ( ( not ( d ( or ( not e ) ) ) ) ( or ( not d ) ) ) ) ) )	( not e )
+#	( b ( or ( not c ) ) )	( not ( ( ( not c ) ( or e ) ) ( and ( ( not ( ( not c ) ( and e ) ) ) ( and ( not ( b ( and f ) ) ) ) ) ) ) )
+v	( b ( or b ) )	( ( ( not b ) ( or a ) ) ( and ( ( ( not b ) ( or ( not f ) ) ) ( or ( not ( ( not f ) ( or f ) ) ) ) ) ) )
+|	( not ( c ( or d ) ) )	( not ( ( not ( ( not ( c ( or ( not a ) ) ) ) ( or a ) ) ) ( or ( not ( ( not e ) ( and c ) ) ) ) ) )
+v	( ( ( not ( ( not d ) ( and d ) ) ) ( and ( not f ) ) ) ( or ( d ( and ( not ( c ( or ( not f ) ) ) ) ) ) ) )	f
+#	( ( ( d ( and f ) ) ( or ( f ( and c ) ) ) ) ( or c ) )	( not ( ( c ( and ( ( not e ) ( or e ) ) ) ) ( or ( not ( ( f ( and ( not e ) ) ) ( or ( c ( or c ) ) ) ) ) ) ) )
+#	( not c )	( not ( ( not e ) ( and ( ( not ( ( not f ) ( and ( not c ) ) ) ) ( or ( e ( and ( not a ) ) ) ) ) ) ) )
+v	( ( not b ) ( or d ) )	( not ( ( not ( ( not ( ( not d ) ( and f ) ) ) ( and ( not a ) ) ) ) ( and ( d ( and ( d ( and d ) ) ) ) ) ) )
+#	( not ( d ( and ( not ( ( not a ) ( or ( e ( and ( not e ) ) ) ) ) ) ) ) )	( ( ( not ( ( not e ) ( or f ) ) ) ( and ( not ( ( not f ) ( and ( not d ) ) ) ) ) ) ( or ( not e ) ) )
+#	b	( not ( ( ( e ( or ( not b ) ) ) ( and ( not e ) ) ) ( or ( not ( ( not ( e ( and f ) ) ) ( and d ) ) ) ) ) )
+v	( ( ( not ( a ( and ( not d ) ) ) ) ( or ( ( not b ) ( or ( not f ) ) ) ) ) ( or ( ( not b ) ( and b ) ) ) )	f
+#	b	( ( not ( ( not ( e ( or b ) ) ) ( or ( a ( and b ) ) ) ) ) ( and ( ( e ( and ( not e ) ) ) ( or ( not c ) ) ) ) )
+#	( not ( ( not ( ( not ( d ( or c ) ) ) ( or ( not ( c ( or ( not a ) ) ) ) ) ) ) ( and ( not c ) ) ) )	f
+v	( not ( ( not ( ( b ( or f ) ) ( and ( c ( or b ) ) ) ) ) ( and ( not ( f ( and ( c ( and f ) ) ) ) ) ) ) )	( not ( ( not ( ( ( not b ) ( or c ) ) ( or ( not ( b ( and f ) ) ) ) ) ) ( and ( ( not c ) ( or b ) ) ) ) )
+#	f	( ( ( not f ) ( and ( f ( and ( not e ) ) ) ) ) ( or ( not ( ( not ( ( not b ) ( and e ) ) ) ( and e ) ) ) ) )
+#	( not ( ( not ( ( ( not c ) ( or ( not b ) ) ) ( and ( ( not c ) ( or ( not c ) ) ) ) ) ) ( or e ) ) )	( not b )
+#	( ( not ( ( not d ) ( and c ) ) ) ( and ( ( not ( ( not d ) ( and c ) ) ) ( or ( ( not b ) ( and c ) ) ) ) ) )	f
+|	( ( ( not ( f ( or ( not e ) ) ) ) ( and ( not ( ( not e ) ( or ( not d ) ) ) ) ) ) ( and ( not c ) ) )	( f ( and ( f ( and c ) ) ) )
+#	( ( not ( d ( and ( not ( c ( or ( not f ) ) ) ) ) ) ) ( and ( ( not ( ( not b ) ( and f ) ) ) ( and b ) ) ) )	c
+^	a	( not ( ( not ( ( not ( b ( or ( not b ) ) ) ) ( and ( not ( ( not f ) ( and f ) ) ) ) ) ) ( and a ) ) )
+v	( not ( ( not e ) ( and ( not ( ( not ( c ( or ( not c ) ) ) ) ( or ( not ( c ( or c ) ) ) ) ) ) ) ) )	c
+=	( not a )	( ( not ( ( ( not f ) ( or f ) ) ( and a ) ) ) ( or ( not ( ( not ( f ( and ( not a ) ) ) ) ( or c ) ) ) ) )
+>	( ( ( not ( ( not d ) ( and b ) ) ) ( and e ) ) ( or ( ( not e ) ( or ( not ( ( not a ) ( and e ) ) ) ) ) ) )	a
+=	( ( not ( a ( and ( not b ) ) ) ) ( or f ) )	( not ( ( ( ( not f ) ( and ( not b ) ) ) ( and ( not ( ( not a ) ( or f ) ) ) ) ) ( and ( not b ) ) ) )
+v	( b ( or ( not f ) ) )	( not ( ( ( b ( and ( not c ) ) ) ( and ( not c ) ) ) ( and ( c ( or ( ( not c ) ( and ( not c ) ) ) ) ) ) ) )
+v	f	( ( not ( ( not ( f ( or ( not e ) ) ) ) ( and ( ( not d ) ( and f ) ) ) ) ) ( and ( ( not f ) ( or d ) ) ) )
+#	( not b )	( ( ( b ( or a ) ) ( and ( ( not c ) ( or e ) ) ) ) ( or ( ( not a ) ( and ( not ( ( not a ) ( and b ) ) ) ) ) ) )
+<	b	( not ( ( e ( or ( ( not d ) ( or ( not e ) ) ) ) ) ( and ( not ( ( b ( or c ) ) ( or ( not d ) ) ) ) ) ) )
+#	( ( not ( ( not ( a ( or ( not d ) ) ) ) ( or ( not ( ( not f ) ( and a ) ) ) ) ) ) ( or ( a ( and f ) ) ) )	( not ( ( ( f ( and b ) ) ( or ( not b ) ) ) ( or ( f ( and ( not b ) ) ) ) ) )
+#	( not ( ( not ( a ( or ( not ( ( not a ) ( or ( not a ) ) ) ) ) ) ) ( and d ) ) )	( not ( ( ( not d ) ( or ( f ( or ( not f ) ) ) ) ) ( and ( not ( ( e ( and ( not f ) ) ) ( or f ) ) ) ) ) )
+#	( not a )	( not ( ( not d ) ( and ( ( not ( ( not a ) ( and a ) ) ) ( or ( not ( ( not a ) ( or d ) ) ) ) ) ) ) )
+#	( f ( or e ) )	( ( a ( and ( ( not b ) ( or f ) ) ) ) ( and ( not ( ( not ( e ( or ( not b ) ) ) ) ( and ( not e ) ) ) ) ) )
+#	( ( not ( ( e ( and f ) ) ( or ( not f ) ) ) ) ( or ( ( not d ) ( and ( ( not e ) ( or ( not d ) ) ) ) ) ) )	( not ( ( c ( and ( not ( c ( or d ) ) ) ) ) ( or e ) ) )
+=	( ( not ( ( not d ) ( or ( d ( or e ) ) ) ) ) ( or ( not ( ( not ( a ( and ( not a ) ) ) ) ( and e ) ) ) ) )	( not e )
+<	( not ( ( not ( e ( and f ) ) ) ( and ( ( not ( f ( or c ) ) ) ( or ( not ( ( not c ) ( and e ) ) ) ) ) ) ) )	e
+#	( ( ( ( not e ) ( and ( not a ) ) ) ( or ( not ( f ( or f ) ) ) ) ) ( and ( ( b ( or ( not a ) ) ) ( and f ) ) ) )	b
+#	( not ( ( ( ( not d ) ( and d ) ) ( or ( ( not d ) ( or c ) ) ) ) ( and ( f ( or ( not ( f ( or e ) ) ) ) ) ) ) )	c
+>	( ( ( c ( and c ) ) ( and c ) ) ( or ( ( e ( or f ) ) ( or ( not ( a ( or f ) ) ) ) ) ) )	( ( not ( ( not f ) ( or ( ( not a ) ( and a ) ) ) ) ) ( or ( ( e ( and a ) ) ( or ( ( not f ) ( and e ) ) ) ) ) )
+#	( not ( ( not ( ( f ( or ( not e ) ) ) ( and ( not ( e ( and f ) ) ) ) ) ) ( and ( ( not c ) ( or f ) ) ) ) )	( not f )
+#	( ( ( not e ) ( or ( ( not c ) ( or a ) ) ) ) ( and ( ( ( not a ) ( and e ) ) ( or ( ( not a ) ( or c ) ) ) ) ) )	a
+>	( not ( ( not ( b ( or ( ( not a ) ( and e ) ) ) ) ) ( and ( ( a ( and ( not a ) ) ) ( or ( not e ) ) ) ) ) )	e
+|	( not ( ( a ( and ( not ( a ( or f ) ) ) ) ) ( or ( not f ) ) ) )	( ( ( not ( c ( or c ) ) ) ( or ( a ( and d ) ) ) ) ( and ( ( ( not c ) ( and ( not f ) ) ) ( and ( a ( and a ) ) ) ) ) )
+^	( not ( ( not ( ( not c ) ( and ( ( not a ) ( or ( not a ) ) ) ) ) ) ( and ( c ( or ( e ( and c ) ) ) ) ) ) )	c
+#	( not ( ( ( not ( ( not c ) ( and b ) ) ) ( or ( not ( ( not c ) ( or ( not d ) ) ) ) ) ) ( or f ) ) )	d
+#	( ( not ( b ( or ( ( not a ) ( and b ) ) ) ) ) ( or ( ( not ( c ( or e ) ) ) ( or ( not ( e ( or b ) ) ) ) ) ) )	e
+#	( not ( ( not ( d ( or ( not ( a ( and b ) ) ) ) ) ) ( or ( ( e ( or b ) ) ( and ( ( not b ) ( and d ) ) ) ) ) ) )	b
+>	( not ( ( not ( ( not b ) ( or ( not ( ( not a ) ( and b ) ) ) ) ) ) ( and ( a ( or ( not d ) ) ) ) ) )	d
+|	f	( not ( ( ( not ( c ( or ( not f ) ) ) ) ( and ( not ( b ( and f ) ) ) ) ) ( or ( f ( or ( not b ) ) ) ) ) )
+#	( not d )	( ( not ( ( not ( ( not b ) ( and a ) ) ) ( and ( c ( or b ) ) ) ) ) ( or ( ( not ( d ( or b ) ) ) ( and b ) ) ) )
+<	( b ( and ( ( ( not d ) ( or ( not d ) ) ) ( or f ) ) ) )	( not ( ( not ( ( not ( e ( and ( not f ) ) ) ) ( and ( e ( or ( not d ) ) ) ) ) ) ( and ( not b ) ) ) )
+|	( not ( ( c ( or a ) ) ( and ( not ( ( d ( or ( not e ) ) ) ( and ( ( not a ) ( and ( not c ) ) ) ) ) ) ) ) )	a
+#	( not ( ( not ( ( a ( or ( not d ) ) ) ( and ( not ( ( not b ) ( and ( not d ) ) ) ) ) ) ) ( or d ) ) )	( ( not ( ( not a ) ( and ( not ( e ( or d ) ) ) ) ) ) ( or a ) )
+#	( not ( ( not a ) ( or ( ( not a ) ( or f ) ) ) ) )	( ( ( ( not e ) ( and a ) ) ( or ( a ( and ( not a ) ) ) ) ) ( and ( not ( ( d ( and a ) ) ( and ( not d ) ) ) ) ) )
+>	( ( ( not ( c ( and ( not b ) ) ) ) ( and ( ( not e ) ( or c ) ) ) ) ( or ( not ( e ( or ( not e ) ) ) ) ) )	( not ( c ( or e ) ) )
+<	( not ( ( e ( or ( c ( and e ) ) ) ) ( or ( ( e ( or e ) ) ( and ( not ( ( not f ) ( or ( not d ) ) ) ) ) ) ) ) )	( not ( e ( and c ) ) )
+#	b	( not ( ( a ( or ( not ( d ( or d ) ) ) ) ) ( or ( ( not b ) ( and ( not ( ( not f ) ( and d ) ) ) ) ) ) ) )
+=	c	( not ( ( not c ) ( or ( not ( ( not ( ( not d ) ( or a ) ) ) ( or ( ( not d ) ( or c ) ) ) ) ) ) ) )
+#	( not ( ( ( not ( b ( and ( not d ) ) ) ) ( and ( e ( or b ) ) ) ) ( and ( ( not ( b ( or e ) ) ) ( or f ) ) ) ) )	( e ( or ( not f ) ) )
+|	( ( not ( ( not ( f ( and ( not e ) ) ) ) ( and ( d ( and d ) ) ) ) ) ( and ( ( f ( or ( not a ) ) ) ( and f ) ) ) )	( not f )
+|	( not e )	( ( f ( or ( f ( or ( not c ) ) ) ) ) ( and ( ( c ( and e ) ) ( and ( not ( ( not c ) ( and ( not e ) ) ) ) ) ) ) )
+|	( not e )	( ( not ( ( ( not e ) ( and ( not e ) ) ) ( or ( not b ) ) ) ) ( or ( ( ( not f ) ( and f ) ) ( and b ) ) ) )
+|	( not ( ( ( c ( and ( not c ) ) ) ( or ( not ( c ( or ( not a ) ) ) ) ) ) ( or ( c ( or ( not d ) ) ) ) ) )	( not ( d ( or d ) ) )
+#	( e ( or d ) )	( not ( ( ( not ( ( not c ) ( or c ) ) ) ( or e ) ) ( or ( ( not f ) ( or ( ( not f ) ( or c ) ) ) ) ) ) )
+#	( ( ( not ( ( not b ) ( and e ) ) ) ( and ( b ( or b ) ) ) ) ( or ( not ( ( not e ) ( or ( not d ) ) ) ) ) )	( not ( ( not ( ( f ( and e ) ) ( and ( not ( b ( or f ) ) ) ) ) ) ( and ( ( f ( or e ) ) ( and ( d ( or e ) ) ) ) ) ) )
+<	( ( b ( or ( ( not f ) ( and f ) ) ) ) ( and ( not ( ( ( not b ) ( and ( not e ) ) ) ( or ( e ( or f ) ) ) ) ) ) )	( ( not c ) ( or b ) )
+|	( not ( ( ( not f ) ( or ( not ( e ( or d ) ) ) ) ) ( or ( ( not ( d ( or c ) ) ) ( and ( f ( or c ) ) ) ) ) ) )	( ( c ( and ( ( not f ) ( and e ) ) ) ) ( and c ) )
+#	c	( ( ( not c ) ( and ( f ( or d ) ) ) ) ( or ( not ( ( ( not d ) ( or ( not a ) ) ) ( or ( not d ) ) ) ) ) )
+|	( not ( ( not ( ( not ( ( not d ) ( or ( not a ) ) ) ) ( or ( e ( or ( not a ) ) ) ) ) ) ( or b ) ) )	b
+#	( not ( ( not ( ( not b ) ( and ( not ( f ( or ( not a ) ) ) ) ) ) ) ( and ( ( f ( and b ) ) ( or a ) ) ) ) )	e
+>	c	( ( ( f ( or ( not a ) ) ) ( and ( c ( and a ) ) ) ) ( and ( not ( ( a ( or f ) ) ( and ( ( not f ) ( and c ) ) ) ) ) ) )
+#	( ( not ( d ( and ( not a ) ) ) ) ( and ( not ( ( ( not e ) ( and ( not e ) ) ) ( and ( d ( and a ) ) ) ) ) ) )	( ( not e ) ( or ( not b ) ) )
+#	e	( not ( ( ( c ( and d ) ) ( and ( not ( ( not e ) ( or ( not a ) ) ) ) ) ) ( or ( c ( or ( d ( and e ) ) ) ) ) ) )
+#	( not ( ( c ( or ( b ( and ( not b ) ) ) ) ) ( or ( not ( ( ( not d ) ( or b ) ) ( or ( not e ) ) ) ) ) ) )	( not ( ( d ( and ( not d ) ) ) ( or ( not ( ( e ( or ( not b ) ) ) ( and d ) ) ) ) ) )
+#	e	( not ( ( not ( ( e ( or ( not b ) ) ) ( and ( not ( b ( or ( not e ) ) ) ) ) ) ) ( and ( not f ) ) ) )
+v	( ( c ( or ( ( not e ) ( and ( not b ) ) ) ) ) ( or ( not ( ( c ( and f ) ) ( or ( c ( or ( not f ) ) ) ) ) ) ) )	( not f )
+=	( ( not ( ( c ( and c ) ) ( and ( not ( f ( or c ) ) ) ) ) ) ( and ( not ( c ( or ( ( not f ) ( and f ) ) ) ) ) ) )	( not c )
+>	( ( not ( ( not e ) ( and ( ( not b ) ( or d ) ) ) ) ) ( or ( not ( ( ( not b ) ( or e ) ) ( or b ) ) ) ) )	( b ( and e ) )
+>	( ( ( d ( or b ) ) ( and ( not a ) ) ) ( or ( not b ) ) )	( not ( ( ( ( not b ) ( or d ) ) ( or a ) ) ( or ( ( c ( and d ) ) ( or ( not ( ( not c ) ( and b ) ) ) ) ) ) ) )
+#	( not b )	( ( ( not ( a ( or e ) ) ) ( or a ) ) ( or ( not ( ( f ( or ( not b ) ) ) ( or ( ( not b ) ( or a ) ) ) ) ) ) )
+#	( ( ( ( not d ) ( and ( not d ) ) ) ( and a ) ) ( or ( ( ( not d ) ( or a ) ) ( and ( not ( e ( or c ) ) ) ) ) ) )	( not c )
+#	b	( not ( ( not ( ( not ( f ( and a ) ) ) ( and a ) ) ) ( or ( not ( ( not d ) ( and ( not f ) ) ) ) ) ) )
+>	( not ( ( not ( ( not e ) ( or ( not ( b ( or b ) ) ) ) ) ) ( and ( e ( or ( not ( f ( and e ) ) ) ) ) ) ) )	( not b )
+v	( ( ( not ( ( not b ) ( or ( not d ) ) ) ) ( or f ) ) ( or ( ( not d ) ( or ( b ( and ( not d ) ) ) ) ) ) )	( not f )
+v	( ( not ( ( ( not a ) ( and b ) ) ( and ( a ( or c ) ) ) ) ) ( or ( ( not a ) ( and ( not ( b ( or a ) ) ) ) ) ) )	( not ( d ( and ( a ( and ( not c ) ) ) ) ) )
+<	a	( ( ( not ( d ( and ( not f ) ) ) ) ( or a ) ) ( or ( not ( ( a ( or ( not f ) ) ) ( or ( a ( or c ) ) ) ) ) ) )
+#	( not ( ( not ( ( not ( a ( and f ) ) ) ( and f ) ) ) ( or ( ( not ( a ( and ( not a ) ) ) ) ( and b ) ) ) ) )	( ( not c ) ( or ( ( not f ) ( or ( ( not c ) ( and ( not a ) ) ) ) ) ) )
+#	( ( ( not d ) ( or ( ( not e ) ( or c ) ) ) ) ( and ( not ( ( not ( c ( and c ) ) ) ( and ( not d ) ) ) ) ) )	f
+#	b	( ( not ( ( not ( b ( or c ) ) ) ( or a ) ) ) ( and ( ( ( not a ) ( or ( not b ) ) ) ( and ( e ( or c ) ) ) ) ) )
+#	( ( not d ) ( or ( not ( ( ( not d ) ( or ( not e ) ) ) ( or ( ( not e ) ( and c ) ) ) ) ) ) )	( ( not ( ( not ( d ( and d ) ) ) ( or ( not c ) ) ) ) ( or ( not ( ( e ( and ( not e ) ) ) ( or b ) ) ) ) )
+v	( not d )	( not ( ( ( not d ) ( and ( c ( and b ) ) ) ) ( and ( not ( ( b ( or e ) ) ( and ( not ( e ( or e ) ) ) ) ) ) ) ) )
+#	( not ( ( not ( ( f ( or ( not f ) ) ) ( or ( not c ) ) ) ) ( or ( ( f ( and d ) ) ( or ( f ( and f ) ) ) ) ) ) )	( ( f ( or ( f ( or e ) ) ) ) ( and c ) )
+#	( ( not ( ( ( not f ) ( or d ) ) ( or ( not ( f ( or b ) ) ) ) ) ) ( or ( ( not b ) ( and ( b ( and d ) ) ) ) ) )	( not b )
+v	( ( not ( ( f ( and e ) ) ( and f ) ) ) ( and ( ( ( not f ) ( or d ) ) ( or ( not ( e ( and ( not d ) ) ) ) ) ) ) )	f
+>	( not ( ( ( a ( or c ) ) ( and ( ( not c ) ( or ( not a ) ) ) ) ) ( and ( a ( or ( not ( b ( or c ) ) ) ) ) ) ) )	( not a )
+<	( not e )	( not ( ( not d ) ( and ( ( not ( ( not e ) ( or d ) ) ) ( and ( not ( ( not f ) ( and d ) ) ) ) ) ) ) )
+v	( not f )	( ( ( f ( or f ) ) ( or ( e ( or c ) ) ) ) ( or ( ( not a ) ( and ( not ( ( not f ) ( or ( not c ) ) ) ) ) ) ) )
+#	c	( ( not ( ( ( not d ) ( or ( not d ) ) ) ( and ( ( not c ) ( or f ) ) ) ) ) ( and ( b ( and ( not f ) ) ) ) )
+#	( not ( ( e ( and ( not ( ( not b ) ( and ( not e ) ) ) ) ) ) ( and ( not ( b ( and ( b ( and f ) ) ) ) ) ) ) )	( not b )
+#	c	( not ( ( b ( and b ) ) ( or ( not ( ( not a ) ( or ( not ( ( not c ) ( or ( not b ) ) ) ) ) ) ) ) ) )
+v	( ( ( b ( and ( not e ) ) ) ( or ( not b ) ) ) ( or ( not ( ( not b ) ( or ( not ( e ( and a ) ) ) ) ) ) ) )	( e ( or ( not c ) ) )
+v	( not ( ( ( d ( and d ) ) ( and ( d ( or e ) ) ) ) ( and ( not ( ( ( not d ) ( and c ) ) ( and ( e ( and b ) ) ) ) ) ) ) )	( d ( or ( not c ) ) )
+|	( ( ( ( not e ) ( or a ) ) ( or ( ( not f ) ( and d ) ) ) ) ( and ( ( f ( or a ) ) ( and ( not ( e ( or f ) ) ) ) ) ) )	( f ( and ( ( not a ) ( and ( f ( or a ) ) ) ) ) )
+<	( not ( ( not a ) ( or ( not ( ( ( not b ) ( or ( not a ) ) ) ( or ( c ( or ( not d ) ) ) ) ) ) ) ) )	( ( ( ( not b ) ( or c ) ) ( or a ) ) ( or d ) )
+#	( not ( f ( and d ) ) )	( not ( ( b ( and ( c ( and d ) ) ) ) ( or ( ( not ( d ( or f ) ) ) ( and ( ( not d ) ( and ( not c ) ) ) ) ) ) ) )
+v	( f ( or c ) )	( not ( f ( and ( ( not ( ( not c ) ( and ( not f ) ) ) ) ( or ( not ( d ( and ( not c ) ) ) ) ) ) ) ) )
+<	e	( ( not ( ( not e ) ( and ( ( not b ) ( or f ) ) ) ) ) ( or ( ( not ( f ( or ( not d ) ) ) ) ( and b ) ) ) )
+#	( ( not e ) ( or ( not ( ( a ( or ( not a ) ) ) ( or ( not ( ( not c ) ( or ( not e ) ) ) ) ) ) ) ) )	a
+>	a	( ( ( not a ) ( or ( not ( d ( and e ) ) ) ) ) ( and ( ( a ( or a ) ) ( and ( ( not a ) ( or ( not e ) ) ) ) ) ) )
+>	( not ( ( not ( d ( or ( not b ) ) ) ) ( and ( ( not ( d ( and ( not c ) ) ) ) ( and ( not d ) ) ) ) ) )	( ( not b ) ( and ( f ( or d ) ) ) )
+#	( not ( ( not d ) ( or ( not e ) ) ) )	( ( ( not ( b ( or b ) ) ) ( and ( b ( or e ) ) ) ) ( and ( ( not c ) ( or ( ( not b ) ( and ( not e ) ) ) ) ) ) )
+>	( not a )	( not ( c ( or ( not ( ( ( not c ) ( and ( not c ) ) ) ( and ( ( not a ) ( or ( not a ) ) ) ) ) ) ) ) )
+>	( ( ( not ( ( not f ) ( and a ) ) ) ( or f ) ) ( or ( ( ( not a ) ( and ( not e ) ) ) ( or ( b ( or e ) ) ) ) ) )	f
+#	( ( not ( ( ( not f ) ( and f ) ) ( and f ) ) ) ( and ( not ( c ( or ( ( not f ) ( and ( not a ) ) ) ) ) ) ) )	a
+#	( not ( ( not e ) ( or ( not ( ( f ( and ( not e ) ) ) ( or ( not ( ( not b ) ( and f ) ) ) ) ) ) ) ) )	b
+#	( not ( f ( or f ) ) )	( not ( ( ( b ( and b ) ) ( or ( not ( ( not f ) ( or e ) ) ) ) ) ( or ( a ( and ( ( not a ) ( and a ) ) ) ) ) ) )
+#	a	( ( not ( ( ( not e ) ( and e ) ) ( or ( ( not f ) ( and c ) ) ) ) ) ( or ( ( not e ) ( and ( not a ) ) ) ) )
+<	( ( not ( ( not ( d ( or d ) ) ) ( and ( not ( f ( or a ) ) ) ) ) ) ( and ( not ( f ( or ( not a ) ) ) ) ) )	a
+#	( ( not ( ( e ( and ( not c ) ) ) ( or ( e ( and ( not e ) ) ) ) ) ) ( and ( f ( or ( not ( e ( or b ) ) ) ) ) ) )	e
+#	c	( not ( ( not f ) ( and ( not ( ( ( not f ) ( and ( not e ) ) ) ( or ( ( not a ) ( and f ) ) ) ) ) ) ) )
+#	( ( not ( ( ( not f ) ( and c ) ) ( and ( b ( and e ) ) ) ) ) ( and c ) )	( not ( ( ( ( not b ) ( or f ) ) ( or ( not ( f ( or b ) ) ) ) ) ( and ( not ( b ( and ( f ( or b ) ) ) ) ) ) ) )
+#	( ( b ( or ( ( not a ) ( and ( not f ) ) ) ) ) ( or ( ( c ( and ( not a ) ) ) ( and ( ( not f ) ( or b ) ) ) ) ) )	f
+#	( ( c ( and ( not ( c ( and ( not c ) ) ) ) ) ) ( and ( not ( ( not d ) ( or ( b ( and ( not b ) ) ) ) ) ) ) )	( d ( and ( not b ) ) )
+>	a	( ( not ( ( ( not e ) ( and f ) ) ( and ( not a ) ) ) ) ( and ( ( not e ) ( and ( ( not c ) ( and a ) ) ) ) ) )
+#	( c ( and ( ( not ( ( not f ) ( or f ) ) ) ( or ( e ( and b ) ) ) ) ) )	( not ( ( c ( and ( ( not f ) ( or e ) ) ) ) ( and ( ( not ( ( not e ) ( and ( not f ) ) ) ) ( and f ) ) ) ) )
+v	( not e )	( ( ( not ( f ( or e ) ) ) ( or e ) ) ( and ( not ( ( b ( and e ) ) ( and ( not ( ( not e ) ( or b ) ) ) ) ) ) ) )
+>	( ( not ( b ( and ( not ( ( not e ) ( and b ) ) ) ) ) ) ( and ( ( not e ) ( or ( d ( or ( not e ) ) ) ) ) ) )	( ( not e ) ( and d ) )
+|	( not d )	( not ( ( ( a ( and d ) ) ( or ( not c ) ) ) ( or ( ( ( not d ) ( and c ) ) ( or ( not ( c ( or c ) ) ) ) ) ) ) )
+#	( ( e ( and ( not ( f ( and b ) ) ) ) ) ( or c ) )	( not ( ( ( not ( ( not f ) ( or e ) ) ) ( and ( not ( ( not e ) ( and ( not b ) ) ) ) ) ) ( and f ) ) )
+#	( f ( and ( not e ) ) )	( ( not ( e ( or ( not ( e ( or d ) ) ) ) ) ) ( and ( ( not d ) ( or ( not ( e ( and ( not b ) ) ) ) ) ) ) )
+#	( ( c ( and ( not a ) ) ) ( or ( ( not ( a ( and a ) ) ) ( and ( not ( ( not e ) ( and ( not d ) ) ) ) ) ) ) )	e
+>	( ( not f ) ( or ( ( not ( ( not c ) ( and ( not a ) ) ) ) ( and ( not ( c ( and ( not c ) ) ) ) ) ) ) )	( not f )
+#	( ( ( not ( b ( or ( not d ) ) ) ) ( or d ) ) ( or ( not ( e ( and ( ( not c ) ( and ( not d ) ) ) ) ) ) ) )	b
+>	( not ( ( ( e ( or d ) ) ( or ( not a ) ) ) ( and ( ( ( not d ) ( and ( not a ) ) ) ( and ( not d ) ) ) ) ) )	a
+<	( not f )	( ( not ( ( ( not d ) ( or ( not f ) ) ) ( and ( not d ) ) ) ) ( or ( not ( f ( and ( not b ) ) ) ) ) )
+#	( not ( ( ( not ( c ( and b ) ) ) ( and f ) ) ( or ( c ( and ( not ( c ( and f ) ) ) ) ) ) ) )	( ( not ( b ( and ( b ( or ( not c ) ) ) ) ) ) ( or ( a ( and ( not ( ( not b ) ( and ( not c ) ) ) ) ) ) ) )
+|	( ( not ( ( a ( or d ) ) ( and ( not ( d ( and ( not f ) ) ) ) ) ) ) ( and ( not ( ( e ( and a ) ) ( or a ) ) ) ) )	a
+#	( not ( ( not ( ( ( not f ) ( or a ) ) ( or ( b ( and b ) ) ) ) ) ( and ( not ( b ( and ( not c ) ) ) ) ) ) )	c
+v	e	( ( not b ) ( or ( not ( ( ( not e ) ( or b ) ) ( and ( not ( ( not e ) ( or ( not f ) ) ) ) ) ) ) ) )
+>	( ( not ( ( not b ) ( or ( d ( or ( not f ) ) ) ) ) ) ( or ( not ( ( b ( and f ) ) ( and ( e ( and d ) ) ) ) ) ) )	( not b )
+=	( not ( a ( and b ) ) )	( ( not ( a ( and b ) ) ) ( and ( not ( ( not ( a ( or ( not d ) ) ) ) ( and ( ( not d ) ( or a ) ) ) ) ) ) )
+#	( not ( ( ( ( not a ) ( or d ) ) ( and ( ( not d ) ( or ( not b ) ) ) ) ) ( and ( a ( or ( not e ) ) ) ) ) )	( not d )
+#	b	( ( not ( ( a ( or f ) ) ( and ( not f ) ) ) ) ( and ( ( not ( ( not d ) ( and a ) ) ) ( or ( not b ) ) ) ) )
+v	( ( d ( and c ) ) ( or ( not ( ( b ( and ( not b ) ) ) ( or ( not ( ( not c ) ( and ( not c ) ) ) ) ) ) ) ) )	c
+>	( not ( ( not ( ( not ( a ( and ( not d ) ) ) ) ( and ( not ( a ( and ( not f ) ) ) ) ) ) ) ( and c ) ) )	( ( not ( f ( or ( not ( d ( and a ) ) ) ) ) ) ( and ( not ( c ( and c ) ) ) ) )
+|	( ( b ( and ( not ( ( not b ) ( or e ) ) ) ) ) ( and ( not ( ( not a ) ( and ( not ( a ( and e ) ) ) ) ) ) ) )	( ( not ( ( d ( or ( not a ) ) ) ( or ( ( not a ) ( or d ) ) ) ) ) ( and ( not b ) ) )
+>	( a ( or ( f ( or ( f ( and ( not c ) ) ) ) ) ) )	( not ( ( ( c ( and ( not f ) ) ) ( and ( not ( d ( and c ) ) ) ) ) ( or ( ( d ( and d ) ) ( or ( not c ) ) ) ) ) )
+#	( ( ( b ( and ( not f ) ) ) ( and ( not f ) ) ) ( and ( not ( ( f ( and a ) ) ( and ( not ( f ( and f ) ) ) ) ) ) ) )	a
+#	e	( not ( ( ( e ( and ( not f ) ) ) ( or ( ( not d ) ( or ( not d ) ) ) ) ) ( and ( ( a ( or e ) ) ( and a ) ) ) ) )
+|	( e ( and ( a ( or ( not e ) ) ) ) )	( ( not ( b ( or ( not ( a ( or e ) ) ) ) ) ) ( and ( ( not a ) ( or ( not ( a ( or ( not d ) ) ) ) ) ) ) )
+<	e	( ( ( not ( d ( and ( not a ) ) ) ) ( or ( not ( f ( or e ) ) ) ) ) ( or ( ( ( not a ) ( and a ) ) ( or e ) ) ) )
+#	( ( not ( e ( or b ) ) ) ( or ( not ( ( ( not d ) ( or ( not d ) ) ) ( or ( ( not e ) ( and c ) ) ) ) ) ) )	b
+v	( not ( ( ( a ( or e ) ) ( and d ) ) ( and ( ( not ( ( not a ) ( or e ) ) ) ( and ( ( not f ) ( or d ) ) ) ) ) ) )	( ( ( not a ) ( and ( a ( and e ) ) ) ) ( or d ) )
+v	a	( ( ( not ( a ( and ( not b ) ) ) ) ( or ( ( not c ) ( and a ) ) ) ) ( or ( ( not ( f ( or c ) ) ) ( and c ) ) ) )
+#	( not ( ( ( d ( and f ) ) ( or ( not b ) ) ) ( or ( not ( ( not ( ( not d ) ( and b ) ) ) ( or f ) ) ) ) ) )	e
+#	c	( ( c ( or ( not ( ( not a ) ( and ( not f ) ) ) ) ) ) ( and ( not ( ( not f ) ( or ( not d ) ) ) ) ) )
+#	c	( not ( ( ( not ( ( not b ) ( or f ) ) ) ( and ( ( not f ) ( or c ) ) ) ) ( and ( e ( or ( e ( or f ) ) ) ) ) ) )
+#	( not c )	( ( not ( ( c ( and ( not b ) ) ) ( and ( b ( or f ) ) ) ) ) ( and ( ( not b ) ( or ( a ( and ( not c ) ) ) ) ) ) )
+#	( c ( and d ) )	( ( not ( ( ( not e ) ( and ( not b ) ) ) ( or ( b ( or ( not b ) ) ) ) ) ) ( or ( e ( or ( not b ) ) ) ) )
+#	( not ( ( not ( ( ( not f ) ( and ( not a ) ) ) ( or ( not c ) ) ) ) ( or ( ( not b ) ( or c ) ) ) ) )	( a ( or f ) )
+<	( not ( ( not ( ( d ( or ( not b ) ) ) ( and ( not c ) ) ) ) ( or ( b ( or ( ( not c ) ( and c ) ) ) ) ) ) )	( b ( or ( not ( e ( and ( ( not d ) ( and c ) ) ) ) ) ) )
+<	e	( ( not ( ( not ( ( not e ) ( or f ) ) ) ( or ( ( not f ) ( or a ) ) ) ) ) ( or ( e ( or ( a ( and e ) ) ) ) ) )
+>	( ( not a ) ( or d ) )	( not ( ( ( not ( ( not b ) ( and ( not b ) ) ) ) ( or ( ( not b ) ( and ( not b ) ) ) ) ) ( and a ) ) )
+#	( not b )	( ( not ( ( not ( b ( and ( not b ) ) ) ) ( and ( not ( ( not f ) ( and e ) ) ) ) ) ) ( or ( f ( or e ) ) ) )
+#	d	( not ( ( not ( ( not e ) ( or ( b ( and ( not d ) ) ) ) ) ) ( or ( ( c ( and b ) ) ( and ( not e ) ) ) ) ) )
+#	( ( not ( ( e ( and ( not e ) ) ) ( or ( e ( or b ) ) ) ) ) ( and ( not ( ( not b ) ( and ( c ( or e ) ) ) ) ) ) )	f
+#	( d ( and f ) )	( ( not ( ( not b ) ( or ( f ( and ( not b ) ) ) ) ) ) ( and ( not ( ( ( not f ) ( and c ) ) ( or c ) ) ) ) )
+#	( not ( d ( and ( not e ) ) ) )	( not ( ( ( not ( d ( or a ) ) ) ( or ( not ( ( not e ) ( and f ) ) ) ) ) ( or ( ( not a ) ( or e ) ) ) ) )
+#	( c ( or e ) )	( ( ( ( not b ) ( and d ) ) ( or ( ( not b ) ( and d ) ) ) ) ( or ( ( ( not d ) ( and e ) ) ( and ( c ( and e ) ) ) ) ) )
+#	( ( not c ) ( or ( not ( ( not ( f ( or ( not d ) ) ) ) ( or ( not ( c ( and ( not d ) ) ) ) ) ) ) ) )	b
+#	( not ( ( not ( ( not ( c ( or d ) ) ) ( or ( not ( b ( and ( not c ) ) ) ) ) ) ) ( and ( not c ) ) ) )	( not f )
+#	( not ( ( ( not ( ( not f ) ( or e ) ) ) ( or ( not b ) ) ) ( and ( ( not ( e ( and f ) ) ) ( or f ) ) ) ) )	( not ( ( ( not b ) ( or b ) ) ( and f ) ) )
+<	b	( ( b ( or ( not ( f ( or f ) ) ) ) ) ( or ( not ( ( ( not c ) ( or e ) ) ( and ( not ( e ( and f ) ) ) ) ) ) ) )
+<	( ( not ( ( not a ) ( or ( not c ) ) ) ) ( and ( ( not ( f ( or e ) ) ) ( or ( ( not e ) ( or f ) ) ) ) ) )	c
+#	( ( not ( ( not ( b ( and ( not d ) ) ) ) ( and ( c ( and ( not a ) ) ) ) ) ) ( and ( ( d ( and b ) ) ( or b ) ) ) )	d
+<	( ( ( ( not b ) ( or d ) ) ( and ( e ( and ( not f ) ) ) ) ) ( or ( ( not ( ( not d ) ( and f ) ) ) ( and f ) ) ) )	( ( not b ) ( or ( not ( ( ( not e ) ( or e ) ) ( and ( not d ) ) ) ) ) )
+>	( ( e ( or f ) ) ( or ( not c ) ) )	( not ( ( not ( f ( and ( not e ) ) ) ) ( or ( not ( f ( and ( ( not c ) ( or ( not c ) ) ) ) ) ) ) ) )
+#	c	( ( ( not a ) ( or ( not a ) ) ) ( and ( ( not ( c ( and a ) ) ) ( or ( ( not c ) ( or ( not c ) ) ) ) ) ) )
+#	( not f )	( not ( ( not ( ( not e ) ( and ( c ( and ( not e ) ) ) ) ) ) ( or ( not ( c ( or ( a ( and f ) ) ) ) ) ) ) )
+<	c	( not ( ( not ( ( not c ) ( and ( not e ) ) ) ) ( and ( d ( and ( not ( c ( or ( not b ) ) ) ) ) ) ) ) )
+#	( ( ( d ( and b ) ) ( or a ) ) ( or ( not ( ( not a ) ( and ( not ( ( not d ) ( and ( not b ) ) ) ) ) ) ) ) )	( not d )
+v	( not ( ( not ( ( not ( a ( and e ) ) ) ( or ( d ( and ( not e ) ) ) ) ) ) ( or ( d ( and ( a ( and e ) ) ) ) ) ) )	a
+<	( not ( ( not ( ( e ( or ( not f ) ) ) ( and ( not ( ( not b ) ( or ( not a ) ) ) ) ) ) ) ( or f ) ) )	a
+>	( not c )	( ( not ( c ( or c ) ) ) ( and ( ( ( not c ) ( or b ) ) ( and ( not ( ( not b ) ( or ( not f ) ) ) ) ) ) ) )
+#	c	( ( c ( or ( not ( ( not e ) ( and ( not e ) ) ) ) ) ) ( and ( not ( ( not b ) ( or ( f ( or f ) ) ) ) ) ) )
+>	( ( e ( or ( b ( and ( not f ) ) ) ) ) ( or ( ( a ( and ( not b ) ) ) ( or ( ( not f ) ( and ( not e ) ) ) ) ) ) )	e
+#	( ( ( b ( or ( not d ) ) ) ( and ( not ( d ( and ( not b ) ) ) ) ) ) ( and ( not ( ( not d ) ( and f ) ) ) ) )	e
+#	e	( ( ( b ( or a ) ) ( and ( f ( and ( not a ) ) ) ) ) ( or ( ( not ( a ( or b ) ) ) ( and ( e ( or ( not f ) ) ) ) ) ) )
+|	( not ( ( not ( ( not b ) ( or ( ( not c ) ( and ( not f ) ) ) ) ) ) ( or ( b ( or ( not d ) ) ) ) ) )	( ( ( not c ) ( and b ) ) ( and ( ( c ( or b ) ) ( or ( not b ) ) ) ) )
+#	( ( not ( ( ( not a ) ( and ( not d ) ) ) ( and ( ( not d ) ( or ( not c ) ) ) ) ) ) ( and ( c ( or a ) ) ) )	( c ( or ( d ( and ( ( not d ) ( or c ) ) ) ) ) )
+#	( not e )	( not ( ( not ( ( c ( or f ) ) ( and ( d ( and ( not c ) ) ) ) ) ) ( and ( not ( ( not c ) ( or f ) ) ) ) ) )
+<	a	( not ( ( f ( or ( not ( ( not a ) ( and a ) ) ) ) ) ( and ( ( not a ) ( and ( b ( or ( not f ) ) ) ) ) ) ) )
+|	( not ( ( not ( ( not ( b ( or e ) ) ) ( and ( not f ) ) ) ) ( or ( not ( c ( or ( not c ) ) ) ) ) ) )	e
+<	( c ( and c ) )	( ( ( not ( a ( and ( not f ) ) ) ) ( and ( not ( ( not c ) ( or a ) ) ) ) ) ( or ( ( c ( or f ) ) ( and a ) ) ) )
+#	( ( not ( ( ( not f ) ( or ( not d ) ) ) ( or a ) ) ) ( or ( not ( ( d ( and f ) ) ( or ( a ( or a ) ) ) ) ) ) )	e
+#	b	( ( ( ( not d ) ( and a ) ) ( or d ) ) ( or ( ( not ( ( not f ) ( or ( not d ) ) ) ) ( and ( not d ) ) ) ) )
+v	( not ( ( not ( c ( and ( not ( ( not a ) ( and ( not c ) ) ) ) ) ) ) ( and ( ( a ( or b ) ) ( and f ) ) ) ) )	f
+<	( not ( ( ( ( not f ) ( and ( not b ) ) ) ( or ( not e ) ) ) ( or ( ( a ( or ( not b ) ) ) ( and e ) ) ) ) )	e
+#	c	( ( ( not ( ( not c ) ( and d ) ) ) ( and ( ( not f ) ( and a ) ) ) ) ( or ( ( not ( f ( or f ) ) ) ( and d ) ) ) )
+#	( ( ( c ( or f ) ) ( or ( ( not e ) ( or ( not e ) ) ) ) ) ( and ( not ( ( not c ) ( and ( f ( and b ) ) ) ) ) ) )	( ( ( not c ) ( and ( ( not b ) ( or e ) ) ) ) ( and ( ( c ( or ( not b ) ) ) ( and e ) ) ) )
+<	a	( ( not ( ( not a ) ( and ( ( not f ) ( or ( not f ) ) ) ) ) ) ( or ( ( not d ) ( or ( e ( and d ) ) ) ) ) )
+|	a	( ( not ( ( not e ) ( or ( f ( or a ) ) ) ) ) ( and ( not ( ( not ( ( not f ) ( and e ) ) ) ( and f ) ) ) ) )
+>	( ( not ( ( c ( or ( not a ) ) ) ( and ( not ( b ( or ( not c ) ) ) ) ) ) ) ( or ( a ( or ( b ( or e ) ) ) ) ) )	( ( b ( or e ) ) ( and b ) )
+#	( ( ( not d ) ( or ( ( not d ) ( and ( not a ) ) ) ) ) ( and ( ( ( not f ) ( or ( not e ) ) ) ( and a ) ) ) )	( not ( ( not f ) ( or d ) ) )
+|	( ( not ( ( not ( ( not a ) ( and a ) ) ) ( and ( not ( a ( and a ) ) ) ) ) ) ( and ( f ( and ( not b ) ) ) ) )	( not f )
+#	( ( ( not ( f ( and a ) ) ) ( and ( not ( c ( or ( not c ) ) ) ) ) ) ( or ( ( not ( b ( or c ) ) ) ( or c ) ) ) )	( not ( ( not f ) ( or c ) ) )
+<	( ( ( not d ) ( and b ) ) ( and ( ( c ( and b ) ) ( or d ) ) ) )	( ( ( e ( or ( not d ) ) ) ( or ( b ( and ( not e ) ) ) ) ) ( or ( not ( d ( and ( not ( d ( and e ) ) ) ) ) ) ) )
+#	f	( ( not ( ( not a ) ( or ( not ( a ( or a ) ) ) ) ) ) ( or ( ( e ( or f ) ) ( and ( ( not e ) ( and e ) ) ) ) ) )
+#	( ( ( not ( ( not a ) ( and ( not a ) ) ) ) ( and ( not a ) ) ) ( or ( ( not a ) ( and ( not a ) ) ) ) )	c
+>	c	( ( ( not e ) ( and ( e ( or c ) ) ) ) ( or ( not ( ( ( not c ) ( or ( not e ) ) ) ( or ( not b ) ) ) ) ) )
+|	d	( ( not ( ( not ( ( not d ) ( and ( not d ) ) ) ) ( and ( not ( e ( and ( not e ) ) ) ) ) ) ) ( and a ) )
+<	( ( ( c ( or a ) ) ( and c ) ) ( and ( not ( ( ( not c ) ( and c ) ) ( or ( ( not c ) ( or ( not f ) ) ) ) ) ) ) )	f
+|	( ( not ( ( ( not b ) ( or ( not f ) ) ) ( or b ) ) ) ( or ( f ( and ( not ( c ( or ( not f ) ) ) ) ) ) ) )	c
+#	b	( not ( ( not ( ( c ( or c ) ) ( or ( a ( and ( not f ) ) ) ) ) ) ( or ( not ( c ( or ( c ( and a ) ) ) ) ) ) ) )
+#	( ( not ( ( not ( b ( and ( not a ) ) ) ) ( and ( not ( ( not f ) ( and c ) ) ) ) ) ) ( or ( not f ) ) )	a
+>	( ( ( not ( b ( and c ) ) ) ( or ( not c ) ) ) ( or ( ( ( not f ) ( and a ) ) ( and ( not ( b ( or f ) ) ) ) ) ) )	( ( c ( and ( f ( and ( not b ) ) ) ) ) ( and f ) )
+|	d	( ( e ( and ( e ( or c ) ) ) ) ( and ( not ( ( not e ) ( or ( not ( ( not e ) ( or ( not d ) ) ) ) ) ) ) ) )
+#	( ( not ( c ( or ( not ( ( not c ) ( or d ) ) ) ) ) ) ( and ( not ( d ( and ( not ( c ( or e ) ) ) ) ) ) ) )	( ( not a ) ( or c ) )
+#	( ( ( e ( and a ) ) ( or ( not c ) ) ) ( and ( ( not ( ( not e ) ( or b ) ) ) ( or ( not ( b ( or a ) ) ) ) ) ) )	( c ( and e ) )
+<	( ( not b ) ( and f ) )	( not ( f ( and ( not ( ( not ( b ( or b ) ) ) ( or ( not ( ( not f ) ( or ( not a ) ) ) ) ) ) ) ) ) )
+#	( not ( ( not ( a ( or a ) ) ) ( or ( d ( or ( not c ) ) ) ) ) )	( ( ( not ( ( not e ) ( and ( not d ) ) ) ) ( and ( c ( and a ) ) ) ) ( and ( a ( or ( not ( a ( and e ) ) ) ) ) ) )
+#	( not d )	( ( not ( ( ( not d ) ( and c ) ) ( or ( not ( ( not f ) ( or ( not d ) ) ) ) ) ) ) ( and ( not b ) ) )
+|	( not a )	( not ( ( ( ( not a ) ( or ( not f ) ) ) ( or ( ( not e ) ( and b ) ) ) ) ( and ( ( not a ) ( or f ) ) ) ) )
+|	( ( ( not b ) ( and e ) ) ( or ( ( not ( ( not f ) ( or a ) ) ) ( and ( ( not f ) ( or ( not b ) ) ) ) ) ) )	b
+>	( not ( ( ( not e ) ( and ( not f ) ) ) ( and ( not ( ( not f ) ( and ( ( not f ) ( and c ) ) ) ) ) ) ) )	( e ( and ( ( not ( ( not c ) ( or d ) ) ) ( or ( not e ) ) ) ) )
+<	( ( ( not ( ( not e ) ( and ( not e ) ) ) ) ( and ( not b ) ) ) ( and ( not ( d ( or ( e ( and d ) ) ) ) ) ) )	( not d )
+v	( ( ( not ( f ( and e ) ) ) ( or ( not c ) ) ) ( or ( ( not f ) ( and ( not ( f ( or ( not c ) ) ) ) ) ) ) )	c
+#	( not c )	( not ( ( ( not b ) ( or ( b ( or ( not d ) ) ) ) ) ( and ( ( ( not f ) ( and ( not b ) ) ) ( or d ) ) ) ) )
+#	( not ( ( f ( and ( f ( or ( not f ) ) ) ) ) ( and ( ( d ( or f ) ) ( or ( not ( b ( and ( not f ) ) ) ) ) ) ) ) )	( not d )
+<	( ( ( not a ) ( and ( not ( e ( or e ) ) ) ) ) ( and f ) )	( ( not a ) ( or ( not ( ( ( not c ) ( and e ) ) ( or ( not ( ( not a ) ( and ( not f ) ) ) ) ) ) ) ) )
+>	f	( ( f ( or ( not ( c ( and ( not e ) ) ) ) ) ) ( and ( ( not ( ( not e ) ( or ( not f ) ) ) ) ( and f ) ) ) )
+#	( not ( b ( or a ) ) )	( ( not ( ( not ( ( not a ) ( and a ) ) ) ( and ( not c ) ) ) ) ( and ( not ( b ( or ( not c ) ) ) ) ) )
+v	( ( not a ) ( or ( ( c ( or b ) ) ( or e ) ) ) )	( ( ( not e ) ( or ( b ( or ( not b ) ) ) ) ) ( and ( ( ( not b ) ( or a ) ) ( and ( ( not e ) ( and a ) ) ) ) ) )
+v	( not b )	( not ( ( ( not ( f ( or ( not f ) ) ) ) ( or ( ( not b ) ( and ( not f ) ) ) ) ) ( and ( not b ) ) ) )
+v	( ( ( d ( or e ) ) ( and ( ( not d ) ( and ( not f ) ) ) ) ) ( or ( not ( ( f ( and e ) ) ( and ( f ( and d ) ) ) ) ) ) )	d
+#	( not ( ( not f ) ( and ( ( a ( or a ) ) ( and e ) ) ) ) )	( not ( ( not ( ( f ( or ( not b ) ) ) ( or f ) ) ) ( and ( not ( ( f ( and f ) ) ( or ( not b ) ) ) ) ) ) )
+#	( not b )	( not ( ( ( not ( ( not d ) ( or ( not f ) ) ) ) ( and b ) ) ( or ( not ( d ( or ( not f ) ) ) ) ) ) )
+#	( ( not f ) ( or ( ( ( not a ) ( and ( not f ) ) ) ( or ( not ( ( not b ) ( or ( not f ) ) ) ) ) ) ) )	( not ( a ( or d ) ) )
+#	( not ( ( b ( and c ) ) ( or ( not c ) ) ) )	( not ( ( not ( ( not a ) ( or ( c ( and c ) ) ) ) ) ( or ( not ( ( not a ) ( or ( not c ) ) ) ) ) ) )
+v	( ( ( a ( and ( not f ) ) ) ( or ( not f ) ) ) ( or ( not ( ( d ( and ( not c ) ) ) ( and ( not a ) ) ) ) ) )	( not a )
+#	e	( ( ( a ( or a ) ) ( or ( ( not b ) ( and f ) ) ) ) ( and ( not ( ( not f ) ( and ( not ( b ( and f ) ) ) ) ) ) ) )
+#	c	( ( e ( or ( not ( e ( and e ) ) ) ) ) ( and ( ( not ( ( not d ) ( and f ) ) ) ( or ( ( not c ) ( and e ) ) ) ) ) )
+v	( ( f ( and ( f ( or ( not d ) ) ) ) ) ( or ( ( ( not f ) ( or d ) ) ( and ( d ( or a ) ) ) ) ) )	( not ( ( ( ( not a ) ( and a ) ) ( or a ) ) ( and ( ( a ( and f ) ) ( and ( ( not a ) ( or ( not d ) ) ) ) ) ) ) )
+|	( ( not ( ( not c ) ( and ( not ( ( not e ) ( and ( not a ) ) ) ) ) ) ) ( and ( not ( c ( or c ) ) ) ) )	e
+|	( ( ( not ( a ( and ( not c ) ) ) ) ( and ( not e ) ) ) ( and ( ( d ( or e ) ) ( and d ) ) ) )	( ( not d ) ( and ( ( not ( ( not a ) ( or a ) ) ) ( or ( not ( ( not d ) ( and ( not a ) ) ) ) ) ) ) )
+>	f	( not ( ( ( not f ) ( or ( not ( c ( or b ) ) ) ) ) ( or ( ( not ( a ( and f ) ) ) ( and ( f ( and a ) ) ) ) ) ) )
+v	( not a )	( not ( ( ( not ( ( not b ) ( or f ) ) ) ( or ( e ( or f ) ) ) ) ( and ( not ( ( a ( and a ) ) ( or f ) ) ) ) ) )
+#	( ( not ( ( ( not b ) ( or e ) ) ( and d ) ) ) ( and ( e ( or b ) ) ) )	( not ( ( c ( and ( ( not c ) ( or e ) ) ) ) ( or ( ( d ( and ( not d ) ) ) ( and ( ( not d ) ( or d ) ) ) ) ) ) )
+#	( ( e ( and c ) ) ( and ( ( not ( ( not b ) ( or ( not e ) ) ) ) ( or ( not ( b ( or ( not c ) ) ) ) ) ) ) )	d
+v	a	( ( ( not ( ( not e ) ( or c ) ) ) ( or ( not a ) ) ) ( or ( ( ( not e ) ( and c ) ) ( and ( a ( and c ) ) ) ) ) )
+#	( not ( ( not ( ( ( not f ) ( or f ) ) ( and ( not e ) ) ) ) ( or ( ( e ( and e ) ) ( or ( not d ) ) ) ) ) )	b
+|	( not ( ( not ( ( ( not a ) ( and ( not e ) ) ) ( or ( c ( or ( not a ) ) ) ) ) ) ( or ( not e ) ) ) )	( not e )
+v	( not ( ( not a ) ( and ( c ( and e ) ) ) ) )	( not ( ( not ( ( not ( c ( and a ) ) ) ( and a ) ) ) ( and ( ( c ( and ( not e ) ) ) ( and ( not e ) ) ) ) ) )
+#	( not ( d ( and e ) ) )	( not ( ( not ( a ( and ( e ( or e ) ) ) ) ) ( and ( ( b ( and d ) ) ( or ( not ( e ( and ( not e ) ) ) ) ) ) ) ) )
+>	( ( ( ( not e ) ( or ( not d ) ) ) ( and ( ( not e ) ( or ( not b ) ) ) ) ) ( or ( ( not e ) ( or d ) ) ) )	( ( not e ) ( and ( not d ) ) )
+|	( ( not ( ( not ( e ( or ( not c ) ) ) ) ( or ( not ( ( not d ) ( or ( not d ) ) ) ) ) ) ) ( and e ) )	( not ( e ( or a ) ) )
+#	a	( not ( ( not ( ( b ( or f ) ) ( and ( ( not a ) ( and b ) ) ) ) ) ( and ( not ( ( b ( and a ) ) ( or f ) ) ) ) ) )
+#	( not f )	( ( not ( ( e ( and f ) ) ( and ( ( not b ) ( or a ) ) ) ) ) ( and ( a ( or ( ( not a ) ( and ( not b ) ) ) ) ) ) )
+#	( ( ( ( not b ) ( or ( not a ) ) ) ( and e ) ) ( and ( ( d ( or e ) ) ( or ( not ( d ( and ( not e ) ) ) ) ) ) ) )	b
+#	( not ( ( ( ( not d ) ( and d ) ) ( or ( b ( or a ) ) ) ) ( or ( ( not ( d ( or e ) ) ) ( or ( d ( and e ) ) ) ) ) ) )	d
+#	a	( ( not ( ( b ( and c ) ) ( or ( not ( ( not c ) ( or ( not b ) ) ) ) ) ) ) ( or ( d ( and ( not a ) ) ) ) )
+v	( ( not ( ( not ( b ( and b ) ) ) ( or a ) ) ) ( or ( ( ( not a ) ( or ( not b ) ) ) ( or ( a ( and f ) ) ) ) ) )	( not ( ( ( not ( a ( and ( not f ) ) ) ) ( and f ) ) ( and b ) ) )
+|	( not d )	( ( not ( ( not d ) ( or ( a ( and a ) ) ) ) ) ( and ( not ( ( ( not c ) ( and c ) ) ( and ( not f ) ) ) ) ) )
+>	( not ( ( not ( ( not ( e ( or ( not d ) ) ) ) ( and c ) ) ) ( and ( not ( ( e ( or d ) ) ( and e ) ) ) ) ) )	e
+#	( ( ( ( not f ) ( or d ) ) ( and ( not c ) ) ) ( or ( ( not f ) ( or ( not ( c ( or ( not a ) ) ) ) ) ) ) )	d
+>	( not f )	( ( ( not f ) ( and c ) ) ( and ( not ( ( c ( and c ) ) ( and ( not ( ( not b ) ( or ( not c ) ) ) ) ) ) ) ) )
+#	( ( not ( ( e ( or e ) ) ( and ( not ( b ( or b ) ) ) ) ) ) ( or ( not ( ( b ( and e ) ) ( or ( f ( or e ) ) ) ) ) ) )	( ( ( not ( ( not c ) ( or b ) ) ) ( or c ) ) ( and c ) )
+#	( not ( ( not ( ( not f ) ( or ( not ( c ( or ( not d ) ) ) ) ) ) ) ( and ( c ( or ( not f ) ) ) ) ) )	d
+v	( not f )	( not ( ( ( not ( b ( or e ) ) ) ( and ( not f ) ) ) ( and ( f ( or ( not ( f ( or ( not a ) ) ) ) ) ) ) ) )
+#	e	( ( not ( b ( and ( ( not d ) ( or a ) ) ) ) ) ( or ( not ( ( ( not a ) ( or a ) ) ( and ( not a ) ) ) ) ) )
+|	( not ( ( not ( ( not ( e ( and f ) ) ) ( and ( not a ) ) ) ) ( or ( not ( ( f ( or a ) ) ( and c ) ) ) ) ) )	a
+|	( not ( ( ( not b ) ( and ( ( not d ) ( or a ) ) ) ) ( or ( not ( c ( and ( d ( and ( not b ) ) ) ) ) ) ) ) )	b
+#	( ( not ( d ( or ( d ( and c ) ) ) ) ) ( and ( ( ( not d ) ( or c ) ) ( or ( not ( d ( or ( not b ) ) ) ) ) ) ) )	( not b )
+#	( ( ( c ( and f ) ) ( or ( c ( or a ) ) ) ) ( or ( ( not ( ( not f ) ( or f ) ) ) ( and ( ( not f ) ( and f ) ) ) ) ) )	d
+>	( not ( ( ( not a ) ( and ( c ( or a ) ) ) ) ( and ( not ( ( not ( a ( and ( not e ) ) ) ) ( and d ) ) ) ) ) )	a
+v	( not b )	( not ( ( not ( ( ( not b ) ( or b ) ) ( and ( b ( or d ) ) ) ) ) ( and ( ( not d ) ( or ( not b ) ) ) ) ) )
+|	( ( not ( ( not e ) ( and ( not ( ( not e ) ( and ( not b ) ) ) ) ) ) ) ( and ( not ( c ( and c ) ) ) ) )	c
+|	( ( not ( ( not ( ( not a ) ( and ( not e ) ) ) ) ( or ( not ( ( not e ) ( or f ) ) ) ) ) ) ( and c ) )	( not ( ( c ( or ( ( not a ) ( or ( not e ) ) ) ) ) ( and c ) ) )
+#	( ( d ( or ( not ( e ( or ( not d ) ) ) ) ) ) ( or ( ( not ( ( not c ) ( or ( not e ) ) ) ) ( and d ) ) ) )	( ( ( c ( and e ) ) ( and a ) ) ( and ( c ( or e ) ) ) )
+>	( not c )	( not ( a ( or ( not ( ( ( not c ) ( and ( not d ) ) ) ( and ( not ( c ( or ( not f ) ) ) ) ) ) ) ) ) )
+|	f	( ( not ( ( b ( and ( not b ) ) ) ( and ( c ( or ( not c ) ) ) ) ) ) ( and ( ( not c ) ( and ( not f ) ) ) ) )
+#	f	( ( ( e ( and e ) ) ( and ( not f ) ) ) ( or ( not ( ( not d ) ( or ( ( not f ) ( or ( not a ) ) ) ) ) ) ) )
+>	( ( not ( d ( and ( a ( or d ) ) ) ) ) ( or ( ( ( not a ) ( and ( not a ) ) ) ( and ( e ( and ( not a ) ) ) ) ) ) )	( not d )
+>	( ( ( not ( a ( and ( not b ) ) ) ) ( or ( b ( and ( not b ) ) ) ) ) ( or ( not ( a ( and ( not e ) ) ) ) ) )	( ( ( a ( and e ) ) ( and ( not ( ( not a ) ( or ( not b ) ) ) ) ) ) ( and e ) )
+v	( not ( ( ( not e ) ( and a ) ) ( and ( ( not ( f ( and ( not a ) ) ) ) ( or ( f ( and ( not e ) ) ) ) ) ) ) )	( not e )
+#	( ( not ( ( ( not a ) ( and a ) ) ( and ( not ( ( not a ) ( or ( not f ) ) ) ) ) ) ) ( and ( not b ) ) )	( ( ( a ( and a ) ) ( and b ) ) ( or f ) )
+#	( not ( ( d ( and ( ( not d ) ( or ( not d ) ) ) ) ) ( or ( not ( ( not d ) ( or ( not b ) ) ) ) ) ) )	a
+#	( not ( ( a ( and ( not e ) ) ) ( and ( not ( ( ( not c ) ( or ( not e ) ) ) ( and ( not a ) ) ) ) ) ) )	( ( e ( or ( ( not e ) ( or a ) ) ) ) ( and c ) )
+>	( not ( ( not ( ( not ( ( not b ) ( or d ) ) ) ( or ( ( not d ) ( and ( not c ) ) ) ) ) ) ( and b ) ) )	( ( ( not e ) ( or ( not b ) ) ) ( and e ) )
+#	( ( not ( ( f ( or b ) ) ( and ( e ( or f ) ) ) ) ) ( and ( not ( ( not b ) ( and ( f ( or ( not e ) ) ) ) ) ) ) )	e
+|	e	( ( not ( e ( and ( not d ) ) ) ) ( and ( ( not ( ( not a ) ( or ( not a ) ) ) ) ( and ( not e ) ) ) ) )
+v	a	( not ( ( ( not ( e ( and e ) ) ) ( and ( not ( ( not a ) ( or f ) ) ) ) ) ( and ( d ( and ( d ( or e ) ) ) ) ) ) )
+|	( not ( ( ( not a ) ( or d ) ) ( and ( ( not ( e ( and a ) ) ) ( or ( not ( b ( and ( not e ) ) ) ) ) ) ) ) )	d
+|	( ( not ( ( c ( and a ) ) ( or ( ( not e ) ( and e ) ) ) ) ) ( and ( ( ( not e ) ( or c ) ) ( and ( not b ) ) ) ) )	( ( ( e ( or ( not b ) ) ) ( or ( ( not e ) ( or a ) ) ) ) ( and b ) )
+#	( ( ( not ( ( not a ) ( or ( not d ) ) ) ) ( and ( not ( d ( or ( not a ) ) ) ) ) ) ( or ( d ( and a ) ) ) )	( ( not ( c ( and d ) ) ) ( or ( not f ) ) )
+#	( not ( ( c ( or ( not e ) ) ) ( and ( not ( ( not f ) ( or ( not ( b ( or ( not f ) ) ) ) ) ) ) ) ) )	e
+#	( ( not ( ( d ( and ( not a ) ) ) ( or c ) ) ) ( or ( ( not ( a ( or d ) ) ) ( and ( ( not b ) ( or b ) ) ) ) ) )	( not c )
+#	( not ( ( not ( e ( and e ) ) ) ( or ( not ( ( not ( b ( or ( not e ) ) ) ) ( or ( not a ) ) ) ) ) ) )	( not d )
+|	( ( not ( ( c ( or ( not e ) ) ) ( or ( f ( or d ) ) ) ) ) ( and ( not ( f ( and ( f ( or ( not c ) ) ) ) ) ) ) )	c
+|	( not ( ( ( e ( and a ) ) ( or ( ( not c ) ( and ( not c ) ) ) ) ) ( or ( ( d ( and c ) ) ( or ( not e ) ) ) ) ) )	( not ( ( not d ) ( and ( c ( and ( not a ) ) ) ) ) )
+#	( ( ( d ( and ( not f ) ) ) ( and ( ( not d ) ( or d ) ) ) ) ( and ( not ( ( f ( or f ) ) ( and ( not f ) ) ) ) ) )	c
+#	( ( ( e ( and ( not b ) ) ) ( or ( not b ) ) ) ( or e ) )	( not ( ( ( ( not e ) ( or ( not f ) ) ) ( and a ) ) ( or ( ( a ( and b ) ) ( or ( a ( or ( not f ) ) ) ) ) ) ) )
+v	( not b )	( not ( ( ( a ( or ( not a ) ) ) ( and ( not ( e ( or b ) ) ) ) ) ( and ( ( e ( or a ) ) ( and ( not b ) ) ) ) ) )
+#	a	( ( ( not ( a ( or f ) ) ) ( or d ) ) ( and ( not ( ( not ( d ( and d ) ) ) ( or ( not ( f ( or a ) ) ) ) ) ) ) )
+#	c	( ( not ( d ( or ( c ( and d ) ) ) ) ) ( and ( not ( e ( and ( not ( ( not b ) ( or ( not d ) ) ) ) ) ) ) ) )
+|	( ( not f ) ( or a ) )	( ( not ( ( ( not f ) ( or ( not f ) ) ) ( or ( ( not a ) ( and ( not d ) ) ) ) ) ) ( and ( not a ) ) )
+|	e	( ( ( not e ) ( and ( not a ) ) ) ( and ( not ( ( d ( or ( not b ) ) ) ( and ( a ( and ( not e ) ) ) ) ) ) ) )
+#	( c ( or ( not b ) ) )	( ( not ( ( a ( or f ) ) ( or a ) ) ) ( or ( not ( ( ( not a ) ( and f ) ) ( or ( a ( or ( not b ) ) ) ) ) ) ) )
+|	d	( not ( ( not ( ( not d ) ( and e ) ) ) ( and ( ( ( not e ) ( or e ) ) ( or ( ( not f ) ( and c ) ) ) ) ) ) )
+#	( not ( f ( or f ) ) )	( not ( ( ( d ( and f ) ) ( or ( a ( and f ) ) ) ) ( or ( ( not f ) ( and ( not ( c ( and ( not a ) ) ) ) ) ) ) ) )
+>	( ( ( not ( e ( or e ) ) ) ( or b ) ) ( or ( not ( ( not ( ( not c ) ( and e ) ) ) ( or ( b ( and d ) ) ) ) ) ) )	( b ( and ( d ( or ( not e ) ) ) ) )
+<	( not ( ( not ( c ( and ( b ( and b ) ) ) ) ) ( and ( ( f ( or ( not f ) ) ) ( and ( ( not c ) ( or d ) ) ) ) ) ) )	c
+#	a	( not ( ( a ( or ( not e ) ) ) ( and ( ( not ( ( not e ) ( or ( not d ) ) ) ) ( or ( c ( or d ) ) ) ) ) ) )
+#	( not ( ( not a ) ( or ( ( ( not b ) ( and b ) ) ( and ( not ( ( not b ) ( and ( not b ) ) ) ) ) ) ) ) )	f
+>	( not ( ( not ( ( not ( f ( and ( not c ) ) ) ) ( and ( not f ) ) ) ) ( and ( not ( e ( or e ) ) ) ) ) )	( ( not ( ( c ( or b ) ) ( and ( not ( e ( and c ) ) ) ) ) ) ( and c ) )
+#	( not ( d ( and ( not f ) ) ) )	( not ( ( ( ( not b ) ( or ( not b ) ) ) ( and c ) ) ( or ( ( not c ) ( and ( ( not c ) ( and b ) ) ) ) ) ) )
+#	( not ( d ( and ( ( d ( and ( not d ) ) ) ( or c ) ) ) ) )	( not ( ( ( f ( and f ) ) ( and ( d ( or ( not a ) ) ) ) ) ( and ( not ( ( not c ) ( and ( not d ) ) ) ) ) ) )
+#	( ( not ( f ( or ( not ( ( not b ) ( or d ) ) ) ) ) ) ( and ( not ( ( ( not f ) ( and b ) ) ( or d ) ) ) ) )	( ( f ( or ( not ( d ( or a ) ) ) ) ) ( or b ) )
+>	( ( not d ) ( or ( not ( f ( or ( f ( or c ) ) ) ) ) ) )	( not ( ( not ( ( not ( ( not d ) ( and f ) ) ) ( and ( ( not d ) ( and ( not f ) ) ) ) ) ) ( and d ) ) )
+<	f	( ( ( ( not b ) ( or f ) ) ( and f ) ) ( or ( ( not ( ( not b ) ( or b ) ) ) ( or ( not ( d ( or d ) ) ) ) ) ) )
+|	( not d )	( ( a ( or ( a ( or e ) ) ) ) ( and ( not ( ( ( not d ) ( or ( not c ) ) ) ( or ( ( not d ) ( and e ) ) ) ) ) ) )
+<	d	( not ( ( not ( f ( or ( not f ) ) ) ) ( or ( ( not ( d ( or ( not f ) ) ) ) ( and ( not b ) ) ) ) ) )
+#	c	( ( not ( c ( and ( ( not b ) ( or ( not b ) ) ) ) ) ) ( and ( ( not ( ( not e ) ( or c ) ) ) ( or c ) ) ) )
+#	( not e )	( not ( ( ( b ( or e ) ) ( and ( b ( or f ) ) ) ) ( or ( not ( e ( or ( ( not b ) ( or ( not b ) ) ) ) ) ) ) ) )
+|	( not ( e ( or ( not b ) ) ) )	( not ( ( not ( ( not d ) ( or ( e ( or f ) ) ) ) ) ( or ( ( not e ) ( or ( ( not f ) ( and d ) ) ) ) ) ) )
+v	c	( ( ( ( not b ) ( or f ) ) ( and ( a ( or c ) ) ) ) ( or ( ( f ( and ( not c ) ) ) ( or ( not ( c ( or c ) ) ) ) ) ) )
+|	( not a )	( ( not ( f ( and f ) ) ) ( and ( not ( ( b ( or ( not a ) ) ) ( and ( ( not b ) ( or ( not a ) ) ) ) ) ) ) )
+#	( ( ( b ( and ( not d ) ) ) ( or ( ( not f ) ( or ( not a ) ) ) ) ) ( or ( ( ( not a ) ( and a ) ) ( and b ) ) ) )	( ( not f ) ( or b ) )
+#	( ( ( not c ) ( or ( not f ) ) ) ( or ( b ( and f ) ) ) )	( ( not ( ( not ( ( not b ) ( and d ) ) ) ( and ( not d ) ) ) ) ( or ( d ( and ( ( not d ) ( or f ) ) ) ) ) )
+|	( not ( ( not d ) ( or f ) ) )	( not ( ( ( d ( or d ) ) ( or ( b ( and ( not d ) ) ) ) ) ( and ( not ( ( c ( and c ) ) ( and ( not c ) ) ) ) ) ) )
+#	( not ( ( b ( and ( c ( or ( not e ) ) ) ) ) ( and ( not ( ( not e ) ( and ( not ( b ( and a ) ) ) ) ) ) ) ) )	( not a )
+#	( ( c ( and ( ( not e ) ( or b ) ) ) ) ( or c ) )	( not ( ( ( ( not b ) ( or e ) ) ( or ( not ( c ( and ( not e ) ) ) ) ) ) ( and ( a ( and ( not e ) ) ) ) ) )
+>	( ( not ( a ( and ( b ( or b ) ) ) ) ) ( or ( ( not ( ( not d ) ( or ( not b ) ) ) ) ( and ( a ( and d ) ) ) ) ) )	( ( not ( b ( or a ) ) ) ( or ( not b ) ) )
+<	( ( not ( ( d ( or ( not c ) ) ) ( and ( not ( ( not e ) ( or ( not e ) ) ) ) ) ) ) ( and ( b ( and e ) ) ) )	( e ( and ( e ( or b ) ) ) )
+#	d	( ( ( not ( a ( or ( not d ) ) ) ) ( or ( not f ) ) ) ( or ( not ( f ( or ( ( not d ) ( and d ) ) ) ) ) ) )
+#	( not e )	( ( not ( ( not ( ( not d ) ( and ( not e ) ) ) ) ( or ( d ( and d ) ) ) ) ) ( or ( not ( a ( and d ) ) ) ) )
+^	( a ( or ( a ( and ( not a ) ) ) ) )	( ( not a ) ( or ( not ( ( not ( b ( and ( not e ) ) ) ) ( or ( not ( ( not a ) ( and b ) ) ) ) ) ) ) )
+<	( b ( or ( not ( ( not ( f ( or e ) ) ) ( or ( ( not e ) ( or f ) ) ) ) ) ) )	( not ( ( ( not ( f ( and f ) ) ) ( or ( not ( ( not c ) ( or e ) ) ) ) ) ( and ( f ( and ( not b ) ) ) ) ) )
+#	( not ( ( not ( ( not e ) ( or f ) ) ) ( or ( c ( and ( not ( ( not f ) ( or ( not a ) ) ) ) ) ) ) ) )	f
+#	c	( ( ( not ( a ( or ( not a ) ) ) ) ( or ( ( not c ) ( and c ) ) ) ) ( or ( ( a ( or a ) ) ( and ( b ( or d ) ) ) ) ) )
+>	( not ( ( ( a ( and a ) ) ( or a ) ) ( and ( not ( ( not a ) ( or ( not ( b ( and ( not e ) ) ) ) ) ) ) ) ) )	( not a )
+#	( ( ( not ( b ( or f ) ) ) ( or ( ( not d ) ( or b ) ) ) ) ( and ( f ( or ( f ( or d ) ) ) ) ) )	( ( f ( or ( not ( b ( and ( not e ) ) ) ) ) ) ( and ( not ( ( ( not b ) ( or ( not d ) ) ) ( and d ) ) ) ) )
+<	( not a )	( ( ( not ( a ( and d ) ) ) ( or ( not e ) ) ) ( or ( ( not a ) ( and ( ( not d ) ( and ( not d ) ) ) ) ) ) )
+#	( ( ( ( not d ) ( and f ) ) ( and ( ( not b ) ( or b ) ) ) ) ( and ( ( b ( and f ) ) ( and ( f ( or ( not d ) ) ) ) ) ) )	( not a )
+<	( not ( ( not ( c ( or ( not ( b ( and e ) ) ) ) ) ) ( or ( b ( or ( not ( c ( and ( not e ) ) ) ) ) ) ) ) )	( not e )
+#	( not ( ( a ( or a ) ) ( and ( not ( ( not ( f ( or ( not b ) ) ) ) ( or ( not ( f ( and b ) ) ) ) ) ) ) ) )	( not ( ( b ( and d ) ) ( and f ) ) )
+#	( not ( a ( or ( not c ) ) ) )	( not ( ( not ( f ( and ( not ( a ( or c ) ) ) ) ) ) ( and ( ( e ( or f ) ) ( and ( c ( or ( not a ) ) ) ) ) ) ) )
+#	( ( not ( ( not f ) ( and ( f ( or ( not b ) ) ) ) ) ) ( and b ) )	( not ( ( not ( c ( or ( not ( ( not c ) ( or a ) ) ) ) ) ) ( and ( not ( a ( and ( c ( and f ) ) ) ) ) ) ) )
+#	( not b )	( ( not ( ( a ( and a ) ) ( and e ) ) ) ( or ( ( ( not f ) ( and ( not b ) ) ) ( and ( f ( and ( not b ) ) ) ) ) ) )
+#	( not ( ( c ( or ( b ( or f ) ) ) ) ( and b ) ) )	( not ( ( not ( ( b ( or ( not e ) ) ) ( and f ) ) ) ( or ( not ( ( not b ) ( or ( f ( and c ) ) ) ) ) ) ) )
+<	( a ( and a ) )	( not ( ( not ( d ( and ( ( not b ) ( or ( not f ) ) ) ) ) ) ( and ( not ( ( b ( or a ) ) ( and a ) ) ) ) ) )
+|	( ( not ( ( f ( and b ) ) ( or ( c ( or ( not d ) ) ) ) ) ) ( and ( ( ( not c ) ( or ( not f ) ) ) ( or b ) ) ) )	( b ( and ( d ( and f ) ) ) )
+>	( ( ( c ( or d ) ) ( or ( not ( ( not c ) ( and ( not e ) ) ) ) ) ) ( or ( c ( or ( ( not f ) ( and c ) ) ) ) ) )	d
+#	( not ( ( e ( and ( e ( or d ) ) ) ) ( or ( ( not ( d ( or ( not d ) ) ) ) ( and ( ( not c ) ( and c ) ) ) ) ) ) )	( not a )
+#	( ( not a ) ( or ( ( not ( b ( or b ) ) ) ( and ( d ( or b ) ) ) ) ) )	( ( not b ) ( and ( not ( ( not ( ( not d ) ( or a ) ) ) ( and ( ( not a ) ( or ( not b ) ) ) ) ) ) ) )
+#	( not d )	( ( not ( ( d ( or f ) ) ( and ( not a ) ) ) ) ( and ( not ( ( d ( and f ) ) ( and ( a ( or ( not a ) ) ) ) ) ) ) )
+#	( not b )	( ( not ( d ( or ( not e ) ) ) ) ( or ( ( e ( and ( not c ) ) ) ( or ( ( not c ) ( and ( not d ) ) ) ) ) ) )
+#	( ( ( f ( or c ) ) ( or ( not ( ( not d ) ( or ( not f ) ) ) ) ) ) ( or ( not ( e ( or ( c ( or f ) ) ) ) ) ) )	d
+#	( ( ( ( not d ) ( or d ) ) ( and ( not ( ( not f ) ( and ( not c ) ) ) ) ) ) ( and ( ( f ( or d ) ) ( and f ) ) ) )	d
+#	( not ( ( not ( b ( and ( not ( ( not b ) ( and a ) ) ) ) ) ) ( or ( not ( c ( or ( not e ) ) ) ) ) ) )	a
+<	d	( not ( ( not ( d ( and ( d ( or ( not f ) ) ) ) ) ) ( and ( not ( ( not ( d ( or a ) ) ) ( and e ) ) ) ) ) )
+#	( not e )	( not ( ( ( not ( f ( or e ) ) ) ( or b ) ) ( and ( not ( ( ( not b ) ( and a ) ) ( and ( not a ) ) ) ) ) ) )
+>	( not ( b ( and ( not d ) ) ) )	( ( ( ( not d ) ( and e ) ) ( and ( not b ) ) ) ( or ( ( ( not d ) ( and e ) ) ( and ( e ( and ( not b ) ) ) ) ) ) )
+#	( ( not ( c ( and ( not ( b ( or ( not c ) ) ) ) ) ) ) ( and ( ( not ( ( not f ) ( or d ) ) ) ( or f ) ) ) )	( not b )
+#	( ( not ( ( ( not d ) ( and ( not c ) ) ) ( or d ) ) ) ( or ( not ( e ( and ( not ( d ( and c ) ) ) ) ) ) ) )	( b ( and e ) )
+v	f	( not ( ( ( ( not a ) ( or e ) ) ( and f ) ) ( and ( ( ( not e ) ( or ( not b ) ) ) ( and ( not b ) ) ) ) ) )
+#	f	( ( not ( ( not ( e ( and e ) ) ) ( and ( ( not f ) ( or ( not c ) ) ) ) ) ) ( or ( c ( and ( not c ) ) ) ) )
+|	c	( ( f ( and ( not ( ( not c ) ( or c ) ) ) ) ) ( or ( ( ( not b ) ( and ( not f ) ) ) ( and ( not c ) ) ) ) )
+v	( d ( or ( ( not c ) ( or ( not f ) ) ) ) )	( not ( ( ( d ( or f ) ) ( or ( ( not f ) ( or ( not f ) ) ) ) ) ( and ( d ( and ( not ( b ( and b ) ) ) ) ) ) ) )
+|	( not a )	( ( ( not ( f ( or c ) ) ) ( or b ) ) ( and ( not ( ( c ( and ( not f ) ) ) ( or ( c ( or ( not a ) ) ) ) ) ) ) )
+#	( e ( and ( not ( c ( and a ) ) ) ) )	( not ( ( ( not a ) ( or c ) ) ( or ( ( ( not c ) ( or ( not f ) ) ) ( and ( not ( a ( or e ) ) ) ) ) ) ) )
+#	( not f )	( ( not ( ( a ( and ( not d ) ) ) ( or ( ( not c ) ( and a ) ) ) ) ) ( and ( ( not d ) ( or ( a ( or a ) ) ) ) ) )
+#	( ( not ( ( not b ) ( or ( not ( d ( or b ) ) ) ) ) ) ( and ( ( not ( f ( or f ) ) ) ( or ( not d ) ) ) ) )	( ( b ( or ( not f ) ) ) ( and d ) )
+#	( ( d ( or ( ( not a ) ( and ( not a ) ) ) ) ) ( and ( not ( ( not f ) ( or ( not ( f ( and f ) ) ) ) ) ) ) )	d
+#	( a ( or a ) )	( ( not f ) ( or ( not ( ( ( not f ) ( and ( not a ) ) ) ( or ( not ( f ( and ( not f ) ) ) ) ) ) ) ) )
+<	( not ( ( ( f ( or ( not e ) ) ) ( or ( ( not e ) ( or ( not e ) ) ) ) ) ( or ( d ( or ( d ( and b ) ) ) ) ) ) )	( e ( and ( not f ) ) )
+>	( ( ( a ( and b ) ) ( and b ) ) ( or ( not ( ( ( not a ) ( and ( not e ) ) ) ( and ( not ( b ( and d ) ) ) ) ) ) ) )	e
+<	( not ( c ( or f ) ) )	( ( c ( and ( not f ) ) ) ( or ( ( not ( f ( and ( not d ) ) ) ) ( and ( not ( ( not e ) ( and c ) ) ) ) ) ) )
+#	( not ( ( not ( b ( or ( a ( and f ) ) ) ) ) ( and ( not ( ( ( not b ) ( and ( not b ) ) ) ( and f ) ) ) ) ) )	d
+v	( ( a ( and ( ( not e ) ( or e ) ) ) ) ( and a ) )	( ( not ( ( a ( or b ) ) ( and ( a ( and e ) ) ) ) ) ( or ( ( not ( e ( or ( not c ) ) ) ) ( and ( not e ) ) ) ) )
+v	( ( ( not ( ( not e ) ( or b ) ) ) ( or ( not b ) ) ) ( or ( not ( ( not f ) ( and ( not e ) ) ) ) ) )	( not e )
+v	( ( not ( ( not d ) ( and ( not ( d ( or c ) ) ) ) ) ) ( or e ) )	( ( not e ) ( or ( not ( ( not ( a ( and ( not d ) ) ) ) ( and ( not ( ( not d ) ( or c ) ) ) ) ) ) ) )
+v	( not ( ( not ( e ( and ( a ( and e ) ) ) ) ) ( and ( ( not ( a ( or e ) ) ) ( and ( d ( or ( not d ) ) ) ) ) ) ) )	( ( not ( e ( or ( a ( or e ) ) ) ) ) ( or ( not b ) ) )
+#	( not ( ( not ( a ( or b ) ) ) ( or ( ( not ( ( not e ) ( or b ) ) ) ( and ( e ( and ( not b ) ) ) ) ) ) ) )	( ( not d ) ( or ( ( not d ) ( and b ) ) ) )
+#	e	( not ( ( ( e ( or ( not c ) ) ) ( or ( f ( or f ) ) ) ) ( and ( ( not ( c ( or c ) ) ) ( or ( not c ) ) ) ) ) )
+>	( a ( or c ) )	( ( not ( ( not ( ( not f ) ( or ( not f ) ) ) ) ( and ( ( not c ) ( and ( not a ) ) ) ) ) ) ( and f ) )
+#	( c ( and ( a ( or a ) ) ) )	( not ( ( ( not a ) ( or ( ( not a ) ( or ( not d ) ) ) ) ) ( and ( not ( ( c ( or d ) ) ( and e ) ) ) ) ) )
+>	( not e )	( not ( ( ( a ( or ( not f ) ) ) ( and e ) ) ( or ( ( ( not d ) ( and ( not d ) ) ) ( or ( e ( and f ) ) ) ) ) ) )
+#	e	( not ( ( not ( ( not ( ( not e ) ( and d ) ) ) ( or f ) ) ) ( or ( not ( f ( and ( c ( and f ) ) ) ) ) ) ) )
+#	a	( not ( ( not ( e ( and ( a ( or c ) ) ) ) ) ( or ( not ( ( not e ) ( or ( d ( or ( not d ) ) ) ) ) ) ) ) )
+|	( ( ( ( not e ) ( or a ) ) ( and ( ( not e ) ( or f ) ) ) ) ( and ( ( f ( and f ) ) ( and ( not ( a ( and c ) ) ) ) ) ) )	( ( ( ( not e ) ( and c ) ) ( and a ) ) ( and ( not e ) ) )
+v	( ( ( not d ) ( and ( ( not b ) ( or ( not d ) ) ) ) ) ( or ( ( not b ) ( or ( ( not c ) ( and f ) ) ) ) ) )	( not ( ( not b ) ( and ( not c ) ) ) )
+>	( ( ( ( not a ) ( and a ) ) ( or ( ( not a ) ( or a ) ) ) ) ( and ( ( not ( ( not f ) ( and c ) ) ) ( or b ) ) ) )	f
+#	( not ( e ( or e ) ) )	( not ( ( ( d ( or ( not f ) ) ) ( or ( ( not f ) ( and d ) ) ) ) ( or ( ( not ( a ( and e ) ) ) ( and d ) ) ) ) )
+v	( ( not d ) ( or ( f ( and ( b ( and b ) ) ) ) ) )	( ( not ( ( not ( ( not d ) ( and ( not b ) ) ) ) ( or b ) ) ) ( or ( d ( or ( ( not c ) ( and f ) ) ) ) ) )
+#	( ( not ( ( not b ) ( and f ) ) ) ( and ( ( not ( f ( or ( not d ) ) ) ) ( and ( d ( or ( not e ) ) ) ) ) ) )	e
+#	e	( ( not ( ( ( not c ) ( and d ) ) ( or ( ( not f ) ( and c ) ) ) ) ) ( and ( f ( or ( d ( or ( not e ) ) ) ) ) ) )
+#	( not ( ( ( not a ) ( or ( not c ) ) ) ( and ( not ( ( ( not b ) ( and ( not a ) ) ) ( or c ) ) ) ) ) )	e
+<	( ( not ( ( ( not c ) ( or ( not f ) ) ) ( and ( not ( ( not e ) ( and e ) ) ) ) ) ) ( and ( e ( or c ) ) ) )	c
+#	( ( ( e ( and e ) ) ( or ( ( not e ) ( or ( not d ) ) ) ) ) ( and ( ( not d ) ( and ( ( not c ) ( or c ) ) ) ) ) )	( not ( e ( or ( not ( ( not f ) ( or f ) ) ) ) ) )
+v	( not ( ( ( ( not a ) ( and ( not d ) ) ) ( and b ) ) ( or ( ( ( not d ) ( or a ) ) ( and ( not a ) ) ) ) ) )	( not ( ( ( not ( ( not b ) ( or ( not f ) ) ) ) ( or a ) ) ( and d ) ) )
+#	( d ( and ( not e ) ) )	( not ( ( ( a ( and ( not a ) ) ) ( or ( a ( and a ) ) ) ) ( and ( ( not ( ( not c ) ( and c ) ) ) ( or c ) ) ) ) )
+|	( ( not ( ( not e ) ( and ( f ( and ( not e ) ) ) ) ) ) ( and ( not ( d ( and ( f ( or ( not f ) ) ) ) ) ) ) )	( e ( and ( not ( ( ( not d ) ( and f ) ) ( or ( not ( f ( and d ) ) ) ) ) ) ) )
+>	( ( ( not e ) ( or d ) ) ( and ( ( f ( or ( not e ) ) ) ( or ( not ( ( not e ) ( and ( not f ) ) ) ) ) ) ) )	( not e )
+<	( ( ( ( not f ) ( or b ) ) ( or a ) ) ( and ( not ( ( ( not d ) ( or a ) ) ( or ( a ( or ( not b ) ) ) ) ) ) ) )	b
+v	( not d )	( not ( ( ( not b ) ( or ( not ( a ( and a ) ) ) ) ) ( and ( ( d ( or ( not a ) ) ) ( and ( not d ) ) ) ) ) )
+<	( ( ( not ( ( not a ) ( or a ) ) ) ( or ( not b ) ) ) ( and ( ( ( not a ) ( or b ) ) ( or ( not a ) ) ) ) )	( not ( b ( or b ) ) )
+#	( not ( ( not ( ( ( not a ) ( and d ) ) ( or d ) ) ) ( or ( not ( ( not d ) ( or ( d ( and a ) ) ) ) ) ) ) )	f
+|	( ( ( not ( d ( or b ) ) ) ( or ( ( not a ) ( and b ) ) ) ) ( and ( ( e ( and b ) ) ( or ( not ( a ( and a ) ) ) ) ) ) )	( ( not b ) ( and a ) )
+#	e	( not ( ( ( not f ) ( and ( not f ) ) ) ( and ( ( ( not f ) ( and e ) ) ( or ( not ( b ( or e ) ) ) ) ) ) ) )
+<	( not ( ( not ( ( not ( a ( or ( not f ) ) ) ) ( or ( not ( ( not f ) ( or a ) ) ) ) ) ) ( or c ) ) )	( not ( c ( and ( ( not c ) ( or c ) ) ) ) )
+|	( not ( ( not ( ( f ( and ( not e ) ) ) ( and ( e ( or a ) ) ) ) ) ( and ( ( a ( or e ) ) ( and ( f ( or a ) ) ) ) ) ) )	( ( f ( or ( ( not f ) ( and a ) ) ) ) ( and e ) )
+<	( not c )	( not ( ( ( f ( and f ) ) ( and ( not ( f ( or ( not c ) ) ) ) ) ) ( or ( ( c ( or ( not e ) ) ) ( and e ) ) ) ) )
+|	( ( not ( ( not b ) ( and ( not f ) ) ) ) ( and ( ( not ( e ( and f ) ) ) ( and ( not ( b ( and e ) ) ) ) ) ) )	e
+#	( b ( and ( not d ) ) )	( not ( ( not ( ( not b ) ( or f ) ) ) ( and ( ( ( not f ) ( and ( not a ) ) ) ( or ( b ( and d ) ) ) ) ) ) )
+>	( not ( ( ( not f ) ( or a ) ) ( and ( not ( ( ( not f ) ( and f ) ) ( or ( not ( f ( and c ) ) ) ) ) ) ) ) )	( a ( and ( not f ) ) )
+<	( ( ( e ( and ( not a ) ) ) ( and ( not ( ( not e ) ( or d ) ) ) ) ) ( and ( ( not d ) ( or ( e ( and d ) ) ) ) ) )	( f ( or e ) )
+#	( ( not ( ( not e ) ( and a ) ) ) ( or ( ( ( not b ) ( and e ) ) ( and ( ( not b ) ( or ( not e ) ) ) ) ) ) )	c
+#	f	( not ( ( not ( d ( or ( ( not e ) ( and f ) ) ) ) ) ( or ( ( not e ) ( and ( f ( and ( not a ) ) ) ) ) ) ) )
+#	( not ( ( d ( and ( e ( or ( not c ) ) ) ) ) ( or ( not ( ( not ( c ( or a ) ) ) ( or ( not e ) ) ) ) ) ) )	a
+<	f	( ( ( ( not e ) ( or ( not a ) ) ) ( or f ) ) ( or ( ( ( not e ) ( or ( not a ) ) ) ( and ( f ( and a ) ) ) ) ) )
+v	( ( not ( ( ( not c ) ( or f ) ) ( and ( not e ) ) ) ) ( and ( ( not ( f ( or a ) ) ) ( or ( a ( or f ) ) ) ) ) )	( not e )
+|	( not e )	( not ( ( a ( or ( ( not b ) ( or a ) ) ) ) ( or ( not ( b ( and ( not ( ( not e ) ( or a ) ) ) ) ) ) ) ) )
+#	( not ( ( ( ( not f ) ( or e ) ) ( or ( e ( or ( not e ) ) ) ) ) ( and ( ( c ( or ( not e ) ) ) ( and b ) ) ) ) )	( ( not f ) ( or ( not b ) ) )
+>	( c ( or ( ( ( not f ) ( or e ) ) ( or ( not ( a ( or c ) ) ) ) ) ) )	( ( ( not c ) ( or ( not f ) ) ) ( and ( not ( a ( or ( not ( ( not c ) ( or ( not e ) ) ) ) ) ) ) ) )
+#	( not ( ( not ( ( d ( and ( not e ) ) ) ( and f ) ) ) ( and ( ( not a ) ( or ( f ( or ( not a ) ) ) ) ) ) ) )	f
+#	( b ( and d ) )	( not ( ( not ( ( not ( e ( or b ) ) ) ( or ( ( not d ) ( or ( not c ) ) ) ) ) ) ( or ( not e ) ) ) )
+#	( ( ( not d ) ( or ( not ( e ( and ( not e ) ) ) ) ) ) ( and ( ( ( not d ) ( or ( not c ) ) ) ( and d ) ) ) )	f
+#	( not ( ( ( not ( ( not c ) ( and ( not b ) ) ) ) ( and ( not ( c ( or b ) ) ) ) ) ( or ( not b ) ) ) )	d
+#	( ( not ( ( not f ) ( or ( e ( and ( not d ) ) ) ) ) ) ( or ( e ( or ( not ( c ( or ( not f ) ) ) ) ) ) ) )	( not ( ( d ( and e ) ) ( or ( not c ) ) ) )
+|	( not ( a ( or ( not ( ( not ( ( not f ) ( and ( not e ) ) ) ) ( and ( e ( or ( not e ) ) ) ) ) ) ) ) )	( not ( ( f ( or ( not a ) ) ) ( or b ) ) )
+v	( ( ( c ( and b ) ) ( or ( ( not d ) ( or ( not c ) ) ) ) ) ( or ( b ( and ( ( not b ) ( or ( not a ) ) ) ) ) ) )	d
+#	f	( not ( ( c ( or c ) ) ( and ( ( ( not d ) ( and ( not b ) ) ) ( or ( not ( d ( or ( not f ) ) ) ) ) ) ) ) )
+|	f	( ( ( c ( and f ) ) ( or ( ( not d ) ( or c ) ) ) ) ( and ( not ( ( b ( or f ) ) ( and ( f ( or ( not c ) ) ) ) ) ) ) )
+#	d	( ( not ( ( not ( ( not a ) ( and ( not a ) ) ) ) ( or ( d ( and e ) ) ) ) ) ( and ( not ( b ( or b ) ) ) ) )
+#	( not a )	( not ( b ( or ( not ( ( not ( ( not a ) ( and d ) ) ) ( or ( not ( ( not c ) ( or b ) ) ) ) ) ) ) ) )
+#	( not ( ( ( a ( and ( not b ) ) ) ( or ( not b ) ) ) ( and ( ( not b ) ( and ( not ( f ( or b ) ) ) ) ) ) ) )	e
+#	( ( ( not b ) ( or ( not ( c ( or ( not e ) ) ) ) ) ) ( and ( not c ) ) )	( not ( ( ( b ( or ( not c ) ) ) ( or ( not ( ( not e ) ( or e ) ) ) ) ) ( and ( a ( and ( e ( or a ) ) ) ) ) ) )
+v	( not ( ( not ( d ( and ( not e ) ) ) ) ( and ( not ( ( a ( or ( not e ) ) ) ( or ( d ( and a ) ) ) ) ) ) ) )	e
+#	( not ( ( not ( a ( or ( a ( and d ) ) ) ) ) ( and ( ( not e ) ( and ( ( not e ) ( or ( not d ) ) ) ) ) ) ) )	( not ( e ( or d ) ) )
+#	( ( not ( ( not f ) ( or ( not b ) ) ) ) ( or ( not ( ( ( not f ) ( or a ) ) ( and ( not a ) ) ) ) ) )	( not c )
+v	( ( ( ( not a ) ( or b ) ) ( or ( not ( ( not a ) ( or b ) ) ) ) ) ( and ( ( not ( c ( or c ) ) ) ( or f ) ) ) )	( a ( or ( c ( or ( not b ) ) ) ) )
+#	( not ( f ( or e ) ) )	( ( not ( ( c ( and b ) ) ( and ( not ( ( not b ) ( and f ) ) ) ) ) ) ( and ( not ( ( e ( or b ) ) ( or b ) ) ) ) )
+>	d	( ( not ( ( not a ) ( or ( not e ) ) ) ) ( and ( ( ( not e ) ( or d ) ) ( or ( ( not a ) ( and a ) ) ) ) ) )
+#	( e ( and ( ( e ( and e ) ) ( or b ) ) ) )	( not ( ( ( ( not d ) ( and ( not d ) ) ) ( and ( not ( b ( or ( not c ) ) ) ) ) ) ( or ( not b ) ) ) )
+#	b	( not ( ( not ( a ( and c ) ) ) ( and ( not ( ( not ( e ( or ( not a ) ) ) ) ( or ( not e ) ) ) ) ) ) )
+>	( a ( or ( b ( or ( c ( or c ) ) ) ) ) )	( ( not ( d ( or ( not d ) ) ) ) ( or ( not ( ( ( not c ) ( and ( not a ) ) ) ( or ( not c ) ) ) ) ) )
+<	( not ( ( not ( e ( and f ) ) ) ( or ( ( ( not f ) ( and f ) ) ( or ( ( not f ) ( or ( not c ) ) ) ) ) ) ) )	f
+#	a	( ( not ( ( not ( a ( or c ) ) ) ( and ( d ( and b ) ) ) ) ) ( and ( not ( b ( or ( d ( and ( not a ) ) ) ) ) ) ) )
+#	e	( not ( ( not ( ( b ( and b ) ) ( and ( ( not b ) ( and b ) ) ) ) ) ( and ( ( not c ) ( and ( not f ) ) ) ) ) )
+#	( e ( or ( not ( ( not d ) ( or d ) ) ) ) )	( ( f ( or ( not ( ( not f ) ( or e ) ) ) ) ) ( or ( not ( ( not ( d ( and ( not f ) ) ) ) ( and c ) ) ) ) )
+|	( e ( and c ) )	( ( not ( ( not ( d ( and f ) ) ) ( or c ) ) ) ( and ( not ( ( d ( and e ) ) ( or ( not ( f ( or f ) ) ) ) ) ) ) )
+|	( not ( ( b ( or ( not f ) ) ) ( or ( not ( ( not e ) ( and ( not ( ( not b ) ( and e ) ) ) ) ) ) ) ) )	( not f )
+<	a	( ( e ( or ( a ( and ( not d ) ) ) ) ) ( or ( not ( ( not a ) ( and ( not ( a ( and ( not b ) ) ) ) ) ) ) ) )
+<	( not ( ( ( b ( and c ) ) ( or ( not ( c ( or e ) ) ) ) ) ( or ( ( not ( ( not c ) ( and c ) ) ) ( and d ) ) ) ) )	( ( not c ) ( or ( not b ) ) )
+#	( ( not ( ( not ( ( not a ) ( or e ) ) ) ( and ( not a ) ) ) ) ( and ( ( a ( or e ) ) ( and ( not f ) ) ) ) )	a
+#	( not ( e ( and ( not ( ( ( not a ) ( and ( not d ) ) ) ( and ( not ( ( not e ) ( or a ) ) ) ) ) ) ) ) )	f
+v	( not ( ( not c ) ( or ( not f ) ) ) )	( not ( ( not ( ( not f ) ( or ( not e ) ) ) ) ( and ( not ( ( not c ) ( and ( e ( or b ) ) ) ) ) ) ) )
+#	( not f )	( ( ( ( not a ) ( and f ) ) ( or ( ( not e ) ( and b ) ) ) ) ( or ( not ( ( f ( and e ) ) ( or ( not b ) ) ) ) ) )
+#	( f ( or a ) )	( not ( ( ( ( not f ) ( and b ) ) ( and ( not e ) ) ) ( or ( e ( and ( ( not b ) ( or ( not a ) ) ) ) ) ) ) )
+>	( ( b ( or ( b ( or a ) ) ) ) ( or ( ( ( not b ) ( or f ) ) ( and ( not ( ( not b ) ( and ( not e ) ) ) ) ) ) ) )	e
+v	( ( ( ( not d ) ( and d ) ) ( or ( not ( d ( and ( not f ) ) ) ) ) ) ( or ( not ( ( not b ) ( and e ) ) ) ) )	( not f )
+#	( not ( ( not f ) ( or ( ( not ( a ( and b ) ) ) ( and ( not ( ( not a ) ( and ( not b ) ) ) ) ) ) ) ) )	( ( not c ) ( or b ) )
+|	( ( not f ) ( and a ) )	( ( not ( ( ( not d ) ( or ( not f ) ) ) ( and ( not ( ( not f ) ( or ( not f ) ) ) ) ) ) ) ( and f ) )
+#	( ( not ( ( d ( or d ) ) ( and ( not ( ( not d ) ( or e ) ) ) ) ) ) ( or e ) )	( ( not ( d ( or e ) ) ) ( or ( not ( ( not ( d ( and ( not b ) ) ) ) ( and ( not ( d ( and e ) ) ) ) ) ) ) )
+#	( not a )	( not ( ( not ( ( b ( and c ) ) ( or ( d ( or d ) ) ) ) ) ( or ( not ( d ( or ( not ( c ( or b ) ) ) ) ) ) ) ) )
+v	c	( not ( ( ( not ( e ( or ( not c ) ) ) ) ( and ( e ( or b ) ) ) ) ( and ( not ( e ( or ( a ( and a ) ) ) ) ) ) ) )
+#	( not ( a ( or b ) ) )	( not ( ( not ( ( b ( or a ) ) ( or ( not ( ( not c ) ( and ( not e ) ) ) ) ) ) ) ( or ( not e ) ) ) )
+#	( not ( ( ( not ( c ( or d ) ) ) ( and ( not ( ( not d ) ( and a ) ) ) ) ) ( or ( not ( d ( and c ) ) ) ) ) )	( not a )
+#	c	( not ( ( ( b ( and c ) ) ( and ( ( not e ) ( and ( not e ) ) ) ) ) ( or ( ( not b ) ( and ( not c ) ) ) ) ) )
+#	d	( ( ( not ( ( not a ) ( and ( not f ) ) ) ) ( and ( ( not b ) ( and a ) ) ) ) ( or ( ( f ( and f ) ) ( or b ) ) ) )
+#	f	( not ( ( ( a ( or a ) ) ( and ( not ( f ( and ( not a ) ) ) ) ) ) ( and ( e ( or ( ( not a ) ( and f ) ) ) ) ) ) )
+#	( ( ( not f ) ( or ( not ( d ( or b ) ) ) ) ) ( or ( ( not ( b ( or b ) ) ) ( and ( f ( and ( not e ) ) ) ) ) ) )	e
+#	f	( ( ( not ( e ( and e ) ) ) ( and ( ( not e ) ( and ( not f ) ) ) ) ) ( or ( ( not c ) ( and ( c ( or b ) ) ) ) ) )
+#	d	( not ( ( b ( and ( d ( or f ) ) ) ) ( or ( not ( ( ( not f ) ( and a ) ) ( or ( not ( f ( or d ) ) ) ) ) ) ) ) )
+#	( ( ( not c ) ( and c ) ) ( or d ) )	( not ( ( ( ( not e ) ( or b ) ) ( or ( b ( and ( not b ) ) ) ) ) ( or ( ( b ( and c ) ) ( and ( b ( and c ) ) ) ) ) ) )
+>	( ( ( not f ) ( and ( not ( c ( and ( not c ) ) ) ) ) ) ( or ( not ( ( e ( and ( not e ) ) ) ( or e ) ) ) ) )	( not f )
+#	( not ( ( not a ) ( and ( ( ( not e ) ( and ( not e ) ) ) ( or ( ( not b ) ( or ( not a ) ) ) ) ) ) ) )	( not ( e ( or e ) ) )
+#	( not ( ( not e ) ( and ( ( not ( ( not e ) ( and a ) ) ) ( or ( ( not d ) ( and ( not d ) ) ) ) ) ) ) )	a
+<	( not ( ( not ( ( not f ) ( and ( not ( ( not d ) ( and ( not f ) ) ) ) ) ) ) ( or ( f ( and a ) ) ) ) )	d
+#	( not ( ( not ( ( ( not d ) ( or b ) ) ( or d ) ) ) ( or ( not ( ( not d ) ( or ( not e ) ) ) ) ) ) )	( not ( ( ( not ( b ( and c ) ) ) ( and ( d ( and b ) ) ) ) ( or ( c ( and ( not d ) ) ) ) ) )
+#	e	( ( ( not ( b ( or ( not b ) ) ) ) ( or ( ( not c ) ( and b ) ) ) ) ( or ( ( not ( d ( or b ) ) ) ( or d ) ) ) )
+|	( f ( and ( not ( ( not ( e ( or ( not a ) ) ) ) ( or ( not ( ( not e ) ( and ( not e ) ) ) ) ) ) ) ) )	( not f )
+#	( not c )	( ( not ( ( f ( or d ) ) ( and ( c ( or ( not d ) ) ) ) ) ) ( or ( not ( ( not b ) ( or ( not b ) ) ) ) ) )
+<	b	( not ( ( ( not ( ( not d ) ( and e ) ) ) ( and ( not e ) ) ) ( and ( not ( f ( or ( b ( or f ) ) ) ) ) ) ) )
+#	( ( ( f ( or ( not f ) ) ) ( and e ) ) ( and c ) )	( not ( ( not ( f ( or f ) ) ) ( or ( not ( ( not ( d ( or ( not f ) ) ) ) ( or ( f ( and d ) ) ) ) ) ) ) )
+#	( not ( ( not ( ( not ( ( not d ) ( and ( not c ) ) ) ) ( and d ) ) ) ( or ( f ( or ( f ( and d ) ) ) ) ) ) )	e
+v	( not ( ( ( ( not a ) ( and c ) ) ( or ( not c ) ) ) ( and ( e ( and ( not ( a ( and d ) ) ) ) ) ) ) )	( ( not ( ( not d ) ( or ( ( not d ) ( or d ) ) ) ) ) ( or ( ( e ( or ( not c ) ) ) ( or ( not c ) ) ) ) )
+>	( not f )	( not ( ( not ( ( a ( and b ) ) ( and ( not f ) ) ) ) ( or ( ( not a ) ( and ( not ( d ( and a ) ) ) ) ) ) ) )
+#	( ( not b ) ( and ( not d ) ) )	( not ( ( not ( ( ( not e ) ( or d ) ) ( or ( not e ) ) ) ) ( or ( not ( e ( or ( not e ) ) ) ) ) ) )
+|	( ( ( not ( ( not b ) ( and a ) ) ) ( or ( not d ) ) ) ( and ( ( ( not e ) ( and a ) ) ( and ( not e ) ) ) ) )	e
+v	a	( ( not ( ( not ( ( not a ) ( and d ) ) ) ( and a ) ) ) ( or ( ( not ( ( not d ) ( or d ) ) ) ( or d ) ) ) )
+#	( not ( ( c ( and ( not ( ( not c ) ( or c ) ) ) ) ) ( or ( not ( ( ( not a ) ( and c ) ) ( or a ) ) ) ) ) )	d
+v	( not d )	( not ( ( not ( d ( or ( not ( ( not a ) ( and ( not c ) ) ) ) ) ) ) ( and ( c ( or ( not e ) ) ) ) ) )
+#	( ( not d ) ( and ( b ( and b ) ) ) )	( ( ( not ( b ( or ( not d ) ) ) ) ( or ( e ( and a ) ) ) ) ( and ( ( not d ) ( or ( e ( and ( not e ) ) ) ) ) ) )
+#	b	( not ( ( ( not ( f ( or c ) ) ) ( or ( a ( or b ) ) ) ) ( and ( not ( ( c ( or a ) ) ( and ( not f ) ) ) ) ) ) )
+#	d	( ( not ( ( b ( and ( not f ) ) ) ( or c ) ) ) ( or ( ( ( not c ) ( or f ) ) ( and ( not ( d ( or d ) ) ) ) ) ) )
+|	f	( not ( ( d ( and ( not ( ( not d ) ( and d ) ) ) ) ) ( or ( ( ( not d ) ( or b ) ) ( and ( a ( or f ) ) ) ) ) ) )
+#	( not ( ( not c ) ( and ( not a ) ) ) )	( not ( ( not d ) ( and ( ( not ( a ( and a ) ) ) ( or ( not ( ( not c ) ( and ( not d ) ) ) ) ) ) ) ) )
+#	( not ( ( not ( ( not c ) ( or ( not f ) ) ) ) ( or ( ( not c ) ( and ( not ( c ( or f ) ) ) ) ) ) ) )	f
+v	d	( ( ( e ( or ( not d ) ) ) ( or ( c ( or ( not a ) ) ) ) ) ( or ( ( not ( e ( or ( not c ) ) ) ) ( and e ) ) ) )
+<	e	( ( not f ) ( or ( not ( ( ( not d ) ( and ( not e ) ) ) ( or ( not ( f ( or ( not b ) ) ) ) ) ) ) ) )
+|	( not ( b ( and ( not ( c ( and ( f ( or f ) ) ) ) ) ) ) )	( ( not ( ( a ( or ( not b ) ) ) ( or f ) ) ) ( or ( ( ( not a ) ( and f ) ) ( and ( b ( and ( not f ) ) ) ) ) ) )
+#	( ( not ( c ( or ( f ( or e ) ) ) ) ) ( or ( ( not ( ( not c ) ( or d ) ) ) ( or ( e ( and ( not c ) ) ) ) ) ) )	f
+>	( not ( ( ( not a ) ( and ( not d ) ) ) ( and ( ( not e ) ( and ( not ( e ( and ( not a ) ) ) ) ) ) ) ) )	e
+#	( ( ( ( not f ) ( or ( not e ) ) ) ( and ( e ( and e ) ) ) ) ( or ( ( ( not e ) ( and e ) ) ( or ( not d ) ) ) ) )	f
+<	( ( ( f ( or ( not a ) ) ) ( and ( not ( ( not a ) ( or e ) ) ) ) ) ( and ( a ( or ( not ( f ( and e ) ) ) ) ) ) )	( not e )
+#	( b ( and b ) )	( not ( ( ( not ( b ( and a ) ) ) ( and f ) ) ( or ( ( not ( b ( and ( not f ) ) ) ) ( and ( b ( or f ) ) ) ) ) ) )
+v	( ( ( not ( d ( and ( not b ) ) ) ) ( or e ) ) ( or ( not ( d ( and ( not ( a ( or ( not d ) ) ) ) ) ) ) ) )	( not ( a ( and ( d ( or ( not e ) ) ) ) ) )
+v	( ( ( not ( f ( or f ) ) ) ( and ( d ( and d ) ) ) ) ( or ( not ( ( f ( and f ) ) ( and ( not ( f ( and c ) ) ) ) ) ) ) )	( ( not c ) ( or ( not b ) ) )
+>	( not ( ( not f ) ( and ( not ( ( ( not d ) ( or ( not c ) ) ) ( or ( a ( and ( not a ) ) ) ) ) ) ) ) )	( ( ( ( not c ) ( or ( not c ) ) ) ( or a ) ) ( and f ) )
+#	( a ( or ( not d ) ) )	( ( not ( ( d ( or ( not b ) ) ) ( or ( not b ) ) ) ) ( or ( not ( a ( or ( ( not b ) ( and c ) ) ) ) ) ) )
+v	( ( not ( a ( or ( not ( d ( or a ) ) ) ) ) ) ( or ( not ( d ( or ( not ( d ( or ( not e ) ) ) ) ) ) ) ) )	( ( not f ) ( or ( ( ( not a ) ( or e ) ) ( or d ) ) ) )
+#	( not ( b ( or ( not ( ( not ( ( not a ) ( or c ) ) ) ( or ( not ( ( not b ) ( and e ) ) ) ) ) ) ) ) )	( not a )
+#	c	( ( not ( ( ( not c ) ( and d ) ) ( or d ) ) ) ( and ( ( not ( ( not c ) ( and d ) ) ) ( and ( not b ) ) ) ) )
+#	c	( ( b ( and ( not ( ( not e ) ( and ( not b ) ) ) ) ) ) ( and ( not ( ( f ( or c ) ) ( and ( c ( and e ) ) ) ) ) ) )
+>	( b ( and ( not a ) ) )	( ( ( not ( ( not d ) ( and d ) ) ) ( and ( d ( and d ) ) ) ) ( and ( b ( and ( ( not a ) ( and ( not a ) ) ) ) ) ) )
+v	( ( ( not ( f ( and a ) ) ) ( and d ) ) ( and ( ( ( not d ) ( or d ) ) ( and ( not ( c ( and ( not c ) ) ) ) ) ) ) )	( ( not ( d ( and ( f ( or a ) ) ) ) ) ( or ( ( not ( f ( or ( not d ) ) ) ) ( or a ) ) ) )
+#	( not ( ( not ( ( not ( a ( and ( not e ) ) ) ) ( and ( ( not c ) ( and ( not a ) ) ) ) ) ) ( and c ) ) )	e
+>	( not b )	( ( not ( ( not f ) ( and ( ( not a ) ( or b ) ) ) ) ) ( and ( ( not b ) ( or ( not ( f ( and f ) ) ) ) ) ) )
+#	( ( c ( or b ) ) ( or ( c ( and ( b ( or b ) ) ) ) ) )	( not ( ( not ( ( not ( d ( and f ) ) ) ( and ( f ( or c ) ) ) ) ) ( or ( ( not ( f ( or f ) ) ) ( and d ) ) ) ) )
+#	( ( not f ) ( or ( not ( ( not b ) ( and f ) ) ) ) )	( not ( ( b ( or ( c ( or ( not f ) ) ) ) ) ( and ( not ( ( f ( and ( not a ) ) ) ( or ( not f ) ) ) ) ) ) )
+v	( ( a ( and ( ( not a ) ( or ( not d ) ) ) ) ) ( or ( ( not a ) ( and f ) ) ) )	( ( ( d ( or ( not d ) ) ) ( and d ) ) ( or ( ( ( not a ) ( or d ) ) ( or ( not ( ( not f ) ( or f ) ) ) ) ) ) )
+#	b	( ( ( ( not b ) ( and c ) ) ( and ( not c ) ) ) ( or ( ( e ( or e ) ) ( and ( not ( d ( or ( not c ) ) ) ) ) ) ) )
+#	( not ( ( not ( b ( and ( not a ) ) ) ) ( and ( ( not ( ( not e ) ( and a ) ) ) ( and ( not a ) ) ) ) ) )	e
+#	( ( not a ) ( and ( not ( ( a ( and c ) ) ( and ( not e ) ) ) ) ) )	( not ( ( ( not c ) ( or ( c ( and e ) ) ) ) ( or ( ( ( not c ) ( and e ) ) ( and ( not ( a ( and f ) ) ) ) ) ) ) )
+#	e	( ( not c ) ( or ( ( not ( ( not c ) ( or a ) ) ) ( and ( not ( ( not e ) ( and ( not f ) ) ) ) ) ) ) )
+#	( ( e ( and ( not f ) ) ) ( or ( not b ) ) )	( ( ( ( not b ) ( or ( not f ) ) ) ( and ( ( not e ) ( or a ) ) ) ) ( or ( not ( b ( or ( b ( or a ) ) ) ) ) ) )
+|	( not ( d ( and ( not ( ( not c ) ( and ( not ( ( not c ) ( and ( not c ) ) ) ) ) ) ) ) ) )	( ( not ( ( not b ) ( and f ) ) ) ( and ( not ( ( ( not d ) ( and b ) ) ( or ( not ( d ( and b ) ) ) ) ) ) ) )
+<	( ( not ( ( e ( and e ) ) ( and d ) ) ) ( and ( ( ( not d ) ( or ( not a ) ) ) ( and ( ( not e ) ( and a ) ) ) ) ) )	( ( ( ( not d ) ( or a ) ) ( or a ) ) ( or a ) )
+#	f	( e ( and ( not ( ( ( not a ) ( or ( not a ) ) ) ( and ( not ( ( not e ) ( and ( not e ) ) ) ) ) ) ) ) )
+#	( not d )	( ( ( ( not a ) ( or ( not d ) ) ) ( or ( ( not e ) ( and ( not e ) ) ) ) ) ( and ( not ( b ( and a ) ) ) ) )
+#	( not ( ( b ( or a ) ) ( and ( not ( ( not ( a ( and ( not b ) ) ) ) ( and ( not ( f ( and f ) ) ) ) ) ) ) ) )	c
+<	( not ( ( not c ) ( or ( not ( ( ( not c ) ( or d ) ) ( and ( not ( f ( and ( not c ) ) ) ) ) ) ) ) ) )	c
+<	( ( not e ) ( and ( not a ) ) )	( ( not ( f ( or ( not ( a ( or a ) ) ) ) ) ) ( or ( ( not ( ( not c ) ( and a ) ) ) ( or ( not e ) ) ) ) )
+|	( ( ( not ( e ( or d ) ) ) ( and ( d ( or c ) ) ) ) ( and ( ( not ( e ( and ( not e ) ) ) ) ( or ( not a ) ) ) ) )	( not ( ( ( e ( and e ) ) ( and ( c ( or d ) ) ) ) ( or c ) ) )
+>	( not ( ( ( ( not c ) ( or ( not b ) ) ) ( and ( not ( a ( or b ) ) ) ) ) ( and ( c ( or ( a ( or c ) ) ) ) ) ) )	b
+v	( not f )	( ( ( ( not b ) ( or f ) ) ( or ( d ( or d ) ) ) ) ( or ( not ( ( not ( e ( or ( not f ) ) ) ) ( or e ) ) ) ) )
+#	c	( not ( ( ( not a ) ( and ( ( not d ) ( or ( not a ) ) ) ) ) ( and ( ( ( not a ) ( or c ) ) ( or d ) ) ) ) )
+v	( not ( ( not ( ( not ( d ( or ( not c ) ) ) ) ( or ( ( not d ) ( and ( not d ) ) ) ) ) ) ( and c ) ) )	d
+|	( e ( or d ) )	( ( not ( d ( or a ) ) ) ( and ( ( not ( ( not d ) ( or ( not c ) ) ) ) ( or ( d ( or ( not e ) ) ) ) ) ) )
+#	( not ( ( not ( ( not ( ( not b ) ( or b ) ) ) ( or ( not ( ( not b ) ( and b ) ) ) ) ) ) ( or b ) ) )	f
+#	e	( ( ( ( not e ) ( and a ) ) ( or ( not d ) ) ) ( or ( ( not ( e ( and d ) ) ) ( and ( e ( or ( not d ) ) ) ) ) ) )
+|	( not ( c ( or a ) ) )	( not ( ( not ( c ( or ( a ( and ( not c ) ) ) ) ) ) ( or ( ( not b ) ( and ( not ( c ( and b ) ) ) ) ) ) ) )
+v	( ( not f ) ( or ( not c ) ) )	( not ( ( not ( f ( or ( c ( and a ) ) ) ) ) ( or ( ( not ( a ( or f ) ) ) ( and ( not ( a ( or d ) ) ) ) ) ) ) )
+#	( ( not ( ( ( not b ) ( or ( not b ) ) ) ( and ( f ( and d ) ) ) ) ) ( and ( ( not c ) ( or ( d ( or f ) ) ) ) ) )	( not ( ( c ( or d ) ) ( and ( not ( ( ( not f ) ( and ( not b ) ) ) ( and ( c ( and ( not d ) ) ) ) ) ) ) ) )
+>	( not e )	( ( ( not ( e ( or b ) ) ) ( or ( not ( e ( or a ) ) ) ) ) ( and ( ( not ( ( not e ) ( and b ) ) ) ( and c ) ) ) )
+v	( f ( or ( not ( ( ( not a ) ( and b ) ) ( or ( d ( or f ) ) ) ) ) ) )	( ( not ( ( not ( ( not d ) ( or ( not b ) ) ) ) ( and ( ( not f ) ( and f ) ) ) ) ) ( and ( not f ) ) )
+v	a	( not ( ( not ( ( e ( or e ) ) ( or ( not ( ( not a ) ( or ( not e ) ) ) ) ) ) ) ( and ( a ( or a ) ) ) ) )
+<	( b ( and ( ( ( not b ) ( and b ) ) ( or ( e ( and ( not f ) ) ) ) ) ) )	( ( f ( or ( not c ) ) ) ( or ( not ( ( ( not b ) ( or ( not b ) ) ) ( or ( f ( and ( not b ) ) ) ) ) ) ) )
+>	( not ( ( ( not c ) ( and ( ( not c ) ( or ( not f ) ) ) ) ) ( and ( ( ( not c ) ( and a ) ) ( and a ) ) ) ) )	( not a )
+#	( not ( a ( and ( not ( ( ( not a ) ( or ( not c ) ) ) ( and ( ( not a ) ( and ( not c ) ) ) ) ) ) ) ) )	( not c )
+<	( ( ( not b ) ( and ( not c ) ) ) ( and ( ( d ( or b ) ) ( and e ) ) ) )	( not ( ( not ( ( b ( and ( not b ) ) ) ( and ( d ( and d ) ) ) ) ) ( and ( not ( e ( or ( not c ) ) ) ) ) ) )
+>	( ( not ( ( c ( and ( not c ) ) ) ( and ( not ( ( not e ) ( and e ) ) ) ) ) ) ( and e ) )	( ( ( not ( d ( or e ) ) ) ( or ( ( not b ) ( and e ) ) ) ) ( and ( ( ( not d ) ( and d ) ) ( or ( e ( and e ) ) ) ) ) )
+>	( ( ( not ( b ( or d ) ) ) ( or ( c ( or ( not b ) ) ) ) ) ( and ( not ( ( ( not c ) ( and d ) ) ( and c ) ) ) ) )	( not b )
+#	e	( ( ( ( not c ) ( and ( not d ) ) ) ( and ( not ( ( not d ) ( or ( not a ) ) ) ) ) ) ( or ( not c ) ) )
+#	f	( ( ( f ( or a ) ) ( and d ) ) ( or ( ( not ( ( not a ) ( and c ) ) ) ( and ( not ( ( not f ) ( or d ) ) ) ) ) ) )
+#	( ( not ( ( ( not b ) ( or f ) ) ( and ( not e ) ) ) ) ( or ( not ( c ( or ( ( not b ) ( or e ) ) ) ) ) ) )	b
+v	( ( not ( ( not ( c ( or c ) ) ) ( and ( not b ) ) ) ) ( or ( not ( ( not b ) ( or ( not c ) ) ) ) ) )	( not b )
+<	( ( ( b ( and ( not e ) ) ) ( and ( e ( and ( not b ) ) ) ) ) ( or ( ( not ( e ( or e ) ) ) ( and ( e ( or a ) ) ) ) ) )	( not ( e ( or ( ( not ( e ( and c ) ) ) ( and e ) ) ) ) )
+<	( ( ( ( not d ) ( and e ) ) ( and e ) ) ( or ( not ( ( ( not e ) ( or ( not f ) ) ) ( and ( c ( or d ) ) ) ) ) ) )	( ( not ( c ( or ( e ( and ( not e ) ) ) ) ) ) ( or e ) )
+#	f	( not ( ( a ( or ( not ( c ( or ( not a ) ) ) ) ) ) ( or ( not ( ( b ( and c ) ) ( and ( b ( and c ) ) ) ) ) ) ) )
+#	( not ( ( ( not c ) ( or ( not ( ( not a ) ( or c ) ) ) ) ) ( or ( not ( ( not a ) ( or b ) ) ) ) ) )	( not ( b ( and a ) ) )
+v	( ( not d ) ( or ( not ( c ( or ( not e ) ) ) ) ) )	( ( not ( ( not ( e ( and d ) ) ) ( and ( not b ) ) ) ) ( or ( d ( or ( not ( b ( or ( not c ) ) ) ) ) ) ) )
+#	( ( not ( ( ( not c ) ( and ( not f ) ) ) ( or ( f ( or a ) ) ) ) ) ( or ( ( not f ) ( and ( d ( or c ) ) ) ) ) )	c
+#	( not ( ( not ( d ( or ( not ( b ( and ( not c ) ) ) ) ) ) ) ( or ( not ( a ( or ( d ( and d ) ) ) ) ) ) ) )	c
+#	( not ( ( not ( ( not a ) ( or ( b ( and ( not e ) ) ) ) ) ) ( and ( ( b ( and e ) ) ( or ( d ( or b ) ) ) ) ) ) )	( b ( and d ) )
+#	( ( not ( ( not ( ( not d ) ( and a ) ) ) ( and c ) ) ) ( or ( not ( ( not ( c ( or d ) ) ) ( or e ) ) ) ) )	( not d )
+#	( not ( ( not c ) ( and ( not f ) ) ) )	( not ( ( not ( b ( and ( ( not f ) ( or c ) ) ) ) ) ( or ( c ( and ( not ( b ( or ( not c ) ) ) ) ) ) ) ) )
+#	( ( ( b ( and e ) ) ( or ( not ( d ( or ( not e ) ) ) ) ) ) ( and ( ( e ( and ( not b ) ) ) ( or ( not c ) ) ) ) )	( not d )
+v	( ( not ( ( e ( and ( not c ) ) ) ( or ( ( not e ) ( and ( not f ) ) ) ) ) ) ( or ( f ( or ( not c ) ) ) ) )	( not ( ( not c ) ( or ( not ( c ( and c ) ) ) ) ) )
+>	( not ( ( not ( ( a ( and f ) ) ( or ( f ( or b ) ) ) ) ) ( and ( not ( a ( or ( e ( and ( not e ) ) ) ) ) ) ) ) )	b
+v	b	( ( not ( ( not ( c ( or a ) ) ) ( and ( not ( ( not b ) ( and c ) ) ) ) ) ) ( or ( a ( or ( not b ) ) ) ) )
+|	( ( ( ( not d ) ( or ( not d ) ) ) ( or ( not d ) ) ) ( and ( not ( b ( or ( a ( and ( not c ) ) ) ) ) ) ) )	b
+>	( ( ( e ( or e ) ) ( or ( ( not f ) ( and ( not f ) ) ) ) ) ( or ( e ( and ( not ( ( not f ) ( and e ) ) ) ) ) ) )	( not f )
+#	( ( not ( ( f ( and d ) ) ( or a ) ) ) ( or ( not ( ( not ( ( not f ) ( and c ) ) ) ( or ( f ( and f ) ) ) ) ) ) )	( not ( ( f ( and ( not ( ( not c ) ( or a ) ) ) ) ) ( or f ) ) )
+|	( ( ( not ( ( not b ) ( and ( not a ) ) ) ) ( and a ) ) ( and ( not ( e ( or ( c ( and ( not e ) ) ) ) ) ) ) )	( c ( and ( not a ) ) )
+v	b	( not ( ( ( c ( or ( not c ) ) ) ( or c ) ) ( and ( not ( ( not ( d ( and d ) ) ) ( or ( not b ) ) ) ) ) ) )
+#	( ( ( not ( e ( or f ) ) ) ( and ( f ( or e ) ) ) ) ( or ( e ( or ( not ( d ( or ( not f ) ) ) ) ) ) ) )	( ( not ( f ( or ( a ( or e ) ) ) ) ) ( or ( ( ( not d ) ( or f ) ) ( or ( not ( f ( or ( not f ) ) ) ) ) ) ) )
+#	b	( ( not ( ( not ( ( not a ) ( or ( not c ) ) ) ) ( or ( ( not f ) ( or b ) ) ) ) ) ( or ( not c ) ) )
+#	d	( ( ( e ( and ( not c ) ) ) ( and ( ( not c ) ( and ( not c ) ) ) ) ) ( or ( e ( or ( not ( d ( or c ) ) ) ) ) ) )
+#	( ( not ( ( e ( and e ) ) ( and ( d ( and ( not d ) ) ) ) ) ) ( and ( f ( and d ) ) ) )	( not ( ( ( not b ) ( or ( ( not e ) ( and e ) ) ) ) ( or ( not ( ( b ( and f ) ) ( or ( not d ) ) ) ) ) ) )
+v	d	( not ( ( not ( ( not ( ( not f ) ( and b ) ) ) ( or ( not ( e ( or ( not b ) ) ) ) ) ) ) ( and d ) ) )
+>	( not ( ( ( not ( ( not e ) ( and ( not c ) ) ) ) ( and e ) ) ( and ( not ( ( not e ) ( or a ) ) ) ) ) )	a
+#	( not e )	( ( ( not ( ( not f ) ( and ( not b ) ) ) ) ( and ( not b ) ) ) ( and ( not ( ( e ( or f ) ) ( and b ) ) ) ) )
+|	f	( ( ( ( not f ) ( or ( not f ) ) ) ( and ( a ( or e ) ) ) ) ( and ( not ( ( not b ) ( and ( not e ) ) ) ) ) )
+#	( not ( ( ( not ( c ( and f ) ) ) ( or ( b ( or ( not b ) ) ) ) ) ( and ( ( not a ) ( or ( not b ) ) ) ) ) )	c
+v	( ( not ( ( ( not c ) ( and ( not f ) ) ) ( or ( ( not c ) ( and f ) ) ) ) ) ( or ( e ( or ( f ( or b ) ) ) ) ) )	( not b )
+#	( ( ( d ( or b ) ) ( or ( e ( or e ) ) ) ) ( and ( ( ( not d ) ( or ( not d ) ) ) ( or ( b ( or ( not b ) ) ) ) ) ) )	( not ( d ( or f ) ) )
+#	b	( ( not ( e ( and ( e ( or ( not e ) ) ) ) ) ) ( or ( not ( ( e ( or e ) ) ( or ( not ( a ( or a ) ) ) ) ) ) ) )
+#	( ( e ( or ( d ( and a ) ) ) ) ( or ( not b ) ) )	( not ( ( not ( ( e ( or e ) ) ( or ( e ( or ( not d ) ) ) ) ) ) ( and ( ( ( not d ) ( and a ) ) ( or b ) ) ) ) )
+<	( not ( ( not ( ( f ( and ( not d ) ) ) ( and ( not ( e ( or d ) ) ) ) ) ) ( and ( not ( f ( and b ) ) ) ) ) )	f
+#	e	( ( not ( ( e ( or ( not e ) ) ) ( and ( not ( ( not c ) ( or ( not d ) ) ) ) ) ) ) ( or ( not c ) ) )
+<	( ( ( e ( and c ) ) ( and ( ( not c ) ( or e ) ) ) ) ( and ( ( not c ) ( or ( not ( ( not b ) ( and c ) ) ) ) ) ) )	b
+#	( not ( ( not ( ( not ( a ( and ( not a ) ) ) ) ( and ( ( not f ) ( or c ) ) ) ) ) ( or ( not c ) ) ) )	a
+#	( ( not b ) ( or ( not b ) ) )	( ( not ( ( not b ) ( or ( b ( and b ) ) ) ) ) ( or ( not ( d ( and ( not ( c ( and ( not b ) ) ) ) ) ) ) ) )
+<	b	( not ( ( not ( ( ( not b ) ( or d ) ) ( or b ) ) ) ( or ( ( f ( or f ) ) ( and ( not ( f ( and b ) ) ) ) ) ) ) )
+|	a	( ( ( not ( d ( or a ) ) ) ( and ( not ( c ( and ( not a ) ) ) ) ) ) ( and ( ( c ( or d ) ) ( or ( not d ) ) ) ) )
+#	( ( not ( ( d ( or d ) ) ( or ( b ( or d ) ) ) ) ) ( or ( ( not ( ( not d ) ( or ( not c ) ) ) ) ( and c ) ) ) )	( not d )
+#	e	( not ( ( ( b ( or c ) ) ( or a ) ) ( and ( ( not ( c ( and e ) ) ) ( or ( ( not c ) ( or ( not a ) ) ) ) ) ) ) )
+v	b	( not ( ( ( b ( and ( not b ) ) ) ( and ( not ( d ( or d ) ) ) ) ) ( or ( not ( d ( or ( not b ) ) ) ) ) ) )
+#	f	( ( not ( ( a ( or a ) ) ( or ( not ( e ( or f ) ) ) ) ) ) ( or ( not ( ( not ( b ( and a ) ) ) ( or b ) ) ) ) )
+>	f	( not ( ( ( ( not d ) ( or d ) ) ( and ( not d ) ) ) ( or ( ( c ( and ( not c ) ) ) ( or ( not f ) ) ) ) ) )
+v	( not ( ( not c ) ( and ( ( ( not c ) ( or ( not c ) ) ) ( and d ) ) ) ) )	( not ( ( f ( and c ) ) ( and ( not ( ( not ( ( not d ) ( or d ) ) ) ( and ( not ( a ( or f ) ) ) ) ) ) ) ) )
+#	e	( ( not ( ( f ( and ( not c ) ) ) ( or ( not ( c ( and ( not f ) ) ) ) ) ) ) ( and ( not ( f ( and e ) ) ) ) )
+<	c	( ( c ( or ( not ( c ( or ( not e ) ) ) ) ) ) ( or ( a ( or ( not ( ( not a ) ( and ( not c ) ) ) ) ) ) ) )
+#	( not ( ( ( ( not e ) ( or f ) ) ( and ( not b ) ) ) ( and ( not ( ( ( not c ) ( and b ) ) ( or b ) ) ) ) ) )	( not e )
+#	a	( ( ( not ( a ( and c ) ) ) ( or ( a ( and ( not b ) ) ) ) ) ( and ( ( f ( and ( not c ) ) ) ( or ( not c ) ) ) ) )
+#	( ( not ( b ( or ( ( not a ) ( and ( not b ) ) ) ) ) ) ( or ( not ( ( c ( and ( not e ) ) ) ( or b ) ) ) ) )	c
+<	( ( ( b ( and b ) ) ( or ( c ( and ( not e ) ) ) ) ) ( and ( not a ) ) )	( not ( ( b ( and ( b ( and ( not b ) ) ) ) ) ( or ( ( e ( or ( not a ) ) ) ( and ( e ( and ( not b ) ) ) ) ) ) ) )
+#	( not e )	( ( ( not c ) ( and a ) ) ( or ( not ( ( not a ) ( and ( not ( ( not d ) ( and ( not d ) ) ) ) ) ) ) ) )
+>	( ( ( not a ) ( or ( not b ) ) ) ( or ( not ( ( not ( e ( and a ) ) ) ( and ( not ( e ( and d ) ) ) ) ) ) ) )	( not b )
+<	( ( not e ) ( and d ) )	( ( not ( ( not ( d ( and f ) ) ) ( and ( f ( and ( not d ) ) ) ) ) ) ( or ( ( f ( and c ) ) ( or ( not f ) ) ) ) )
+v	( ( not b ) ( or ( not b ) ) )	( not ( ( ( a ( or b ) ) ( and ( not b ) ) ) ( and ( not ( a ( and ( ( not a ) ( or ( not f ) ) ) ) ) ) ) ) )
+v	f	( not ( ( not ( b ( or ( d ( or ( not f ) ) ) ) ) ) ( and ( ( not b ) ( and ( not ( d ( and f ) ) ) ) ) ) ) )
+#	( ( not ( b ( and ( not f ) ) ) ) ( or ( ( not ( ( not a ) ( and b ) ) ) ( and ( ( not c ) ( and b ) ) ) ) ) )	( ( not ( a ( and ( a ( or a ) ) ) ) ) ( and ( not c ) ) )
+<	( ( not ( ( ( not b ) ( and ( not c ) ) ) ( or ( not b ) ) ) ) ( and ( ( c ( and e ) ) ( or ( not b ) ) ) ) )	( ( not ( e ( and b ) ) ) ( or ( ( b ( and c ) ) ( or ( ( not d ) ( and ( not c ) ) ) ) ) ) )
+|	( not ( ( not a ) ( or ( not ( ( ( not e ) ( and a ) ) ( and ( not ( e ( or ( not a ) ) ) ) ) ) ) ) ) )	e
+>	( ( not ( ( f ( or ( not d ) ) ) ( and ( ( not e ) ( or d ) ) ) ) ) ( or ( d ( or ( not ( e ( or f ) ) ) ) ) ) )	d
+|	( ( not ( ( ( not e ) ( and f ) ) ( or ( b ( and ( not a ) ) ) ) ) ) ( and ( ( not f ) ( and ( a ( and a ) ) ) ) ) )	( not ( ( not ( ( not f ) ( and ( not a ) ) ) ) ( or ( b ( or b ) ) ) ) )
+#	( ( a ( and ( not ( e ( and a ) ) ) ) ) ( or ( not ( ( not c ) ( and ( ( not a ) ( or ( not a ) ) ) ) ) ) ) )	f
+v	b	( not ( ( ( not ( ( not a ) ( and ( not d ) ) ) ) ( and ( b ( and ( not d ) ) ) ) ) ( and ( not c ) ) ) )
+<	( ( not ( ( not ( ( not d ) ( or a ) ) ) ( and ( d ( and b ) ) ) ) ) ( and ( ( f ( and ( not b ) ) ) ( or d ) ) ) )	( not ( b ( and ( not a ) ) ) )
+#	( not ( ( a ( or ( not ( b ( or ( not a ) ) ) ) ) ) ( or ( b ( and ( ( not e ) ( or ( not b ) ) ) ) ) ) ) )	f
+#	( ( not ( ( b ( and d ) ) ( and ( not ( e ( or d ) ) ) ) ) ) ( and ( b ( or ( ( not e ) ( and c ) ) ) ) ) )	( not ( ( b ( or ( ( not c ) ( or e ) ) ) ) ( and ( not ( e ( and ( not ( b ( and ( not e ) ) ) ) ) ) ) ) ) )
+#	( not ( ( not ( ( not e ) ( or ( not ( f ( and a ) ) ) ) ) ) ( or ( ( a ( or a ) ) ( and ( not a ) ) ) ) ) )	c
+<	( not ( ( ( ( not c ) ( and c ) ) ( and ( a ( or ( not f ) ) ) ) ) ( or ( not ( ( f ( and b ) ) ( and a ) ) ) ) ) )	b
+#	( ( ( d ( and a ) ) ( and ( e ( and d ) ) ) ) ( or ( ( ( not c ) ( and ( not a ) ) ) ( or ( not ( d ( and d ) ) ) ) ) ) )	( ( not ( e ( and ( c ( or e ) ) ) ) ) ( and a ) )
+<	( ( ( not ( b ( and ( not a ) ) ) ) ( and b ) ) ( and ( not ( ( not f ) ( and ( not ( e ( or b ) ) ) ) ) ) ) )	( not ( ( not ( a ( or a ) ) ) ( and e ) ) )
+|	( ( b ( and ( ( not b ) ( and b ) ) ) ) ( or ( not ( ( not ( ( not b ) ( and ( not a ) ) ) ) ( or f ) ) ) ) )	a
+#	( not ( ( d ( or ( a ( or e ) ) ) ) ( and ( not ( ( not ( d ( or ( not d ) ) ) ) ( or ( not b ) ) ) ) ) ) )	( ( not d ) ( and b ) )
+#	( ( not ( ( not d ) ( or f ) ) ) ( or ( not ( ( not ( ( not a ) ( and d ) ) ) ( or ( c ( or a ) ) ) ) ) ) )	( ( not c ) ( or ( f ( or f ) ) ) )
+|	( ( not c ) ( and ( e ( or e ) ) ) )	( ( a ( or ( not ( e ( or d ) ) ) ) ) ( and ( ( not ( ( not d ) ( or e ) ) ) ( or ( d ( and ( not a ) ) ) ) ) ) )
+#	( not ( ( not ( a ( and ( c ( or c ) ) ) ) ) ( and ( not ( a ( or ( not ( b ( or ( not a ) ) ) ) ) ) ) ) ) )	( c ( or b ) )
+#	f	( not ( ( ( ( not c ) ( and ( not f ) ) ) ( and ( not ( e ( or ( not c ) ) ) ) ) ) ( or ( not c ) ) ) )
+#	b	( ( d ( and ( not ( c ( and ( not c ) ) ) ) ) ) ( or ( not ( ( not a ) ( or ( c ( and ( not d ) ) ) ) ) ) ) )
+v	( ( not ( b ( or ( not ( f ( and a ) ) ) ) ) ) ( or ( ( not ( ( not b ) ( or d ) ) ) ( or ( b ( and d ) ) ) ) ) )	( ( ( not b ) ( or f ) ) ( or f ) )
+v	( ( not f ) ( and ( c ( or ( not f ) ) ) ) )	( not ( ( ( not ( ( not c ) ( or f ) ) ) ( and ( not a ) ) ) ( and ( ( f ( and c ) ) ( or ( not f ) ) ) ) ) )
+>	d	( not ( ( ( c ( and ( not d ) ) ) ( and ( not f ) ) ) ( or ( not ( c ( and ( d ( or ( not f ) ) ) ) ) ) ) ) )
+^	( ( not ( ( c ( or ( not a ) ) ) ( and ( ( not c ) ( or ( not c ) ) ) ) ) ) ( and ( not ( c ( or d ) ) ) ) )	( not ( ( ( ( not c ) ( or ( not c ) ) ) ( and ( a ( or a ) ) ) ) ( and ( not d ) ) ) )
+v	c	( not ( ( not ( ( f ( and d ) ) ( or ( not ( c ( and f ) ) ) ) ) ) ( and ( ( not e ) ( or ( c ( and d ) ) ) ) ) ) )
+<	( not ( ( ( not ( ( not c ) ( and c ) ) ) ( or ( b ( and ( not e ) ) ) ) ) ( and ( c ( or ( not e ) ) ) ) ) )	( not ( ( not e ) ( and ( not d ) ) ) )
+<	( ( c ( and ( not ( b ( and ( not c ) ) ) ) ) ) ( and ( not ( a ( and ( not ( c ( and ( not a ) ) ) ) ) ) ) ) )	c
+>	b	( not ( ( not ( ( not a ) ( or ( a ( or c ) ) ) ) ) ( or ( not ( ( not ( b ( and c ) ) ) ( and b ) ) ) ) ) )
+#	( not ( ( ( not ( ( not e ) ( and d ) ) ) ( and a ) ) ( or b ) ) )	( ( not ( ( ( not b ) ( and a ) ) ( and ( not ( b ( and e ) ) ) ) ) ) ( and ( b ( or ( a ( or ( not e ) ) ) ) ) ) )
+#	( f ( and ( not c ) ) )	( not ( ( ( d ( or f ) ) ( or ( ( not c ) ( and e ) ) ) ) ( and ( e ( and ( not ( f ( and ( not f ) ) ) ) ) ) ) ) )
+<	c	( not ( ( ( c ( or d ) ) ( and ( not ( a ( or c ) ) ) ) ) ( or ( not ( c ( or ( not ( c ( and d ) ) ) ) ) ) ) ) )
+#	b	( not ( ( not ( ( ( not f ) ( or e ) ) ( or ( not ( f ( or c ) ) ) ) ) ) ( or ( not ( b ( or c ) ) ) ) ) )
+<	( not ( ( not ( ( not ( ( not b ) ( and e ) ) ) ( and c ) ) ) ( and ( ( ( not b ) ( and d ) ) ( or e ) ) ) ) )	( ( b ( and ( d ( and d ) ) ) ) ( or ( not ( ( ( not b ) ( and ( not c ) ) ) ( and d ) ) ) ) )
+#	( ( e ( and b ) ) ( or ( ( not ( ( not e ) ( and ( not c ) ) ) ) ( or ( not ( ( not b ) ( or b ) ) ) ) ) ) )	( ( not b ) ( or e ) )
+#	( not ( ( not b ) ( or ( ( not ( ( not f ) ( or ( not b ) ) ) ) ( and ( not ( b ( or b ) ) ) ) ) ) ) )	c
+#	d	( ( not ( ( not b ) ( or ( not ( b ( and c ) ) ) ) ) ) ( or ( ( not ( d ( and d ) ) ) ( and ( not f ) ) ) ) )
+|	( not ( ( ( a ( and c ) ) ( or ( not c ) ) ) ( or ( not ( ( not ( e ( and a ) ) ) ( or ( not e ) ) ) ) ) ) )	( not c )
+#	( b ( or e ) )	( not ( ( not ( ( b ( or d ) ) ( and ( not ( ( not a ) ( and ( not b ) ) ) ) ) ) ) ( or ( b ( and d ) ) ) ) )
+>	( not ( ( ( not c ) ( or ( not ( c ( or c ) ) ) ) ) ( and ( not ( a ( or ( not ( d ( or a ) ) ) ) ) ) ) ) )	a
+v	( not ( ( ( b ( or ( not a ) ) ) ( and ( b ( or ( not c ) ) ) ) ) ( and ( not ( ( not c ) ( or f ) ) ) ) ) )	( not f )
+v	( ( not ( ( d ( or a ) ) ( and ( not ( ( not d ) ( or c ) ) ) ) ) ) ( or ( not ( e ( or ( d ( and a ) ) ) ) ) ) )	( not c )
+#	f	( ( not ( ( f ( and ( not f ) ) ) ( or c ) ) ) ( and ( not ( ( c ( or ( not b ) ) ) ( and ( b ( or c ) ) ) ) ) ) )
+#	( not ( ( e ( and a ) ) ( or ( not ( ( not ( ( not e ) ( and a ) ) ) ( and ( ( not d ) ( or a ) ) ) ) ) ) ) )	( ( not ( ( b ( or a ) ) ( and ( e ( and ( not d ) ) ) ) ) ) ( or ( ( not a ) ( and ( not e ) ) ) ) )
+#	( not ( ( not ( ( b ( or f ) ) ( and ( e ( and f ) ) ) ) ) ( or ( ( ( not f ) ( or e ) ) ( and ( not e ) ) ) ) ) )	( not b )
+#	( not f )	( ( not ( a ( and ( c ( and ( not d ) ) ) ) ) ) ( and ( not ( ( ( not a ) ( or d ) ) ( or ( d ( or d ) ) ) ) ) ) )
+|	( ( not ( ( not ( ( not a ) ( and ( not a ) ) ) ) ( or ( not ( e ( and b ) ) ) ) ) ) ( and ( not d ) ) )	( not e )
+|	( ( ( not ( d ( and e ) ) ) ( or ( a ( or d ) ) ) ) ( and ( ( f ( and f ) ) ( and ( not ( ( not e ) ( and d ) ) ) ) ) ) )	( not f )
+|	( ( not ( ( not ( ( not c ) ( or ( not e ) ) ) ) ( or ( ( not a ) ( and e ) ) ) ) ) ( and ( not c ) ) )	c
+#	( ( ( not ( f ( or a ) ) ) ( or ( not ( ( not d ) ( or d ) ) ) ) ) ( or ( not f ) ) )	( not ( ( ( ( not e ) ( or ( not d ) ) ) ( and e ) ) ( and ( ( ( not d ) ( and e ) ) ( or ( d ( or d ) ) ) ) ) ) )
+#	b	( not ( ( not e ) ( or ( not ( ( b ( or ( not c ) ) ) ( or ( not ( ( not c ) ( and c ) ) ) ) ) ) ) ) )
+#	f	( ( ( e ( or ( not c ) ) ) ( or ( ( not e ) ( and ( not b ) ) ) ) ) ( and ( not ( f ( and ( not c ) ) ) ) ) )
+>	b	( ( ( e ( and b ) ) ( or ( b ( or ( not d ) ) ) ) ) ( and ( not ( ( not ( ( not e ) ( and b ) ) ) ( or e ) ) ) ) )
+#	b	( not ( ( ( ( not f ) ( or ( not d ) ) ) ( or ( not ( ( not d ) ( or b ) ) ) ) ) ( and ( f ( or d ) ) ) ) )
+|	( not ( ( not ( a ( or d ) ) ) ( or ( not ( ( not ( a ( or ( not b ) ) ) ) ( and ( d ( or a ) ) ) ) ) ) ) )	a
+#	( ( not ( ( not ( d ( and ( not b ) ) ) ) ( and ( ( not d ) ( or ( not e ) ) ) ) ) ) ( and ( not c ) ) )	( ( not e ) ( or ( b ( and ( not ( ( not b ) ( and c ) ) ) ) ) ) )
+#	( not ( ( not ( ( not e ) ( or ( not d ) ) ) ) ( or ( ( not ( e ( or ( not b ) ) ) ) ( and d ) ) ) ) )	e
+|	c	( not ( ( ( e ( or ( not b ) ) ) ( and ( not b ) ) ) ( or ( ( not ( ( not b ) ( or d ) ) ) ( or c ) ) ) ) )
+<	( not e )	( not ( ( ( e ( and e ) ) ( and d ) ) ( and ( ( not ( ( not d ) ( and e ) ) ) ( or ( not ( f ( and f ) ) ) ) ) ) ) )
+v	f	( not ( ( ( ( not c ) ( or b ) ) ( and ( f ( and a ) ) ) ) ( and ( ( not ( a ( and f ) ) ) ( or ( not b ) ) ) ) ) )
+>	( ( not b ) ( or ( not ( d ( or ( not ( ( not e ) ( or ( not d ) ) ) ) ) ) ) ) )	( ( ( not ( ( not b ) ( or e ) ) ) ( and ( d ( and e ) ) ) ) ( or ( ( not ( b ( and b ) ) ) ( and ( not c ) ) ) ) )
+v	( not ( ( ( not ( e ( or ( not e ) ) ) ) ( or ( not a ) ) ) ( and ( ( not f ) ( or ( not e ) ) ) ) ) )	( not a )
+#	( ( ( not ( e ( and f ) ) ) ( and ( not ( f ( and a ) ) ) ) ) ( and ( ( a ( or ( not f ) ) ) ( and ( not f ) ) ) ) )	( not e )
+#	( not b )	( ( d ( or ( ( not e ) ( or ( not a ) ) ) ) ) ( and ( ( a ( or ( not a ) ) ) ( and ( b ( or ( not e ) ) ) ) ) ) )
+>	b	( not ( ( ( ( not b ) ( and b ) ) ( or ( b ( and f ) ) ) ) ( or ( ( not ( b ( and b ) ) ) ( or ( f ( and d ) ) ) ) ) ) )
+#	e	( not ( ( ( e ( and ( not e ) ) ) ( and ( d ( or d ) ) ) ) ( or ( not ( ( d ( and d ) ) ( and ( not f ) ) ) ) ) ) )
+<	( not ( ( ( not ( ( not c ) ( and ( not d ) ) ) ) ( or ( ( not c ) ( and e ) ) ) ) ( and ( not f ) ) ) )	( f ( or ( not e ) ) )
+|	a	( ( not ( ( c ( or a ) ) ( or ( e ( and e ) ) ) ) ) ( and ( ( ( not c ) ( or b ) ) ( or ( e ( or ( not e ) ) ) ) ) ) )
+#	( not ( ( not ( f ( and b ) ) ) ( and ( not ( ( f ( and ( not d ) ) ) ( or ( not ( b ( or a ) ) ) ) ) ) ) ) )	a
+v	( a ( or c ) )	( not ( ( ( a ( and a ) ) ( and ( not ( ( not f ) ( and c ) ) ) ) ) ( and ( b ( or ( ( not f ) ( and c ) ) ) ) ) ) )
+#	c	( ( ( not d ) ( and ( not d ) ) ) ( and ( ( ( not c ) ( or f ) ) ( or ( not ( ( not b ) ( or d ) ) ) ) ) ) )
+#	( ( ( not ( c ( and c ) ) ) ( and ( not ( f ( or d ) ) ) ) ) ( or ( ( c ( or c ) ) ( and ( not ( a ( and d ) ) ) ) ) ) )	c
+v	f	( ( not ( f ( or ( not c ) ) ) ) ( or ( ( not ( ( not e ) ( and a ) ) ) ( or ( not ( f ( or e ) ) ) ) ) ) )
+|	( not ( ( not ( ( not ( d ( and e ) ) ) ( or e ) ) ) ( or ( ( b ( or e ) ) ( or ( b ( and ( not e ) ) ) ) ) ) ) )	b
+<	( not ( f ( or ( not d ) ) ) )	( ( ( not ( f ( or ( not b ) ) ) ) ( or d ) ) ( or ( not ( ( ( not d ) ( or b ) ) ( and ( c ( or f ) ) ) ) ) ) )
+#	f	( not ( ( ( not ( e ( or f ) ) ) ( or ( f ( and ( not d ) ) ) ) ) ( or ( d ( and ( not ( c ( and c ) ) ) ) ) ) ) )
+#	( ( ( c ( or a ) ) ( and ( ( not a ) ( or b ) ) ) ) ( and ( ( ( not a ) ( or ( not b ) ) ) ( or ( f ( or c ) ) ) ) ) )	( not f )
+#	b	( ( not ( d ( and ( not ( f ( and e ) ) ) ) ) ) ( or ( ( not e ) ( and ( ( not f ) ( or ( not b ) ) ) ) ) ) )
+>	( not ( ( ( d ( and ( not f ) ) ) ( or ( not a ) ) ) ( and ( ( c ( and d ) ) ( and ( f ( or ( not c ) ) ) ) ) ) ) )	( ( ( c ( and a ) ) ( and ( not ( ( not a ) ( and f ) ) ) ) ) ( or ( not ( f ( and d ) ) ) ) )
+<	( ( not c ) ( and ( ( not a ) ( and ( c ( or ( not f ) ) ) ) ) ) )	( ( ( not ( f ( or a ) ) ) ( or ( ( not d ) ( or c ) ) ) ) ( or ( ( c ( and a ) ) ( or ( not ( a ( or f ) ) ) ) ) ) )
+<	( not ( a ( or f ) ) )	( not ( ( ( not c ) ( and f ) ) ( or ( not ( ( c ( and c ) ) ( or ( not ( f ( and ( not f ) ) ) ) ) ) ) ) ) )
+#	( not ( ( not ( ( d ( or e ) ) ( and ( e ( and a ) ) ) ) ) ( and c ) ) )	( ( ( not ( a ( and d ) ) ) ( or ( not c ) ) ) ( and ( ( not ( ( not e ) ( or ( not e ) ) ) ) ( or e ) ) ) )
+>	( not ( ( not ( ( a ( or e ) ) ( or ( not f ) ) ) ) ( and ( not ( ( f ( and a ) ) ( or ( c ( or c ) ) ) ) ) ) ) )	( not f )
+|	( ( not ( ( not ( ( not f ) ( and ( not a ) ) ) ) ( or ( b ( and ( not f ) ) ) ) ) ) ( and ( not a ) ) )	a
+|	( not ( ( ( not ( ( not c ) ( and ( not b ) ) ) ) ( and ( ( not d ) ( and b ) ) ) ) ( or ( not f ) ) ) )	( not f )
+>	( ( not ( ( e ( or d ) ) ( and ( not e ) ) ) ) ( and ( ( e ( or e ) ) ( or ( ( not d ) ( and ( not a ) ) ) ) ) ) )	e
+#	( ( ( b ( or ( not b ) ) ) ( and ( ( not b ) ( and ( not d ) ) ) ) ) ( or ( not ( e ( or ( not b ) ) ) ) ) )	f
+v	( not ( ( not ( ( not b ) ( and ( not ( ( not f ) ( and f ) ) ) ) ) ) ( and ( not ( e ( or e ) ) ) ) ) )	( not ( ( a ( or ( f ( and e ) ) ) ) ( and e ) ) )
+#	a	( not ( ( not ( c ( and ( a ( or c ) ) ) ) ) ( and ( ( d ( or ( not a ) ) ) ( or ( not ( c ( or a ) ) ) ) ) ) ) )
+#	( not ( ( not ( ( not ( b ( or ( not c ) ) ) ) ( or ( ( not c ) ( and ( not d ) ) ) ) ) ) ( and d ) ) )	f
+|	( not b )	( not ( ( a ( or ( not ( b ( or ( not a ) ) ) ) ) ) ( or ( not ( ( ( not c ) ( or c ) ) ( and b ) ) ) ) ) )
+#	( not ( ( not ( e ( or ( not b ) ) ) ) ( or ( not ( ( ( not d ) ( and e ) ) ( or ( not a ) ) ) ) ) ) )	e
+#	f	( not ( ( ( ( not d ) ( or ( not c ) ) ) ( and e ) ) ( or ( ( ( not d ) ( and c ) ) ( or ( not d ) ) ) ) ) )
+#	( not e )	( ( not ( ( ( not b ) ( and ( not d ) ) ) ( or d ) ) ) ( or ( not ( d ( or ( not ( b ( and f ) ) ) ) ) ) ) )
+#	( not ( ( not ( ( c ( and ( not c ) ) ) ( and ( not c ) ) ) ) ( and ( ( ( not e ) ( or f ) ) ( and b ) ) ) ) )	f
+|	e	( not ( ( ( not ( c ( or ( not f ) ) ) ) ( and ( not ( ( not e ) ( or e ) ) ) ) ) ( or ( e ( or f ) ) ) ) )
+>	d	( ( not ( ( not ( b ( and ( not b ) ) ) ) ( and ( not ( d ( and d ) ) ) ) ) ) ( and ( a ( or ( e ( and d ) ) ) ) ) )
+#	( ( ( not ( ( not e ) ( or b ) ) ) ( or ( ( not e ) ( and c ) ) ) ) ( and ( ( b ( and ( not a ) ) ) ( or e ) ) ) )	e
+#	( not d )	( ( not ( c ( or ( not ( ( not d ) ( or e ) ) ) ) ) ) ( or ( not ( d ( or ( e ( or ( not d ) ) ) ) ) ) ) )
+#	e	( not ( ( not ( e ( or b ) ) ) ( or ( not ( ( not ( c ( or c ) ) ) ( or ( b ( and ( not e ) ) ) ) ) ) ) ) )
+>	( not ( ( ( not f ) ( and b ) ) ( and ( ( not ( e ( and d ) ) ) ( or ( not ( ( not f ) ( or e ) ) ) ) ) ) ) )	( not b )
+v	( ( c ( and ( not ( d ( and e ) ) ) ) ) ( or ( not ( ( not d ) ( or ( not ( e ( or ( not c ) ) ) ) ) ) ) ) )	( c ( or ( not ( ( not ( ( not d ) ( and ( not d ) ) ) ) ( and ( not e ) ) ) ) ) )
+<	( not ( ( not ( ( f ( and d ) ) ( or b ) ) ) ( or ( ( not ( a ( or a ) ) ) ( or ( d ( or ( not f ) ) ) ) ) ) ) )	b
+#	( not ( ( ( not b ) ( and ( not a ) ) ) ( and ( ( not ( ( not d ) ( or d ) ) ) ( or ( not a ) ) ) ) ) )	( not e )
+>	d	( ( d ( and ( not ( d ( and f ) ) ) ) ) ( and ( not ( ( not ( ( not f ) ( and f ) ) ) ( and ( a ( or a ) ) ) ) ) ) )
+#	e	( not ( ( ( ( not e ) ( and d ) ) ( or ( ( not e ) ( and ( not f ) ) ) ) ) ( or ( ( a ( and a ) ) ( and e ) ) ) ) )
+<	( not ( ( not ( ( a ( and a ) ) ( and b ) ) ) ( or ( ( d ( or ( not b ) ) ) ( or ( not ( b ( or c ) ) ) ) ) ) ) )	( not ( ( ( ( not c ) ( and a ) ) ( or b ) ) ( and d ) ) )
+>	a	( not ( ( ( not ( c ( and d ) ) ) ( and f ) ) ( or ( not ( ( not d ) ( and ( ( not d ) ( and a ) ) ) ) ) ) ) )
+v	f	( ( not ( ( not a ) ( and f ) ) ) ( or ( not ( ( not ( ( not a ) ( or ( not f ) ) ) ) ( or e ) ) ) ) )
+|	( e ( and ( ( not ( e ( or ( not a ) ) ) ) ( or ( ( not a ) ( and ( not f ) ) ) ) ) ) )	( ( not ( ( ( not c ) ( or ( not f ) ) ) ( or ( not e ) ) ) ) ( or ( ( not c ) ( and ( e ( and f ) ) ) ) ) )
+>	f	( ( not ( ( d ( or d ) ) ( or ( not f ) ) ) ) ( and ( ( e ( and ( not f ) ) ) ( or ( d ( or ( not e ) ) ) ) ) ) )
+v	( not ( a ( and ( f ( or ( ( not d ) ( and b ) ) ) ) ) ) )	( ( ( not ( b ( or a ) ) ) ( or a ) ) ( or ( not ( ( not ( ( not a ) ( or ( not a ) ) ) ) ( or f ) ) ) ) )
+v	b	( ( ( d ( or ( not b ) ) ) ( and ( not ( ( not d ) ( and ( not e ) ) ) ) ) ) ( or ( f ( or ( not e ) ) ) ) )
+v	( ( not ( a ( and ( ( not c ) ( and b ) ) ) ) ) ( or ( not ( ( not ( d ( or ( not d ) ) ) ) ( or d ) ) ) ) )	( ( ( ( not d ) ( and ( not d ) ) ) ( or b ) ) ( and ( not ( ( ( not d ) ( or ( not a ) ) ) ( and c ) ) ) ) )
+>	( not ( ( f ( and e ) ) ( and ( not ( ( not d ) ( or ( not ( ( not b ) ( and ( not b ) ) ) ) ) ) ) ) ) )	( not f )
+>	( b ( or a ) )	( not ( ( ( not ( a ( and ( not a ) ) ) ) ( or ( b ( or f ) ) ) ) ( and ( a ( or ( f ( or ( not b ) ) ) ) ) ) ) )
+|	( ( b ( or b ) ) ( and ( ( not ( ( not f ) ( or b ) ) ) ( or ( not ( ( not f ) ( or ( not b ) ) ) ) ) ) ) )	( not ( ( c ( or d ) ) ( or b ) ) )
+#	( ( ( not ( e ( and ( not a ) ) ) ) ( and ( e ( and ( not a ) ) ) ) ) ( or ( not ( ( not d ) ( or c ) ) ) ) )	e
+#	( not ( ( ( ( not d ) ( or a ) ) ( and ( e ( or a ) ) ) ) ( and ( ( not ( b ( and ( not d ) ) ) ) ( and a ) ) ) ) )	( not ( d ( or ( not a ) ) ) )
+#	( ( not ( ( e ( and d ) ) ( and e ) ) ) ( or ( ( d ( and ( not d ) ) ) ( or ( ( not e ) ( or ( not f ) ) ) ) ) ) )	b
+#	( not ( ( not ( ( not d ) ( or ( not a ) ) ) ) ( or ( ( ( not c ) ( and ( not f ) ) ) ( and c ) ) ) ) )	( not c )
+>	( ( ( b ( or a ) ) ( and ( not ( ( not a ) ( and b ) ) ) ) ) ( or ( ( not a ) ( and ( not ( f ( or c ) ) ) ) ) ) )	( a ( and ( f ( or f ) ) ) )
+#	( ( ( not ( ( not d ) ( and ( not d ) ) ) ) ( and ( ( not a ) ( and ( not d ) ) ) ) ) ( or ( f ( and a ) ) ) )	b
+#	( not a )	( ( not ( ( ( not d ) ( and ( not f ) ) ) ( or ( not ( a ( or d ) ) ) ) ) ) ( and ( d ( or ( d ( and f ) ) ) ) ) )
+#	( not ( ( not f ) ( and ( ( not ( ( not d ) ( and c ) ) ) ( or ( ( not f ) ( or ( not d ) ) ) ) ) ) ) )	( d ( and a ) )
+#	( ( a ( and a ) ) ( or ( not ( ( not ( a ( or ( not c ) ) ) ) ( and ( ( not f ) ( or ( not a ) ) ) ) ) ) ) )	( not f )
+#	( not c )	( ( not ( ( d ( and b ) ) ( and ( c ( or b ) ) ) ) ) ( and ( ( not ( ( not d ) ( and ( not b ) ) ) ) ( or b ) ) ) )
+<	( ( not ( ( not ( b ( or b ) ) ) ( and ( ( not e ) ( or b ) ) ) ) ) ( and ( not ( c ( or ( b ( and c ) ) ) ) ) ) )	( ( not c ) ( and ( not c ) ) )
+#	( ( ( not ( ( not c ) ( and e ) ) ) ( or ( not d ) ) ) ( and ( ( not ( ( not f ) ( or d ) ) ) ( or f ) ) ) )	d
+|	( ( ( not ( f ( or ( not e ) ) ) ) ( and ( not c ) ) ) ( and ( ( not ( c ( and a ) ) ) ( or ( e ( or c ) ) ) ) ) )	f
+#	( ( ( not ( a ( and a ) ) ) ( or ( not d ) ) ) ( or e ) )	( not ( ( ( not ( ( not c ) ( and c ) ) ) ( or ( not a ) ) ) ( and ( ( a ( and d ) ) ( and ( d ( and c ) ) ) ) ) ) )
+>	( c ( or d ) )	( not ( ( ( not ( d ( and f ) ) ) ( and ( ( not e ) ( or ( not e ) ) ) ) ) ( or ( d ( or ( not c ) ) ) ) ) )
+#	( not ( d ( or d ) ) )	( ( e ( or ( ( not b ) ( and f ) ) ) ) ( or ( not ( ( not ( ( not d ) ( and f ) ) ) ( or ( not e ) ) ) ) ) )
+=	( ( not ( ( ( not f ) ( and f ) ) ( or ( ( not f ) ( and ( not b ) ) ) ) ) ) ( or ( f ( and ( f ( and f ) ) ) ) ) )	( f ( or b ) )
+#	e	( not ( ( not d ) ( and ( not ( ( not ( e ( or ( not e ) ) ) ) ( or ( not ( b ( and b ) ) ) ) ) ) ) ) )
+v	( ( ( not f ) ( or ( ( not e ) ( or ( not e ) ) ) ) ) ( or ( not ( ( not c ) ( and ( not c ) ) ) ) ) )	f
+|	f	( ( ( c ( or ( not d ) ) ) ( or ( e ( or ( not d ) ) ) ) ) ( and ( not ( ( ( not c ) ( or d ) ) ( or f ) ) ) ) )
+#	( a ( or ( not b ) ) )	( not ( ( ( not ( e ( and e ) ) ) ( and ( not f ) ) ) ( and ( not ( ( not a ) ( and ( a ( and b ) ) ) ) ) ) ) )
+^	( ( ( not ( f ( or f ) ) ) ( and ( not ( ( not a ) ( and ( not d ) ) ) ) ) ) ( or ( not ( a ( and a ) ) ) ) )	( f ( and ( a ( or a ) ) ) )
+v	( ( f ( or ( not d ) ) ) ( or c ) )	( not ( ( ( c ( or f ) ) ( or ( c ( and d ) ) ) ) ( and ( ( not ( ( not c ) ( and d ) ) ) ( and ( not c ) ) ) ) ) )
+#	( ( ( not ( ( not c ) ( and ( not f ) ) ) ) ( and ( not ( d ( or ( not d ) ) ) ) ) ) ( or ( not d ) ) )	c
+<	a	( ( a ( and ( not ( ( not b ) ( and d ) ) ) ) ) ( or ( ( not ( ( not b ) ( and ( not d ) ) ) ) ( or b ) ) ) )
+<	( not ( ( not ( ( not b ) ( and ( b ( or a ) ) ) ) ) ( or ( ( not ( c ( or ( not b ) ) ) ) ( or e ) ) ) ) )	a
+|	( not ( ( ( not e ) ( and ( not ( ( not a ) ( or c ) ) ) ) ) ( or ( ( not c ) ( or ( not a ) ) ) ) ) )	( not a )
+v	( not ( b ( and ( not ( ( ( not f ) ( or ( not f ) ) ) ( or ( ( not e ) ( or ( not e ) ) ) ) ) ) ) ) )	b
+v	( ( not ( ( not ( ( not b ) ( or d ) ) ) ( and ( ( not d ) ( or ( not c ) ) ) ) ) ) ( or ( not c ) ) )	( not d )
+<	( ( ( ( not f ) ( or ( not f ) ) ) ( and ( b ( or e ) ) ) ) ( and ( ( c ( and b ) ) ( and ( ( not e ) ( and c ) ) ) ) ) )	b
+#	( ( ( not ( ( not d ) ( or ( not d ) ) ) ) ( and ( not c ) ) ) ( or ( ( a ( and ( not d ) ) ) ( and c ) ) ) )	d
+v	( ( not ( ( not ( c ( and c ) ) ) ( and b ) ) ) ( or c ) )	( not ( ( ( f ( and ( not b ) ) ) ( or ( not ( c ( or ( not a ) ) ) ) ) ) ( and ( not ( b ( and a ) ) ) ) ) )
+#	e	( ( not ( ( a ( or e ) ) ( or e ) ) ) ( or ( ( c ( or c ) ) ( and ( not ( ( not c ) ( and ( not d ) ) ) ) ) ) ) )
+|	( ( not ( ( f ( or a ) ) ( or ( f ( and d ) ) ) ) ) ( and ( not ( ( not f ) ( and ( not ( e ( and e ) ) ) ) ) ) ) )	a
+<	( not ( ( d ( and d ) ) ( or ( not ( ( e ( or e ) ) ( and ( not ( ( not b ) ( or ( not c ) ) ) ) ) ) ) ) ) )	( not d )
+#	a	( not ( ( ( not f ) ( and ( not ( f ( or e ) ) ) ) ) ( and ( ( ( not a ) ( or ( not e ) ) ) ( and b ) ) ) ) )
+#	( ( not d ) ( and ( not ( ( not ( ( not e ) ( and ( not e ) ) ) ) ( and ( ( not d ) ( and d ) ) ) ) ) ) )	e
+|	( ( ( not ( ( not b ) ( or b ) ) ) ( and b ) ) ( or ( not ( ( not ( e ( or e ) ) ) ( or ( not c ) ) ) ) ) )	( not c )
+|	( ( e ( or e ) ) ( and ( not b ) ) )	( ( not ( ( ( not d ) ( and f ) ) ( or ( ( not d ) ( and f ) ) ) ) ) ( and ( b ( or ( b ( and ( not d ) ) ) ) ) ) )
+v	( not ( ( b ( and ( e ( or ( not c ) ) ) ) ) ( and ( ( ( not c ) ( and b ) ) ( and ( not ( d ( and c ) ) ) ) ) ) ) )	b
+>	( not ( ( ( not ( ( not e ) ( or d ) ) ) ( or ( ( not c ) ( and ( not e ) ) ) ) ) ( and ( not c ) ) ) )	c
+#	( ( not ( ( ( not b ) ( and ( not a ) ) ) ( or ( b ( or ( not a ) ) ) ) ) ) ( or ( a ( and ( a ( or e ) ) ) ) ) )	( b ( and ( not ( e ( or ( ( not b ) ( and ( not a ) ) ) ) ) ) ) )
+<	( ( ( ( not d ) ( or ( not f ) ) ) ( and a ) ) ( and ( ( not ( ( not a ) ( or ( not d ) ) ) ) ( or a ) ) ) )	a
+<	( not ( ( not ( ( not ( ( not d ) ( and ( not e ) ) ) ) ( or ( ( not b ) ( or d ) ) ) ) ) ( or b ) ) )	( not ( ( not ( ( not ( ( not e ) ( or b ) ) ) ( or ( not e ) ) ) ) ( or ( d ( and ( b ( and b ) ) ) ) ) ) )
+|	( not ( ( c ( or ( ( not b ) ( and ( not f ) ) ) ) ) ( or ( ( not ( ( not e ) ( or e ) ) ) ( or c ) ) ) ) )	c
+|	c	( not ( ( ( not ( ( not c ) ( or ( not c ) ) ) ) ( or ( d ( or ( not a ) ) ) ) ) ( or ( a ( and d ) ) ) ) )
+#	b	( not ( ( ( not d ) ( and f ) ) ( or ( ( not ( ( not b ) ( or ( not b ) ) ) ) ( and ( not f ) ) ) ) ) )
+#	( not ( ( not ( e ( or ( not f ) ) ) ) ( or ( not ( ( f ( or ( not e ) ) ) ( and ( a ( or f ) ) ) ) ) ) ) )	( a ( or c ) )
+#	a	( not ( ( ( not e ) ( and ( e ( and ( not a ) ) ) ) ) ( or ( not ( ( not d ) ( or ( not d ) ) ) ) ) ) )
+#	( ( ( not ( d ( and ( not d ) ) ) ) ( and ( not c ) ) ) ( and ( e ( or ( ( not e ) ( or ( not c ) ) ) ) ) ) )	( ( d ( and ( not e ) ) ) ( and ( ( not ( ( not d ) ( or c ) ) ) ( or ( not a ) ) ) ) )
+#	( not ( ( ( not ( c ( or ( not d ) ) ) ) ( or ( not ( c ( or ( not e ) ) ) ) ) ) ( or ( not d ) ) ) )	( e ( and ( not ( ( not ( a ( and ( not c ) ) ) ) ( and ( not d ) ) ) ) ) )
+#	( not b )	( ( not ( f ( and ( ( not a ) ( and b ) ) ) ) ) ( and ( not ( ( not ( ( not f ) ( or f ) ) ) ( or f ) ) ) ) )
+>	e	( ( f ( or ( ( not b ) ( or ( not e ) ) ) ) ) ( and ( ( f ( and e ) ) ( and ( not ( b ( and ( not a ) ) ) ) ) ) ) )
+>	( ( not ( ( not e ) ( and ( not f ) ) ) ) ( or ( ( d ( and c ) ) ( and ( ( not f ) ( or ( not c ) ) ) ) ) ) )	f
+#	( not ( ( ( not f ) ( and ( ( not c ) ( or a ) ) ) ) ( or ( c ( or ( not ( ( not a ) ( or c ) ) ) ) ) ) ) )	( not e )
+<	c	( ( not ( ( not b ) ( or ( not ( b ( or c ) ) ) ) ) ) ( or ( not ( ( not c ) ( or ( not c ) ) ) ) ) )
+#	( not ( ( not a ) ( and d ) ) )	( not ( ( ( not d ) ( or ( f ( or ( not a ) ) ) ) ) ( and ( not ( f ( and ( f ( and ( not a ) ) ) ) ) ) ) ) )

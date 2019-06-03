@@ -1,0 +1,2087 @@
+#	( b ( and b ) )	( a ( or c ) )
+#	d	( f ( or a ) )
+<	a	( c ( or a ) )
+#	( b ( and e ) )	f
+#	( e ( and b ) )	( not d )
+#	e	( b ( or c ) )
+#	( not f )	( e ( and c ) )
+#	( d ( or d ) )	( not f )
+#	( d ( and f ) )	( not a )
+#	( not d )	e
+#	( not a )	( c ( and f ) )
+#	( b ( or b ) )	( not c )
+#	( e ( or f ) )	d
+=	( c ( and b ) )	( b ( and c ) )
+>	( d ( or c ) )	c
+#	d	( b ( or f ) )
+#	( b ( or d ) )	( d ( or a ) )
+#	( e ( or d ) )	( f ( or f ) )
+#	( f ( or f ) )	( not a )
+#	( a ( or b ) )	( e ( or d ) )
+#	( b ( or d ) )	( not e )
+|	( not f )	( f ( and c ) )
+#	( d ( or e ) )	( not f )
+#	( f ( or a ) )	( b ( and b ) )
+#	d	( b ( and b ) )
+#	( f ( and e ) )	d
+#	f	( e ( or d ) )
+#	( b ( or f ) )	( d ( or d ) )
+#	( not e )	( b ( and d ) )
+#	( not b )	( a ( and e ) )
+>	( a ( or c ) )	( a ( and c ) )
+#	( not d )	( f ( and b ) )
+#	( d ( or a ) )	( not f )
+#	e	( b ( and d ) )
+#	a	( d ( or f ) )
+#	( b ( or b ) )	f
+#	a	( not e )
+#	( a ( or e ) )	b
+v	( c ( or e ) )	( not c )
+#	d	( f ( and c ) )
+#	c	( f ( and b ) )
+>	( a ( or a ) )	( d ( and a ) )
+#	a	( not c )
+v	( c ( or d ) )	( not d )
+>	( c ( or b ) )	b
+#	( b ( and a ) )	( c ( or c ) )
+<	( c ( and e ) )	e
+#	e	( a ( or f ) )
+#	e	( f ( or a ) )
+>	( a ( or e ) )	( e ( and a ) )
+#	e	( d ( or b ) )
+>	( f ( or c ) )	( d ( and f ) )
+#	( a ( and b ) )	f
+^	( c ( or c ) )	( not c )
+#	f	( b ( and d ) )
+<	a	( a ( or e ) )
+<	( f ( and c ) )	c
+>	d	( d ( and b ) )
+<	( d ( and e ) )	( e ( or b ) )
+#	( c ( or e ) )	( not a )
+>	d	( d ( and a ) )
+#	c	( d ( and e ) )
+>	( d ( or e ) )	( d ( and b ) )
+<	( f ( and c ) )	( f ( or c ) )
+#	( f ( or e ) )	( c ( or b ) )
+#	( d ( or a ) )	( d ( or e ) )
+>	( d ( and d ) )	( d ( and b ) )
+#	( b ( and c ) )	( f ( or d ) )
+|	( a ( and b ) )	( not b )
+|	( not f )	( b ( and f ) )
+<	( e ( and d ) )	d
+#	d	( e ( or c ) )
+=	( c ( and e ) )	( c ( and e ) )
+|	( not d )	( d ( and e ) )
+#	( e ( and c ) )	( not d )
+#	( not f )	d
+>	d	( d ( and f ) )
+#	( d ( and c ) )	( e ( and d ) )
+|	( not c )	( c ( and d ) )
+#	( a ( or d ) )	c
+<	( f ( and a ) )	f
+#	b	( d ( or e ) )
+<	( f ( and c ) )	( f ( or e ) )
+#	( a ( and c ) )	( f ( and b ) )
+#	e	( a ( and f ) )
+#	( d ( or c ) )	( f ( or a ) )
+#	b	( f ( or f ) )
+#	( not a )	c
+<	( b ( and f ) )	( b ( or b ) )
+#	c	( a ( and e ) )
+#	( not f )	( a ( and e ) )
+#	c	( e ( and e ) )
+#	( a ( or b ) )	( not c )
+v	( not f )	( f ( or e ) )
+#	( not a )	e
+=	( d ( or d ) )	( d ( and d ) )
+#	( e ( or c ) )	( f ( and f ) )
+=	( d ( and d ) )	( d ( or d ) )
+#	( not b )	( e ( or d ) )
+#	( not b )	( d ( and a ) )
+<	f	( f ( or b ) )
+#	( f ( and e ) )	( not d )
+#	( d ( and f ) )	( not b )
+<	d	( b ( or d ) )
+>	( e ( or f ) )	e
+>	( a ( or b ) )	b
+<	( e ( and d ) )	( d ( or a ) )
+<	( c ( and f ) )	f
+#	( f ( and d ) )	( not c )
+^	( a ( and a ) )	( not a )
+<	( d ( and d ) )	( b ( or d ) )
+#	( c ( or c ) )	( f ( or f ) )
+#	( a ( or c ) )	( not f )
+#	( not d )	( f ( or f ) )
+#	( c ( or f ) )	( b ( and a ) )
+#	( a ( and f ) )	( c ( and f ) )
+#	( f ( and e ) )	( not b )
+#	( not a )	( e ( and d ) )
+#	( not e )	( f ( and a ) )
+#	( d ( or e ) )	a
+>	( c ( or f ) )	c
+#	( f ( or a ) )	( b ( or e ) )
+|	( a ( and d ) )	( not a )
+<	c	( d ( or c ) )
+#	b	( a ( or c ) )
+^	( c ( and c ) )	( not c )
+v	( e ( or f ) )	( not e )
+<	( e ( and a ) )	e
+#	( e ( and b ) )	a
+#	a	( f ( and d ) )
+#	( f ( and f ) )	( not c )
+#	( d ( or d ) )	c
+#	( not f )	( b ( and a ) )
+#	( not a )	( e ( and c ) )
+>	f	( f ( and b ) )
+v	( b ( or e ) )	( not b )
+#	a	( f ( or d ) )
+#	( c ( or d ) )	( not b )
+|	( f ( and b ) )	( not b )
+#	( a ( or a ) )	( e ( or e ) )
+|	( not e )	( a ( and e ) )
+#	( d ( and b ) )	( not e )
+=	( e ( or e ) )	( e ( or e ) )
+#	c	( b ( and b ) )
+#	b	( f ( and a ) )
+#	( not d )	( b ( and f ) )
+#	( not d )	( b ( or f ) )
+#	( e ( or c ) )	( not b )
+#	( not b )	( not d )
+<	( e ( and b ) )	( e ( or d ) )
+#	( not c )	( not e )
+#	( not f )	( d ( and d ) )
+=	c	( c ( and c ) )
+>	( b ( or e ) )	b
+#	( not b )	( f ( or c ) )
+#	( b ( or d ) )	e
+#	( c ( or e ) )	b
+#	e	( d ( or d ) )
+v	( not b )	( a ( or b ) )
+|	( d ( and a ) )	( not d )
+#	c	( d ( or f ) )
+#	( d ( and c ) )	e
+#	( a ( and c ) )	d
+#	( c ( or c ) )	( d ( or b ) )
+#	( f ( or f ) )	d
+#	( f ( or c ) )	d
+#	c	( e ( and b ) )
+#	( not e )	( not b )
+#	( e ( or c ) )	f
+#	( a ( and a ) )	( b ( and b ) )
+#	e	( d ( and a ) )
+#	( not a )	( b ( and e ) )
+|	( not a )	( a ( and d ) )
+v	( not a )	( a ( or c ) )
+#	c	( a ( or a ) )
+#	( not b )	( e ( and a ) )
+#	( not a )	( b ( and b ) )
+#	( e ( or f ) )	( not b )
+#	( not e )	( b ( or a ) )
+<	( a ( or a ) )	( d ( or a ) )
+#	( b ( or e ) )	f
+#	e	( not a )
+#	( e ( or e ) )	( not d )
+#	a	( b ( or f ) )
+#	d	( e ( or e ) )
+#	c	( a ( or f ) )
+#	( d ( or b ) )	( e ( or d ) )
+<	( e ( and c ) )	( c ( or d ) )
+#	( e ( or e ) )	( b ( or b ) )
+|	( not d )	( f ( and d ) )
+#	( e ( or f ) )	( e ( or b ) )
+#	( f ( and c ) )	( not b )
+#	( f ( and f ) )	( not b )
+#	d	( a ( or b ) )
+#	( e ( and e ) )	f
+<	d	( d ( or c ) )
+#	( not f )	( c ( and b ) )
+#	( not c )	( d ( and f ) )
+#	( d ( and f ) )	( b ( or a ) )
+#	( d ( or b ) )	( not c )
+#	( e ( and d ) )	( not a )
+<	( d ( and e ) )	( d ( or d ) )
+#	( not a )	( d ( and f ) )
+#	( b ( or b ) )	( not a )
+#	( d ( and f ) )	( not c )
+v	( not b )	( b ( or d ) )
+=	( not f )	( not f )
+#	( a ( and e ) )	( not c )
+#	( b ( or b ) )	( d ( and a ) )
+#	( not b )	( f ( and c ) )
+#	d	( b ( and f ) )
+#	( not d )	a
+#	( not b )	a
+#	( a ( or c ) )	( not b )
+|	( d ( and b ) )	( not b )
+#	d	( f ( and e ) )
+#	( e ( or b ) )	( c ( and f ) )
+#	a	( c ( or b ) )
+#	e	( d ( and d ) )
+>	( b ( or f ) )	( b ( and a ) )
+#	( b ( or e ) )	( not a )
+#	( f ( and b ) )	c
+>	( f ( or e ) )	e
+#	( not f )	( e ( and d ) )
+#	( not d )	( e ( or e ) )
+#	( not f )	( e ( or b ) )
+|	( not b )	( a ( and b ) )
+#	( c ( or c ) )	( b ( or e ) )
+#	f	( e ( or e ) )
+#	( not b )	( a ( and d ) )
+<	b	( b ( or e ) )
+#	( not f )	( a ( and c ) )
+#	c	( f ( and a ) )
+>	( e ( or a ) )	a
+#	( e ( or b ) )	( not f )
+#	( d ( or f ) )	( c ( or c ) )
+#	( not d )	( a ( and e ) )
+>	( e ( or d ) )	( e ( and a ) )
+#	c	( not b )
+<	( c ( and b ) )	c
+#	( c ( or c ) )	( e ( and d ) )
+#	( not d )	( a ( or e ) )
+#	e	( d ( or a ) )
+#	( c ( and d ) )	( a ( and c ) )
+#	( c ( and a ) )	( e ( and b ) )
+#	( f ( or d ) )	( e ( and e ) )
+v	( not d )	( d ( or b ) )
+#	c	( not f )
+<	( e ( and d ) )	e
+#	( not e )	( a ( or d ) )
+=	e	( e ( and e ) )
+#	a	( f ( or b ) )
+#	( c ( or f ) )	( a ( or c ) )
+^	( f ( or f ) )	( not f )
+=	( c ( or d ) )	( d ( or c ) )
+#	( c ( or d ) )	( not f )
+#	( c ( or a ) )	( not f )
+#	( d ( and a ) )	e
+#	( a ( and c ) )	( c ( and e ) )
+<	( c ( and f ) )	c
+v	( not b )	( b ( or f ) )
+>	( d ( or a ) )	( d ( and b ) )
+v	( d ( or b ) )	( not d )
+#	( c ( or f ) )	( f ( or b ) )
+#	( b ( and d ) )	c
+#	d	( f ( or e ) )
+#	( not a )	( b ( and c ) )
+#	( not e )	( b ( and a ) )
+#	d	( c ( or a ) )
+#	( a ( or b ) )	e
+#	( d ( or f ) )	( not b )
+<	( b ( and c ) )	c
+#	( not a )	( c ( or b ) )
+#	e	( c ( or c ) )
+#	( e ( or d ) )	a
+#	( not e )	( d ( or d ) )
+=	( a ( and a ) )	a
+#	( e ( or d ) )	( not f )
+#	( f ( and a ) )	( not d )
+#	d	( not b )
+>	( d ( or a ) )	d
+v	( e ( or b ) )	( not b )
+#	b	( d ( or c ) )
+#	( not b )	( c ( and f ) )
+<	( e ( and f ) )	( c ( or f ) )
+#	( f ( or c ) )	e
+#	( c ( and d ) )	( e ( and d ) )
+<	( c ( and b ) )	( c ( and c ) )
+#	e	( b ( and b ) )
+#	( b ( or c ) )	( a ( or b ) )
+#	( not d )	( e ( and a ) )
+<	d	( d ( or b ) )
+#	b	( f ( or c ) )
+#	( b ( or c ) )	d
+#	( d ( or f ) )	e
+#	( not e )	( not c )
+#	( not e )	( d ( and c ) )
+>	b	( b ( and f ) )
+>	( d ( or b ) )	d
+#	( b ( or a ) )	( not e )
+#	( d ( or f ) )	( not c )
+<	( a ( and e ) )	e
+v	( f ( or b ) )	( not f )
+#	( b ( or b ) )	( a ( and a ) )
+#	( a ( or f ) )	( not d )
+#	c	( e ( or f ) )
+#	( f ( or c ) )	( not e )
+#	( not d )	( c ( and e ) )
+#	( b ( or d ) )	( f ( or f ) )
+#	( a ( or e ) )	( not f )
+<	( c ( and e ) )	c
+#	( not b )	( c ( or e ) )
+>	e	( e ( and a ) )
+#	( e ( and c ) )	( not a )
+^	c	( not c )
+#	( c ( or d ) )	( not e )
+#	( e ( and c ) )	d
+#	( d ( or b ) )	c
+#	( d ( or e ) )	( not c )
+#	b	( e ( or d ) )
+#	( a ( and b ) )	e
+#	( c ( or b ) )	( b ( or e ) )
+#	a	( f ( or c ) )
+#	b	( d ( or d ) )
+<	( d ( or d ) )	( d ( or a ) )
+#	( d ( and d ) )	c
+#	b	( f ( and e ) )
+^	( not a )	( a ( or a ) )
+#	e	( f ( and c ) )
+#	( not b )	( d ( and c ) )
+v	( not f )	( b ( or f ) )
+v	( not a )	( b ( or a ) )
+|	( a ( and c ) )	( not c )
+>	( b ( or a ) )	( a ( and d ) )
+>	( b ( or d ) )	( b ( and b ) )
+#	b	( e ( and c ) )
+#	( c ( or e ) )	a
+#	( not d )	( c ( or a ) )
+#	( d ( and d ) )	( not f )
+v	( not c )	( c ( or a ) )
+#	a	( f ( and e ) )
+#	( not f )	( a ( or c ) )
+v	( not f )	( d ( or f ) )
+<	( e ( and b ) )	b
+#	( a ( or c ) )	e
+<	( c ( or c ) )	( c ( or b ) )
+#	( d ( or a ) )	( c ( and c ) )
+>	( b ( or c ) )	b
+#	( not b )	( d ( and e ) )
+v	( e ( or c ) )	( not e )
+#	( e ( and e ) )	( d ( and b ) )
+#	( d ( or b ) )	f
+|	( not f )	( f ( and e ) )
+#	( not a )	b
+#	( d ( and f ) )	( not e )
+#	( f ( or c ) )	( not a )
+<	( f ( and e ) )	e
+=	( d ( and d ) )	d
+<	( f ( and e ) )	f
+|	( not c )	( e ( and c ) )
+#	( a ( or c ) )	f
+#	( b ( and b ) )	( not f )
+#	( a ( and a ) )	( not e )
+#	f	( a ( or c ) )
+#	( e ( or c ) )	( a ( or d ) )
+#	( b ( or b ) )	a
+<	( b ( and a ) )	( c ( or a ) )
+^	( b ( or b ) )	( not b )
+v	( c ( or a ) )	( not c )
+#	( c ( and f ) )	b
+>	( f ( or b ) )	b
+#	a	( f ( and b ) )
+^	( b ( and b ) )	( not b )
+#	( e ( and b ) )	( not f )
+#	( e ( or c ) )	d
+#	( a ( and e ) )	( b ( or f ) )
+#	d	( f ( and a ) )
+#	( not f )	( a ( and a ) )
+#	( e ( or b ) )	( not d )
+<	e	( e ( or a ) )
+<	( e ( and f ) )	( f ( or f ) )
+#	( not f )	( d ( or c ) )
+#	c	( d ( or d ) )
+#	( c ( and f ) )	d
+#	( d ( or d ) )	a
+#	( not c )	( e ( or d ) )
+#	( f ( or e ) )	( e ( or b ) )
+v	( not e )	( e ( or f ) )
+#	( f ( or b ) )	( not c )
+#	( b ( or c ) )	( not a )
+v	( not a )	( a ( or b ) )
+#	( c ( and f ) )	( c ( and d ) )
+#	( not f )	( e ( or a ) )
+<	( c ( and d ) )	c
+#	a	( e ( and b ) )
+#	( b ( and a ) )	d
+#	( a ( and d ) )	( not f )
+#	( a ( or b ) )	( c ( or c ) )
+#	f	( a ( and b ) )
+<	f	( d ( or f ) )
+#	( not f )	( d ( and e ) )
+#	( e ( or e ) )	( d ( or a ) )
+=	f	( f ( or f ) )
+<	a	( a ( or c ) )
+v	( f ( or b ) )	( not b )
+|	( not b )	( c ( and b ) )
+#	( not a )	( b ( or f ) )
+=	( not d )	( not d )
+#	( e ( or d ) )	( f ( or b ) )
+>	( c ( or b ) )	( d ( and c ) )
+>	( f ( or d ) )	d
+>	( a ( or d ) )	a
+#	( e ( or f ) )	( not d )
+#	( e ( and f ) )	c
+|	( not e )	( e ( and c ) )
+#	( a ( or a ) )	f
+#	f	( e ( and d ) )
+#	( c ( or a ) )	d
+#	f	( d ( or c ) )
+>	e	( e ( and d ) )
+>	e	( e ( and f ) )
+<	( a ( and c ) )	( c ( or f ) )
+<	c	( b ( or c ) )
+#	( f ( and c ) )	( not d )
+#	( c ( and f ) )	( b ( or b ) )
+#	( not e )	( c ( and d ) )
+|	( not b )	( d ( and b ) )
+#	d	( b ( or c ) )
+<	( b ( and c ) )	( b ( and b ) )
+#	c	( not a )
+#	( not c )	( e ( or e ) )
+#	( not f )	( b ( or e ) )
+#	( f ( or e ) )	b
+#	f	( c ( and b ) )
+>	( e ( or f ) )	f
+#	( a ( or c ) )	( not d )
+v	( not c )	( c ( or e ) )
+#	( d ( and f ) )	a
+#	e	( d ( or f ) )
+#	( d ( or f ) )	( a ( or a ) )
+<	( c ( and d ) )	( c ( or c ) )
+#	f	( c ( or c ) )
+#	( e ( and c ) )	f
+#	( not e )	( not f )
+#	a	( f ( or e ) )
+#	( d ( and a ) )	( not f )
+<	( d ( and f ) )	( e ( or d ) )
+#	( a ( or e ) )	( not b )
+>	( f ( or d ) )	f
+#	f	( b ( and b ) )
+v	( not e )	( f ( or e ) )
+|	( f ( and c ) )	( not c )
+#	( a ( or a ) )	( b ( and d ) )
+#	( a ( and f ) )	( d ( and f ) )
+>	a	( e ( and a ) )
+#	( f ( or b ) )	( not a )
+#	c	( d ( and f ) )
+#	f	( a ( or b ) )
+#	( f ( or c ) )	( not b )
+#	( not d )	( e ( or c ) )
+#	( not a )	( d ( or d ) )
+#	( not e )	( not d )
+v	( a ( or d ) )	( not d )
+#	( not a )	f
+#	e	( f ( or c ) )
+#	( b ( and c ) )	( d ( and c ) )
+#	( e ( or d ) )	( a ( or e ) )
+#	f	( a ( and c ) )
+>	d	( c ( and d ) )
+#	( f ( or f ) )	( d ( and b ) )
+#	b	( a ( or d ) )
+#	( e ( and b ) )	f
+#	( not d )	( not c )
+#	( not b )	( f ( or f ) )
+<	c	( c ( or d ) )
+=	( d ( or e ) )	( e ( or d ) )
+#	( not a )	( e ( and b ) )
+<	( d ( and c ) )	( c ( or c ) )
+>	( b ( or c ) )	( e ( and b ) )
+>	( d ( or e ) )	( c ( and e ) )
+>	( c ( or d ) )	( d ( or d ) )
+v	( f ( or c ) )	( not f )
+#	( not e )	( a ( or f ) )
+#	( f ( or e ) )	( e ( or c ) )
+v	( not f )	( f ( or a ) )
+>	( e ( or f ) )	( f ( or f ) )
+>	( c ( or e ) )	( c ( and c ) )
+#	( d ( or b ) )	( not e )
+#	a	( c ( and c ) )
+>	( d ( or a ) )	a
+#	( a ( or a ) )	( b ( or b ) )
+#	( a ( and f ) )	( e ( and f ) )
+#	( not f )	( d ( and c ) )
+#	b	( c ( and a ) )
+v	( d ( or c ) )	( not c )
+#	( b ( and e ) )	d
+#	( not a )	( d ( and e ) )
+#	( e ( or e ) )	( d ( or f ) )
+#	( d ( and a ) )	( f ( and c ) )
+<	( f ( or f ) )	( f ( or e ) )
+<	( c ( or c ) )	( c ( or d ) )
+<	( d ( and f ) )	( a ( or d ) )
+v	( e ( or f ) )	( not f )
+#	( d ( and b ) )	( e ( and f ) )
+#	( not c )	a
+#	( e ( or a ) )	( a ( or c ) )
+#	( not d )	( b ( or e ) )
+#	( not d )	( a ( and b ) )
+#	( c ( and a ) )	b
+#	( d ( and c ) )	( not a )
+#	( f ( or c ) )	a
+>	( e ( or d ) )	d
+<	( f ( and e ) )	( f ( or a ) )
+#	( a ( and d ) )	( a ( and b ) )
+>	( d ( or c ) )	d
+#	( d ( or c ) )	( not a )
+=	( not b )	( not b )
+#	( b ( or b ) )	( a ( and c ) )
+>	( e ( or b ) )	e
+<	( b ( and a ) )	( d ( or b ) )
+#	( b ( and d ) )	e
+#	( f ( and c ) )	( not a )
+<	b	( d ( or b ) )
+<	( a ( and b ) )	b
+<	( f ( and e ) )	( e ( or f ) )
+#	( not a )	( d ( and d ) )
+<	( d ( and c ) )	d
+#	( e ( and c ) )	( not b )
+<	( b ( or b ) )	( c ( or b ) )
+>	( b ( or f ) )	b
+#	( e ( or d ) )	( not a )
+#	( a ( and a ) )	( not d )
+#	( not b )	( d ( or e ) )
+<	( b ( and c ) )	( c ( or e ) )
+v	( not e )	( a ( or e ) )
+#	( f ( and f ) )	b
+#	( e ( or e ) )	( not a )
+#	( a ( and f ) )	c
+v	( c ( or b ) )	( not b )
+#	( not c )	( a ( or b ) )
+#	( e ( or a ) )	( not b )
+#	( e ( and a ) )	( not d )
+#	( b ( and a ) )	( not e )
+<	d	( e ( or d ) )
+#	( d ( and b ) )	( a ( and d ) )
+#	( d ( or f ) )	a
+<	( f ( and b ) )	f
+#	( not b )	( not e )
+#	( not c )	( f ( and b ) )
+#	( not d )	( e ( or a ) )
+<	( c ( and a ) )	( f ( or c ) )
+<	( a ( and d ) )	( a ( or a ) )
+#	( not e )	a
+#	( b ( and d ) )	a
+|	( not c )	( a ( and c ) )
+v	( not b )	( f ( or b ) )
+#	e	( c ( or f ) )
+<	( d ( and f ) )	( b ( or d ) )
+#	( b ( and f ) )	c
+#	c	( f ( or d ) )
+#	f	( c ( or b ) )
+#	c	( b ( or a ) )
+>	( a ( or f ) )	f
+#	( a ( and c ) )	( not b )
+#	( f ( or c ) )	( not d )
+#	( f ( and a ) )	d
+<	a	( e ( or a ) )
+<	( b ( and c ) )	( c ( or c ) )
+#	( not f )	( not b )
+#	( a ( or a ) )	( not e )
+#	( not d )	( f ( or e ) )
+>	( c ( or c ) )	( c ( and a ) )
+<	( f ( and b ) )	( f ( and f ) )
+#	( e ( and d ) )	( not c )
+#	( f ( or f ) )	( d ( and c ) )
+#	( e ( or a ) )	( a ( or b ) )
+<	( d ( and e ) )	( d ( or e ) )
+#	( not f )	( e ( and b ) )
+v	( b ( or f ) )	( not f )
+>	( e ( or b ) )	b
+>	c	( c ( and a ) )
+#	( not e )	( f ( and f ) )
+#	( a ( and e ) )	f
+v	( not e )	( b ( or e ) )
+v	( b ( or c ) )	( not c )
+#	d	( e ( and b ) )
+#	( c ( or b ) )	d
+#	( not c )	( d ( and a ) )
+#	( a ( or e ) )	c
+#	( e ( and e ) )	( not a )
+v	( not e )	( d ( or e ) )
+|	( not d )	( e ( and d ) )
+|	( b ( and d ) )	( not d )
+<	b	( b ( or a ) )
+<	( d ( and e ) )	d
+#	b	( a ( and f ) )
+#	( not f )	( b ( or c ) )
+#	( c ( and e ) )	( not d )
+#	( b ( or e ) )	d
+#	d	( c ( or c ) )
+<	( e ( and f ) )	( e ( and e ) )
+#	( b ( and e ) )	( b ( and d ) )
+#	a	( d ( and e ) )
+=	( e ( and e ) )	( e ( or e ) )
+<	( e ( and d ) )	( f ( or e ) )
+>	a	( b ( and a ) )
+#	( not e )	( b ( and f ) )
+<	( f ( and c ) )	( f ( or f ) )
+>	( f ( or d ) )	( c ( and d ) )
+|	( not d )	( d ( and a ) )
+#	( c ( or f ) )	e
+<	e	( e ( or f ) )
+#	( e ( or d ) )	c
+#	c	( a ( or e ) )
+#	( b ( and a ) )	( f ( or e ) )
+#	( b ( or a ) )	d
+>	f	( f ( and d ) )
+<	d	( d ( or f ) )
+#	( d ( or c ) )	b
+#	( f ( and a ) )	( not c )
+>	( a ( or e ) )	( e ( and e ) )
+#	( e ( or b ) )	( a ( and c ) )
+#	( a ( and f ) )	( not d )
+<	( d ( and b ) )	( b ( or b ) )
+#	a	( not b )
+|	( d ( and f ) )	( not d )
+v	( a ( or c ) )	( not a )
+#	a	( e ( and f ) )
+#	( c ( and a ) )	e
+#	( b ( and b ) )	( not d )
+>	( e ( or c ) )	c
+#	( b ( and a ) )	( d ( or f ) )
+v	( not b )	( b ( or e ) )
+#	( b ( or c ) )	a
+>	( a ( or d ) )	( d ( and a ) )
+#	a	( e ( or f ) )
+#	( b ( and c ) )	( not f )
+#	( d ( or d ) )	( not e )
+#	( a ( and c ) )	( b ( and f ) )
+<	( b ( and f ) )	f
+>	( d ( or f ) )	( d ( and f ) )
+>	( e ( or f ) )	( d ( and e ) )
+#	( not d )	( f ( and f ) )
+<	( e ( and a ) )	( c ( or e ) )
+#	( f ( or e ) )	c
+#	( a ( and e ) )	( b ( and a ) )
+v	( c ( or a ) )	( not a )
+#	b	( f ( or d ) )
+v	( not e )	( e ( or a ) )
+^	( not e )	( e ( or e ) )
+#	( e ( and a ) )	( f ( and b ) )
+#	( not c )	( b ( or d ) )
+>	( f ( or e ) )	( e ( and e ) )
+#	( e ( or b ) )	c
+#	b	( f ( or e ) )
+#	( not a )	( not c )
+#	( b ( or b ) )	c
+#	( not d )	( a ( or a ) )
+#	( d ( or a ) )	( not c )
+<	( d ( and a ) )	( a ( or f ) )
+#	( not e )	( d ( and a ) )
+#	( not a )	( not b )
+=	( f ( or f ) )	( f ( or f ) )
+#	( e ( or c ) )	( not a )
+#	( d ( or f ) )	( not e )
+#	( d ( and c ) )	( not b )
+#	( not c )	( a ( and e ) )
+v	( d ( or f ) )	( not f )
+#	( d ( or a ) )	f
+#	( d ( or a ) )	e
+>	( a ( or c ) )	a
+#	( d ( or f ) )	( not a )
+#	( not d )	( c ( and a ) )
+v	( not a )	( f ( or a ) )
+#	c	( a ( and b ) )
+#	( c ( or f ) )	( not b )
+#	e	( c ( and d ) )
+#	( not b )	c
+#	c	( d ( or b ) )
+#	( a ( or b ) )	( not e )
+#	( c ( and e ) )	f
+<	f	( f ( or a ) )
+#	( b ( and c ) )	d
+#	( c ( or e ) )	( not d )
+#	( c ( or a ) )	e
+#	( not c )	( a ( or d ) )
+#	( b ( and d ) )	( e ( and b ) )
+#	( b ( and f ) )	a
+#	e	( c ( or b ) )
+#	e	( b ( or f ) )
+#	( not c )	( d ( or e ) )
+#	( not c )	( a ( or e ) )
+#	( e ( and d ) )	( not f )
+v	( not d )	( b ( or d ) )
+v	( b ( or a ) )	( not a )
+#	( c ( and a ) )	( not f )
+#	( not f )	( not a )
+#	( f ( and f ) )	( not a )
+<	( f ( and d ) )	( f ( or d ) )
+=	( a ( and b ) )	( b ( and a ) )
+#	( b ( or f ) )	a
+#	( e ( or f ) )	( f ( or d ) )
+>	( f ( or b ) )	f
+#	( f ( or e ) )	( not b )
+#	( e ( or e ) )	c
+#	( f ( and d ) )	( not b )
+>	( f ( or c ) )	( f ( or f ) )
+>	( c ( or f ) )	( f ( or f ) )
+|	( not a )	( c ( and a ) )
+^	a	( not a )
+#	( a ( and f ) )	e
+<	( f ( and b ) )	b
+#	( e ( and e ) )	( not d )
+#	( f ( and f ) )	e
+>	( b ( or d ) )	( a ( and d ) )
+#	( not b )	( d ( or c ) )
+#	( not e )	( c ( or f ) )
+|	( c ( and d ) )	( not d )
+#	( c ( and e ) )	b
+#	( not b )	( a ( or d ) )
+|	( not a )	( f ( and a ) )
+>	( a ( or e ) )	e
+#	( b ( and c ) )	( a ( or a ) )
+#	( c ( or b ) )	( not e )
+#	( b ( and a ) )	( not c )
+#	f	( a ( or a ) )
+>	( f ( and f ) )	( e ( and f ) )
+#	( d ( and c ) )	( e ( or e ) )
+#	( f ( and d ) )	( not a )
+#	( d ( or b ) )	e
+#	d	( a ( or c ) )
+#	( d ( and d ) )	e
+#	( a ( and a ) )	f
+<	( a ( and e ) )	a
+>	( b ( or c ) )	( d ( and b ) )
+>	( e ( or b ) )	( b ( or b ) )
+#	( b ( or d ) )	a
+#	( not d )	( c ( or e ) )
+#	( f ( and a ) )	( not e )
+#	( f ( or a ) )	( e ( or a ) )
+#	d	( not c )
+#	f	( d ( and c ) )
+#	e	( c ( and a ) )
+#	( not a )	( f ( and f ) )
+#	( e ( or a ) )	( not f )
+#	( e ( or e ) )	f
+#	( f ( and f ) )	d
+#	( not d )	c
+>	( c ( or c ) )	( b ( and c ) )
+#	( not a )	( e ( or f ) )
+#	( not b )	( d ( or a ) )
+>	a	( d ( and a ) )
+#	( d ( or c ) )	( not b )
+#	( c ( or f ) )	( not a )
+#	e	( b ( or a ) )
+#	f	( a ( and e ) )
+#	( c ( or c ) )	( not a )
+#	a	( c ( and f ) )
+|	( a ( and b ) )	( not a )
+>	( c ( or e ) )	( c ( or c ) )
+#	e	( c ( and c ) )
+#	( a ( or d ) )	( not b )
+#	e	( b ( and c ) )
+#	( d ( and d ) )	( b ( and b ) )
+<	( c ( and c ) )	( a ( or c ) )
+#	( b ( and d ) )	( not c )
+#	( c ( or e ) )	( d ( or d ) )
+<	a	( a ( or f ) )
+#	( not a )	( c ( or c ) )
+#	( b ( and e ) )	a
+v	( not c )	( c ( or d ) )
+#	d	( c ( or e ) )
+#	f	( b ( and c ) )
+=	( a ( or e ) )	( a ( or e ) )
+^	( not c )	( c ( and c ) )
+#	( not b )	( f ( and d ) )
+#	b	( e ( or c ) )
+#	( f ( or a ) )	d
+#	( not a )	( b ( or e ) )
+>	( f ( or e ) )	f
+>	( e ( or d ) )	( d ( or d ) )
+#	( c ( or e ) )	d
+#	( not c )	( b ( and f ) )
+<	e	( d ( or e ) )
+v	( not a )	( a ( or d ) )
+#	( not b )	( d ( and d ) )
+#	( e ( and b ) )	( not c )
+#	( a ( and d ) )	( e ( or c ) )
+v	( not a )	( d ( or a ) )
+#	( c ( or b ) )	( not d )
+#	( e ( or a ) )	( a ( or d ) )
+<	e	( e ( or b ) )
+>	( d ( or a ) )	( b ( and a ) )
+#	( not f )	( d ( or d ) )
+#	( not e )	( f ( and d ) )
+v	( e ( or d ) )	( not e )
+#	( a ( or e ) )	( not d )
+=	( d ( and f ) )	( d ( and f ) )
+#	( c ( or f ) )	a
+#	( f ( or d ) )	b
+v	( not f )	( f ( or c ) )
+<	( d ( and e ) )	e
+#	( f ( or d ) )	( not b )
+#	( a ( or c ) )	( not e )
+#	d	( b ( or b ) )
+#	( e ( or f ) )	( not c )
+<	( d ( and b ) )	b
+#	( c ( or e ) )	f
+#	( not f )	( a ( or a ) )
+#	e	( b ( and f ) )
+#	( f ( or a ) )	( not c )
+#	( a ( or d ) )	f
+#	b	( f ( and c ) )
+|	( not d )	( d ( and f ) )
+#	( c ( or f ) )	( d ( and d ) )
+>	( d ( or a ) )	( d ( and f ) )
+v	( not f )	( c ( or f ) )
+#	( not e )	( b ( or b ) )
+#	( e ( or e ) )	( not c )
+^	( not b )	( b ( and b ) )
+#	( a ( and b ) )	( not c )
+=	( a ( or d ) )	( d ( or a ) )
+#	( e ( and d ) )	c
+#	( b ( or d ) )	( not c )
+#	( c ( and d ) )	b
+#	( not d )	( a ( or c ) )
+<	( c ( and d ) )	d
+#	( f ( and b ) )	( d ( and d ) )
+>	( b ( or c ) )	( b ( or b ) )
+#	a	( b ( and b ) )
+#	e	( f ( and a ) )
+#	( e ( or e ) )	( a ( or b ) )
+=	( a ( or a ) )	a
+#	( c ( and c ) )	( not b )
+#	f	( e ( and b ) )
+#	( c ( or a ) )	( f ( or e ) )
+#	d	( f ( or c ) )
+>	( e ( or a ) )	( e ( and e ) )
+v	( not b )	( c ( or b ) )
+#	( b ( and c ) )	( not e )
+#	( a ( or f ) )	( not b )
+#	( a ( and d ) )	f
+<	( d ( and f ) )	( d ( and d ) )
+#	( a ( or e ) )	( not c )
+#	( c ( and e ) )	( a ( and a ) )
+#	c	( e ( or b ) )
+#	( d ( or c ) )	( a ( or d ) )
+#	( not f )	( b ( or a ) )
+#	( not c )	( b ( and a ) )
+#	e	( b ( or b ) )
+#	( e ( or a ) )	( d ( or a ) )
+>	( b ( or e ) )	e
+#	( f ( or d ) )	e
+>	( b ( or d ) )	b
+#	( not c )	( a ( or a ) )
+<	( c ( or c ) )	( f ( or c ) )
+<	b	( b ( or c ) )
+#	( b ( or e ) )	( not d )
+#	c	( e ( or e ) )
+=	( c ( or b ) )	( c ( or b ) )
+#	( c ( or c ) )	e
+#	f	( d ( and a ) )
+v	( d ( or b ) )	( not b )
+v	( not c )	( e ( or c ) )
+#	( not c )	( a ( and b ) )
+>	f	( f ( and a ) )
+=	( e ( and e ) )	e
+#	f	( e ( and a ) )
+#	( c ( or d ) )	b
+#	( e ( or b ) )	( not a )
+|	( not e )	( e ( and d ) )
+>	( e ( or e ) )	( e ( and c ) )
+#	a	( b ( or d ) )
+#	( not e )	( f ( and b ) )
+<	( a ( and b ) )	( f ( or a ) )
+#	( not b )	( a ( and c ) )
+#	( d ( or b ) )	a
+#	( not b )	( a ( or f ) )
+^	( not a )	( a ( and a ) )
+=	( b ( or b ) )	( b ( and b ) )
+#	( not c )	e
+#	( f ( and a ) )	( e ( and d ) )
+#	( e ( and a ) )	f
+#	( not b )	( e ( or e ) )
+#	d	( a ( and f ) )
+|	( not e )	( c ( and e ) )
+#	( d ( or a ) )	( b ( and e ) )
+#	( c ( or b ) )	f
+#	b	( a ( or a ) )
+<	c	( e ( or c ) )
+#	c	( d ( or a ) )
+#	( e ( and a ) )	c
+v	( a ( or e ) )	( not a )
+>	( a ( or d ) )	( b ( and a ) )
+#	b	( not c )
+|	( a ( and e ) )	( not e )
+#	( f ( and c ) )	a
+#	( d ( or d ) )	( b ( and f ) )
+#	( d ( and a ) )	c
+<	b	( b ( or d ) )
+#	a	( b ( and c ) )
+#	( c ( or f ) )	( not e )
+|	( not f )	( f ( and b ) )
+#	( d ( or b ) )	( c ( or b ) )
+#	( f ( and e ) )	c
+#	( e ( and b ) )	( b ( and d ) )
+#	( not d )	( b ( and a ) )
+<	( e ( and a ) )	a
+<	c	( c ( or e ) )
+#	( e ( and b ) )	( not a )
+#	( e ( and a ) )	b
+>	( d ( or e ) )	d
+<	( b ( and a ) )	a
+#	( d ( or e ) )	b
+#	( not f )	( d ( and a ) )
+>	f	( f ( and c ) )
+#	( not c )	( b ( or b ) )
+#	( a ( and a ) )	b
+#	( d ( and f ) )	( a ( and f ) )
+#	( e ( and a ) )	( not c )
+#	( a ( and f ) )	( not b )
+#	b	( e ( and d ) )
+<	( b ( and a ) )	b
+^	( not b )	b
+>	( c ( or f ) )	( f ( and f ) )
+>	( d ( and d ) )	( d ( and e ) )
+#	( not d )	( e ( and c ) )
+|	( b ( and e ) )	( not e )
+#	( not e )	( b ( or f ) )
+v	( not d )	( f ( or d ) )
+>	e	( a ( and e ) )
+#	( not a )	( b ( or c ) )
+#	( d ( and b ) )	( b ( and f ) )
+#	( not b )	( d ( and f ) )
+#	( not a )	( e ( or b ) )
+<	b	( c ( or b ) )
+>	( d ( or f ) )	( f ( and d ) )
+v	( not a )	( c ( or a ) )
+#	( c ( and e ) )	d
+#	( e ( or e ) )	a
+|	( e ( and c ) )	( not e )
+#	( d ( or d ) )	e
+#	( c ( and b ) )	d
+#	( b ( and f ) )	( not a )
+<	( f ( and f ) )	( f ( or a ) )
+#	( not a )	( c ( or d ) )
+<	f	( c ( or f ) )
+#	( not b )	( not f )
+v	( f ( or e ) )	( not e )
+#	( f ( and d ) )	b
+#	b	( c ( and e ) )
+|	( c ( and a ) )	( not c )
+#	( d ( and a ) )	( b ( and f ) )
+#	a	( c ( or f ) )
+#	( c ( and d ) )	a
+v	( d ( or e ) )	( not e )
+#	( b ( or f ) )	( not a )
+#	( c ( and c ) )	b
+#	( a ( or b ) )	( f ( and f ) )
+#	( not a )	( f ( and c ) )
+#	f	( b ( or e ) )
+#	( not f )	( not e )
+>	f	( a ( and f ) )
+<	( f ( and d ) )	d
+#	( e ( or e ) )	( d ( or d ) )
+>	( d ( or a ) )	( f ( and a ) )
+#	d	( e ( and f ) )
+#	( d ( and d ) )	b
+#	( e ( or d ) )	( not b )
+#	e	( a ( or d ) )
+#	( c ( or b ) )	( not f )
+#	( not e )	f
+#	( not e )	( a ( and b ) )
+<	( b ( and f ) )	( b ( and b ) )
+#	c	( d ( and b ) )
+#	a	( c ( or e ) )
+#	( b ( and f ) )	e
+^	( d ( and d ) )	( not d )
+#	( not f )	( c ( or a ) )
+#	( not c )	( e ( or a ) )
+#	a	( b ( and e ) )
+#	f	( c ( and c ) )
+#	( not b )	( a ( and a ) )
+>	c	( f ( and c ) )
+#	( f ( and c ) )	( e ( and b ) )
+#	a	( f ( or f ) )
+=	d	( d ( and d ) )
+|	( c ( and f ) )	( not f )
+<	( f ( and a ) )	a
+#	( d ( or f ) )	( d ( or c ) )
+#	( b ( or e ) )	c
+<	( e ( and c ) )	( e ( or d ) )
+#	c	( f ( or a ) )
+#	a	( f ( and f ) )
+|	( not a )	( e ( and a ) )
+|	( c ( and e ) )	( not c )
+<	( f ( and a ) )	( f ( or e ) )
+>	( e ( or a ) )	( e ( and f ) )
+#	d	( not a )
+|	( not d )	( d ( and c ) )
+#	( c ( and e ) )	( c ( and d ) )
+>	( e ( or d ) )	e
+>	( c ( or f ) )	f
+#	( e ( and a ) )	d
+<	c	( c ( or a ) )
+#	( d ( and c ) )	( not f )
+#	( c ( and b ) )	f
+#	f	( d ( or a ) )
+#	( c ( and d ) )	( not e )
+>	a	( f ( and a ) )
+|	( d ( and c ) )	( not c )
+v	( c ( or e ) )	( not e )
+#	( f ( and a ) )	( b ( or b ) )
+#	( e ( and e ) )	b
+#	( not d )	( e ( or f ) )
+#	( a ( or d ) )	e
+#	d	( a ( and a ) )
+>	( f ( or e ) )	( f ( and e ) )
+#	( b ( or e ) )	( d ( or d ) )
+>	( b ( or a ) )	( a ( and f ) )
+#	( not e )	( b ( or c ) )
+#	e	( f ( and f ) )
+#	( not e )	( f ( or d ) )
+#	f	( e ( and c ) )
+>	( a ( and a ) )	( b ( and a ) )
+|	( e ( and c ) )	( not c )
+#	( a ( and c ) )	b
+v	( not e )	( c ( or e ) )
+v	( a ( or f ) )	( not f )
+>	( c ( or a ) )	( c ( and b ) )
+#	( not a )	( e ( or e ) )
+>	b	( d ( and b ) )
+|	( a ( and d ) )	( not d )
+<	( d ( and a ) )	a
+>	a	( a ( and f ) )
+|	( not c )	( c ( and b ) )
+#	a	( e ( and e ) )
+#	( b ( or b ) )	( not d )
+#	( f ( or f ) )	( not e )
+=	( a ( or b ) )	( b ( or a ) )
+#	( a ( and e ) )	( c ( or f ) )
+#	b	( d ( and e ) )
+#	( e ( or a ) )	f
+#	( c ( and a ) )	( not b )
+#	( not c )	b
+#	( c ( or c ) )	( f ( and f ) )
+#	( not e )	( c ( and b ) )
+#	( e ( and e ) )	( c ( or c ) )
+v	( f ( or a ) )	( not f )
+#	( c ( and f ) )	( not d )
+|	( d ( and e ) )	( not e )
+<	( d ( and c ) )	c
+#	( not f )	( c ( or c ) )
+|	( not b )	( f ( and b ) )
+>	c	( a ( and c ) )
+#	f	( b ( or b ) )
+#	( c ( and e ) )	( not f )
+<	a	( a ( or b ) )
+>	( d ( or c ) )	( d ( and f ) )
+#	( f ( and c ) )	b
+#	( f ( or d ) )	( not c )
+#	( a ( and a ) )	( c ( and c ) )
+#	( f ( and e ) )	b
+#	( c ( or c ) )	( d ( and b ) )
+#	( c ( and d ) )	( not a )
+#	( a ( or f ) )	( not e )
+#	( c ( and a ) )	d
+#	( not c )	( d ( or a ) )
+#	( b ( or f ) )	d
+>	( c ( or e ) )	c
+>	( b ( or d ) )	( c ( and b ) )
+#	( f ( and b ) )	e
+#	( a ( or c ) )	b
+>	( b ( or c ) )	c
+|	( b ( and e ) )	( not b )
+#	( d ( and f ) )	e
+#	a	( b ( or c ) )
+#	( a ( and b ) )	c
+|	( f ( and c ) )	( not f )
+#	( a ( or f ) )	b
+<	( a ( and c ) )	( f ( or c ) )
+#	( e ( or b ) )	f
+>	( f ( or e ) )	( e ( and c ) )
+#	( not b )	( c ( or a ) )
+#	( d ( or d ) )	( not b )
+<	( e ( and f ) )	e
+>	( f ( and f ) )	( c ( and f ) )
+#	( b ( and f ) )	( not e )
+v	( not f )	( e ( or f ) )
+<	( a ( and b ) )	a
+#	( c ( and d ) )	( not f )
+#	( a ( and c ) )	e
+>	( a ( or f ) )	( a ( and f ) )
+#	a	( d ( or e ) )
+#	b	( e ( and e ) )
+|	( f ( and e ) )	( not e )
+#	( c ( and e ) )	( not b )
+v	( not a )	( a ( or e ) )
+#	( not d )	( not a )
+>	c	( c ( and e ) )
+#	( not a )	( d ( and c ) )
+#	( not d )	( c ( or c ) )
+>	e	( d ( and e ) )
+#	( b ( and a ) )	( not f )
+#	b	( not f )
+>	( f ( or c ) )	f
+>	( d ( or e ) )	e
+#	( not d )	( f ( or c ) )
+#	( not f )	( a ( or d ) )
+#	( d ( or a ) )	( not e )
+#	( a ( and c ) )	( b ( or b ) )
+#	( e ( or b ) )	a
+v	( d ( or f ) )	( not d )
+#	( b ( and c ) )	( not d )
+<	( d ( and a ) )	d
+#	( not a )	( b ( and d ) )
+>	( c ( or d ) )	( e ( and d ) )
+#	( a ( or f ) )	c
+#	d	( a ( and b ) )
+^	( not d )	( d ( and d ) )
+#	( f ( and f ) )	( e ( and e ) )
+#	( b ( or d ) )	c
+#	a	( c ( or c ) )
+#	( not f )	b
+^	( not f )	f
+#	( a ( or d ) )	( c ( or c ) )
+#	b	( c ( and d ) )
+#	f	( c ( or a ) )
+#	( not e )	( a ( and a ) )
+<	( d ( and f ) )	f
+|	( not b )	( b ( and a ) )
+=	b	( b ( and b ) )
+<	( a ( and a ) )	( a ( or e ) )
+#	( d ( or e ) )	c
+#	( e ( or b ) )	d
+#	( not d )	( a ( or f ) )
+#	( e ( or f ) )	b
+<	( b ( and f ) )	( b ( or e ) )
+#	( f ( or f ) )	( not c )
+#	( a ( or b ) )	f
+<	( d ( and f ) )	( f ( or e ) )
+#	( c ( and e ) )	( not a )
+>	( b ( or a ) )	b
+#	( not a )	( c ( and d ) )
+#	f	( a ( and a ) )
+v	( b ( or d ) )	( not d )
+#	( e ( or d ) )	f
+v	( f ( or a ) )	( not a )
+#	c	( e ( or d ) )
+#	( not d )	( not e )
+>	( e ( or a ) )	( e ( or e ) )
+=	( c ( and c ) )	c
+#	( d ( or d ) )	( f ( or e ) )
+>	( b ( or b ) )	( b ( and d ) )
+>	( f ( or c ) )	c
+#	( a ( or a ) )	( e ( and e ) )
+<	( d ( and e ) )	( e ( or d ) )
+>	( c ( or d ) )	c
+#	( f ( or f ) )	( not b )
+#	( a ( or a ) )	( f ( or d ) )
+#	( not e )	( c ( or c ) )
+#	d	( e ( and c ) )
+#	( not b )	( e ( and d ) )
+#	( b ( or f ) )	e
+#	( c ( and c ) )	( f ( and f ) )
+|	( not e )	( d ( and e ) )
+#	( not b )	( not a )
+#	( a ( and e ) )	d
+#	( f ( and f ) )	( not e )
+#	( c ( and c ) )	( not e )
+#	( d ( and a ) )	( e ( and e ) )
+#	( not a )	d
+>	b	( b ( and c ) )
+^	e	( not e )
+<	( e ( and b ) )	( d ( or b ) )
+#	d	( c ( and e ) )
+>	( f ( or b ) )	( b ( or b ) )
+#	( c ( or f ) )	( not d )
+<	( d ( and d ) )	( d ( or a ) )
+<	c	( c ( or f ) )
+#	( b ( and b ) )	( e ( or e ) )
+=	( b ( or d ) )	( d ( or b ) )
+#	( a ( and c ) )	( not e )
+#	( a ( and d ) )	( e ( and d ) )
+#	( c ( and f ) )	( not a )
+#	( d ( and c ) )	b
+#	c	( a ( or b ) )
+>	( b ( or d ) )	( b ( and d ) )
+#	( c ( or a ) )	( e ( and e ) )
+#	( c ( and c ) )	( not d )
+<	( b ( and f ) )	( a ( or f ) )
+#	( not d )	( b ( and b ) )
+v	( d ( or c ) )	( not d )
+#	( not e )	( d ( or f ) )
+#	( c ( and c ) )	( not a )
+#	( not e )	( c ( or d ) )
+#	( not e )	( a ( or c ) )
+=	( c ( and a ) )	( c ( and a ) )
+#	f	( d ( or e ) )
+|	( not d )	( d ( and b ) )
+v	( e ( or b ) )	( not e )
+#	( f ( and a ) )	( not b )
+#	( not c )	f
+<	( a ( and f ) )	( f ( or a ) )
+<	( e ( and c ) )	( e ( or a ) )
+#	( f ( or f ) )	b
+#	( c ( or a ) )	( not d )
+#	c	( d ( or e ) )
+#	d	( c ( or b ) )
+#	( b ( and e ) )	( a ( or c ) )
+#	( f ( and b ) )	( f ( and d ) )
+#	( f ( or f ) )	c
+<	( e ( and e ) )	( e ( or f ) )
+#	( not c )	( a ( and a ) )
+<	( f ( and c ) )	( b ( or c ) )
+#	( e ( and d ) )	b
+|	( not c )	( d ( and c ) )
+#	( b ( or f ) )	c
+<	( d ( and c ) )	( d ( or e ) )
+#	b	( e ( and f ) )
+#	( not a )	( e ( and f ) )
+#	( c ( and f ) )	( e ( or e ) )
+#	( f ( and a ) )	c
+#	( d ( and c ) )	( c ( and e ) )
+#	( f ( or b ) )	a
+#	( d ( or d ) )	( b ( or a ) )
+>	( c ( or c ) )	( a ( and c ) )
+|	( b ( and d ) )	( not b )
+#	c	( e ( and a ) )
+>	( e ( or c ) )	e
+v	( not c )	( b ( or c ) )
+#	( not f )	c
+<	c	( c ( or b ) )
+#	( c ( or b ) )	( c ( or d ) )
+>	( c ( or d ) )	( c ( and d ) )
+>	( f ( or c ) )	( c ( and f ) )
+#	( b ( and b ) )	( not a )
+<	( d ( or d ) )	( d ( or e ) )
+v	( c ( or f ) )	( not c )
+>	( f ( or b ) )	( b ( and c ) )
+#	( b ( or c ) )	e
+<	( a ( and d ) )	d
+#	( d ( or c ) )	( not f )
+#	( b ( and a ) )	f
+#	( not a )	( c ( or f ) )
+#	( c ( or f ) )	d
+#	( c ( or c ) )	b
+#	( d ( or c ) )	( e ( or e ) )
+#	b	( d ( and c ) )
+=	( b ( and c ) )	( c ( and b ) )
+#	( d ( or a ) )	( a ( or c ) )
+<	( b ( and e ) )	e
+#	( a ( or e ) )	d
+<	( d ( and f ) )	d
+#	c	( f ( and d ) )
+=	( e ( or e ) )	e
+v	( f ( or d ) )	( not d )
+#	( e ( or d ) )	( d ( or a ) )
+<	d	( a ( or d ) )
+#	( c ( or c ) )	( e ( or e ) )
+#	( a ( or d ) )	( not f )
+<	( a ( and c ) )	a
+#	( c ( and c ) )	e
+#	( e ( or a ) )	c
+=	( d ( or c ) )	( c ( or d ) )
+#	( b ( or f ) )	( not e )
+#	( d ( or f ) )	( c ( or f ) )
+#	c	( b ( and e ) )
+#	( not d )	( c ( and c ) )
+>	( b ( or b ) )	( b ( and c ) )
+#	( c ( and a ) )	f
+#	( not b )	( c ( or f ) )
+v	( not f )	( f ( or b ) )
+#	d	( e ( or a ) )
+#	( not c )	( f ( or d ) )
+#	f	( e ( or c ) )
+#	a	( not d )
+|	( a ( and e ) )	( not a )
+^	( f ( and f ) )	( not f )
+^	( e ( and e ) )	( not e )
+^	( not e )	e
+#	( d ( or a ) )	( not b )
+#	f	( c ( and a ) )
+#	( not e )	( f ( and c ) )
+#	( c ( and c ) )	a
+#	( b ( or d ) )	( not a )
+#	( not b )	d
+#	( f ( or f ) )	( c ( and c ) )
+#	( not b )	e
+|	( c ( and b ) )	( not c )
+v	( not d )	( a ( or d ) )
+#	( d ( or a ) )	( e ( or f ) )
+#	f	( b ( or a ) )
+#	( e ( or c ) )	( d ( or c ) )
+#	( f ( or b ) )	( not e )
+>	( f ( or a ) )	a
+#	e	( b ( and a ) )
+#	( b ( or f ) )	( e ( or d ) )
+>	( d ( or e ) )	( d ( and a ) )
+#	( not d )	( e ( and f ) )
+#	( f ( or e ) )	d
+#	( c ( and f ) )	( d ( and b ) )
+<	( b ( and d ) )	d
+|	( f ( and d ) )	( not d )
+#	( a ( or a ) )	( not b )
+#	( b ( and e ) )	( not d )
+#	( d ( and b ) )	( c ( and b ) )
+#	c	( f ( or f ) )
+#	( not f )	( b ( or b ) )
+^	( d ( or d ) )	( not d )
+>	f	( b ( and f ) )
+#	c	( d ( and a ) )
+#	( a ( or b ) )	( not f )
+<	f	( f ( or c ) )
+#	( f ( and b ) )	( not a )
+|	( not b )	( b ( and e ) )
+#	( b ( or c ) )	( not f )
+#	( d ( or b ) )	( f ( or a ) )
+v	( a ( or c ) )	( not c )
+#	d	( e ( and e ) )
+>	( b ( or a ) )	( b ( or b ) )
+#	( b ( and e ) )	( d ( and b ) )
+#	( b ( and e ) )	( f ( or c ) )
+#	( b ( and a ) )	e
+#	( a ( or a ) )	c
+#	( f ( and b ) )	( a ( and b ) )
+#	( c ( and b ) )	( f ( and c ) )
+#	( f ( or c ) )	( e ( or d ) )
+v	( b ( or c ) )	( not b )
+#	a	( d ( and b ) )
+#	( c ( and d ) )	( not b )
+#	( c ( or d ) )	( not a )
+#	b	( c ( and f ) )
+<	c	( a ( or c ) )
+>	( a ( or b ) )	( b ( or b ) )
+#	d	( b ( and e ) )
+#	( d ( and e ) )	a
+#	( e ( or d ) )	b
+#	( not f )	( c ( and d ) )
+#	( b ( and b ) )	( not e )
+#	a	( e ( and d ) )
+#	( e ( and e ) )	d
+#	( not c )	( d ( or b ) )
+^	( not d )	d
+<	e	( e ( or c ) )
+>	( c ( or a ) )	( e ( and a ) )
+#	d	( f ( and f ) )
+#	b	( not a )
+#	( c ( or a ) )	b
+#	( c ( or c ) )	( not b )
+#	( not e )	( d ( or a ) )
+#	( a ( or b ) )	( c ( and c ) )
+#	b	( a ( or e ) )
+#	b	( c ( or e ) )
+#	( not a )	( f ( and d ) )
+#	( not a )	( c ( and e ) )
+v	( not b )	( b ( or a ) )
+#	( a ( or b ) )	c
+#	( a ( and b ) )	( not e )
+<	( f ( and b ) )	( e ( or b ) )
+v	( e ( or c ) )	( not c )
+#	( e ( or b ) )	( d ( or e ) )
+#	( b ( and b ) )	c
+#	( not b )	( a ( or e ) )
+#	( not c )	( b ( or a ) )
+#	( b ( or d ) )	f
+#	( not a )	( d ( or f ) )
+#	( not d )	( e ( and b ) )
+#	( a ( or e ) )	f
+#	c	( not d )
+#	( not a )	( c ( or e ) )
+#	( a ( and f ) )	( not c )
+#	( c ( or b ) )	( not a )
+#	( not d )	( f ( or a ) )
+#	( c ( and f ) )	( not e )
+#	( not d )	( f ( and a ) )
+>	( c ( or b ) )	( c ( and e ) )
+#	( not d )	( not b )
+#	( not e )	d
+>	c	( d ( and c ) )
+#	d	( a ( and c ) )
+#	f	( a ( or e ) )
+#	( not f )	( e ( or e ) )
+#	e	( c ( and b ) )
+<	( b ( or b ) )	( a ( or b ) )
+#	c	( a ( and a ) )
+>	( c ( or b ) )	c
+#	b	( not e )
+#	( d ( or a ) )	( f ( or f ) )
+#	c	( b ( or e ) )
+<	( c ( and e ) )	( c ( or d ) )
+#	( d ( or c ) )	( not e )
+#	b	( c ( or c ) )
+<	( e ( and c ) )	( c ( and c ) )
+#	( not c )	( f ( or b ) )
+#	( a ( or f ) )	( d ( or e ) )
+#	( b ( or b ) )	( not e )
+#	e	( a ( or b ) )
+#	c	( a ( and d ) )
+#	d	( a ( or f ) )
+|	( f ( and a ) )	( not f )
+#	( e ( or f ) )	( not a )
+<	( b ( and f ) )	( f ( or a ) )
+<	( a ( and d ) )	a
+#	( d ( or e ) )	( c ( or a ) )
+#	( not c )	( d ( and d ) )
+>	( b ( or e ) )	( d ( and b ) )
+#	( e ( or e ) )	( not b )
+#	( c ( and a ) )	( not e )
+<	( b ( and e ) )	( b ( or d ) )
+#	f	( d ( and b ) )
+<	( e ( and c ) )	c
+#	( d ( and e ) )	( d ( and f ) )
+#	c	( f ( or e ) )
+#	( not f )	e
+<	d	( d ( or a ) )
+#	( a ( and a ) )	( e ( and f ) )
+#	( d ( or a ) )	b
+<	( e ( and a ) )	( a ( or a ) )
+#	( not d )	( not f )
+>	( d ( or c ) )	( c ( and c ) )
+#	f	( not c )
+#	( d ( and e ) )	( not c )
+v	( not a )	( a ( or f ) )
+#	( f ( and d ) )	a
+#	( b ( and f ) )	( not d )
+#	( d ( and e ) )	( f ( and e ) )
+#	( c ( or e ) )	( b ( or f ) )
+#	( b ( or e ) )	( not f )
+>	f	( d ( and f ) )
+#	( a ( or f ) )	( c ( and c ) )
+#	b	( d ( and d ) )
+#	f	( a ( or d ) )
+|	( e ( and b ) )	( not e )
+|	( f ( and e ) )	( not f )
+<	( f ( or f ) )	( c ( or f ) )
+v	( not c )	( a ( or c ) )
+>	( d ( and d ) )	( a ( and d ) )
+#	( d ( and b ) )	( not a )
+#	( f ( or b ) )	( not d )
+#	( e ( and f ) )	( c ( and c ) )
+#	( a ( or d ) )	( not c )
+>	( b ( or a ) )	( a ( and e ) )
+#	( e ( and a ) )	( not f )
+#	( not f )	( b ( and e ) )
+#	f	( b ( and a ) )
+>	d	( d ( and e ) )
+#	( a ( and f ) )	b
+v	( not d )	( d ( or f ) )
+=	( c ( and d ) )	( c ( and d ) )
+#	( not a )	( c ( and b ) )
+#	( e ( or f ) )	c
+#	c	( e ( and d ) )
+#	( d ( and d ) )	a
+v	( b ( or a ) )	( not b )
+#	( b ( and b ) )	d
+#	( b ( or b ) )	( c ( and c ) )
+#	( b ( and e ) )	( not f )
+#	( not b )	( e ( or c ) )
+#	b	( c ( or a ) )
+#	( not a )	( d ( or b ) )
+#	( not c )	( f ( or e ) )
+v	( a ( or b ) )	( not b )
+#	( b ( and a ) )	c
+#	( not e )	( a ( or a ) )
+#	( d ( and c ) )	f
+|	( e ( and b ) )	( not b )
+#	e	( not f )
+#	( c ( or e ) )	( not f )
+#	( a ( or a ) )	( not f )
+=	( a ( and c ) )	( c ( and a ) )
+#	( b ( and b ) )	( not c )
+#	b	( c ( or f ) )
+#	( c ( and b ) )	a
+#	e	( d ( and c ) )
+#	( d ( and d ) )	f
+#	( e ( or e ) )	( c ( or d ) )
+>	( b ( or f ) )	( b ( and e ) )
+#	( b ( or b ) )	( not f )
+#	( not f )	( not d )
+>	b	( f ( and b ) )
+#	( not d )	( c ( or f ) )
+#	( c ( or d ) )	f
+#	( not e )	( d ( or c ) )
+#	( not f )	( d ( or a ) )
+#	( d ( and c ) )	( not e )
+#	a	( b ( and d ) )
+#	( c ( or c ) )	( a ( or a ) )
+=	( b ( or a ) )	( a ( or b ) )
+#	( not c )	( f ( or a ) )
+#	( a ( or b ) )	d
+>	d	( d ( and c ) )
+=	( not e )	( not e )
+#	( b ( and c ) )	f
+<	e	( e ( or d ) )
+#	b	( a ( and a ) )
+#	( c ( and d ) )	f
+#	( d ( or f ) )	( f ( or c ) )
+v	( not f )	( f ( or d ) )
+#	a	( d ( or b ) )
+|	( d ( and b ) )	( not d )
+#	b	( c ( and c ) )
+<	( c ( and d ) )	( e ( or c ) )
+#	( d ( and d ) )	( not a )
+>	a	( a ( and d ) )
+#	( not c )	( e ( and b ) )
+#	( e ( and f ) )	( not b )
+#	f	( c ( or d ) )
+#	( c ( and c ) )	f
+|	( not a )	( d ( and a ) )
+#	( e ( and b ) )	( e ( and a ) )
+#	( d ( and d ) )	( c ( and a ) )
+v	( f ( or d ) )	( not f )
+<	( b ( and d ) )	( d ( or d ) )
+#	e	( d ( and f ) )
+#	f	( c ( and e ) )
+^	( not f )	( f ( and f ) )
+#	( c ( and b ) )	( f ( or f ) )
+#	( a ( and e ) )	b
+#	b	( e ( or a ) )
+#	( b ( and f ) )	d
+|	( c ( and f ) )	( not c )
+v	( a ( or e ) )	( not e )
+=	e	( e ( or e ) )
+<	( d ( or d ) )	( a ( or d ) )
+#	f	( d ( or d ) )
+#	( not e )	( b ( or d ) )
+#	( f ( or f ) )	a
+|	( c ( and a ) )	( not a )
+<	( d ( and d ) )	( f ( or d ) )
+#	( c ( or c ) )	f
+#	a	( d ( or c ) )
+#	( not c )	( f ( and a ) )
+#	f	( not b )
+#	( not f )	( b ( and d ) )
+>	b	( b ( and e ) )
+<	( b ( and b ) )	( b ( or f ) )
+#	( a ( and b ) )	( not d )
+#	( not b )	( e ( or f ) )
+|	( not f )	( f ( and d ) )
+#	( d ( or f ) )	b
+#	( d ( or b ) )	( not f )
+#	( a ( and d ) )	c
+#	b	( e ( and a ) )
+#	( d ( or c ) )	( a ( and a ) )
+#	( not b )	( a ( or a ) )
+<	( f ( or f ) )	( b ( or f ) )
+<	( c ( and d ) )	( b ( or c ) )
+>	d	( a ( and d ) )
+v	( not e )	( e ( or c ) )
+#	( not e )	( d ( and f ) )
+>	( f ( or a ) )	f
+|	( not e )	( e ( and f ) )
+#	( not b )	( f ( or e ) )
+#	( d ( and c ) )	( a ( and f ) )
+#	( c ( or a ) )	( d ( or d ) )
+#	d	( a ( or e ) )
+#	( b ( and b ) )	f
+>	( f ( or d ) )	( d ( and a ) )
+#	( f ( and f ) )	a
+#	( d ( and a ) )	b
+#	( e ( and d ) )	( not b )
+#	( not b )	( c ( or d ) )
+<	d	( c ( or d ) )
+v	( not d )	( d ( or a ) )
+>	b	( a ( and b ) )
+#	( f ( and f ) )	c
+#	( a ( and d ) )	( not e )
+#	( c ( and b ) )	( not d )
+^	b	( not b )
+>	( e ( or e ) )	( f ( and e ) )
+#	( a ( or b ) )	( not d )
+<	( e ( and f ) )	( b ( or f ) )
+>	( d ( or c ) )	( c ( and d ) )
+#	( f ( and e ) )	( c ( and f ) )
+#	( not f )	( c ( and e ) )
+<	( a ( and f ) )	a
+>	( b ( or a ) )	( e ( and a ) )
+#	( not e )	( d ( and b ) )
+#	( c ( and c ) )	( not f )
+#	( not e )	( f ( or c ) )
+#	( c ( and c ) )	( a ( and b ) )
+#	( a ( and a ) )	( not f )
+<	( d ( and b ) )	d
+#	( not f )	( e ( or c ) )
+#	( not d )	( e ( or b ) )
+#	e	( c ( or d ) )
+#	( not e )	( a ( and d ) )
+#	f	( d ( and e ) )
+#	( f ( or b ) )	( d ( or e ) )
+v	( not e )	( e ( or d ) )
+#	( c ( or b ) )	a
+v	( d ( or a ) )	( not a )
+#	( f ( and e ) )	( d ( and d ) )
+|	( c ( and e ) )	( not e )
+|	( not f )	( c ( and f ) )
+#	( a ( and d ) )	( not c )
+#	e	( f ( and b ) )
+#	( d ( and e ) )	( not a )
+^	( not f )	( f ( or f ) )
+<	( d ( and d ) )	( e ( or d ) )
+#	( c ( or c ) )	( f ( and d ) )
+#	( e ( and e ) )	( not b )
+<	( a ( and d ) )	( a ( or d ) )
+#	( not f )	a
+<	( e ( and d ) )	( a ( or e ) )
+#	b	( f ( or a ) )
+>	( b ( or d ) )	d
+#	( b ( and f ) )	( e ( and b ) )
+<	( c ( and a ) )	c
+>	e	( e ( and c ) )
+#	( d ( and d ) )	( f ( or e ) )
+v	( not b )	( e ( or b ) )
+#	( c ( and b ) )	( not e )
+#	( d ( or e ) )	( f ( or d ) )
+v	( e ( or a ) )	( not a )
+|	( d ( and f ) )	( not f )
+^	( not c )	( c ( or c ) )
+#	a	( e ( or e ) )
+v	( not d )	( d ( or e ) )
+<	( d ( and f ) )	( b ( or f ) )
+#	e	( a ( and a ) )
+#	f	( not e )
+v	( a ( or d ) )	( not a )
+#	( b ( or c ) )	( not e )
+#	( f ( or a ) )	( not d )
+#	( b ( and d ) )	f
+#	( not d )	( b ( or c ) )
+|	( not d )	( b ( and d ) )
+#	( f ( or e ) )	a
+#	( not d )	( f ( and c ) )
+#	( a ( and a ) )	( not b )
+|	( d ( and c ) )	( not d )
+#	( not a )	( d ( or e ) )
+#	a	( c ( and e ) )
+#	f	( b ( and e ) )
+<	( b ( and e ) )	b
+|	( not d )	( a ( and d ) )
+#	c	( b ( or b ) )
+#	( d ( and a ) )	( not e )
+#	( not f )	( e ( and a ) )
+#	d	( f ( and b ) )
+<	b	( f ( or b ) )
+>	c	( c ( and b ) )
+#	( c ( and c ) )	( d ( and b ) )
+>	( a ( or b ) )	( b ( and e ) )
+#	( not c )	d
+=	( b ( and b ) )	b
+#	( not a )	( f ( and e ) )
+#	( b ( and d ) )	( not e )
+#	( not d )	( f ( and e ) )
+<	( b ( and e ) )	( e ( or e ) )
+#	( b ( and e ) )	( not a )
+#	( not e )	( d ( and d ) )
+#	f	( b ( or c ) )
+#	( not d )	( b ( and c ) )
+|	( b ( and c ) )	( not c )
+>	( e ( or e ) )	( e ( and b ) )
+#	( d ( or d ) )	( f ( or b ) )
+<	d	( d ( or e ) )
+<	( e ( and c ) )	e
+#	( f ( and e ) )	( not a )
+^	( a ( or a ) )	( not a )
+#	d	( e ( or b ) )
+>	a	( a ( and b ) )
+#	( not c )	( a ( and d ) )
+|	( e ( and d ) )	( not e )
+<	( b ( and c ) )	( e ( or b ) )
+#	e	( a ( and d ) )
+|	( f ( and b ) )	( not f )
+#	( d ( or d ) )	( b ( or b ) )
+=	b	( b ( or b ) )
+|	( not e )	( f ( and e ) )
+<	( b ( and c ) )	( c ( or b ) )
+>	( b ( or a ) )	a
+<	( b ( and d ) )	( b ( or c ) )
+<	a	( f ( or a ) )
+#	( c ( or a ) )	( not b )
+#	( e ( or c ) )	b
+#	( c ( or c ) )	( b ( or d ) )
+#	( d ( or d ) )	( c ( or c ) )
+#	b	( e ( or f ) )
+#	( d ( and b ) )	( e ( and b ) )
+#	a	( c ( or d ) )
+>	b	( b ( and a ) )
+#	( not e )	( d ( or b ) )
+#	( f ( or b ) )	d
+<	( c ( and b ) )	b
+#	( e ( and f ) )	b
+#	( not d )	( a ( and c ) )
+<	( e ( and e ) )	( d ( or e ) )
+#	( not b )	( c ( or c ) )
+#	( f ( or d ) )	a
+<	f	( f ( or e ) )
+#	c	( b ( and d ) )
+#	( c ( or e ) )	( c ( or b ) )
+#	( a ( and a ) )	e
+#	( c ( or a ) )	( b ( or c ) )
+#	( a ( and a ) )	d
+#	( not a )	( f ( or d ) )
+#	( f ( or c ) )	b
+#	c	( a ( and f ) )
+#	( d ( and b ) )	c
+#	e	( f ( or d ) )
+>	f	( c ( and f ) )
+|	( c ( and b ) )	( not b )
+#	( not b )	( not c )
+#	( not c )	( d ( and b ) )
+v	( not c )	( c ( or b ) )
+#	( e ( and c ) )	( not f )
+<	( f ( and c ) )	f
+#	( d ( or b ) )	( not a )
+#	( e ( or e ) )	( d ( and f ) )
+#	( c ( or d ) )	a
+#	( b ( or b ) )	( d ( or c ) )
+#	b	( a ( and e ) )
+|	( d ( and a ) )	( not a )
+#	( not a )	( d ( or c ) )
+>	( a ( or e ) )	a
+#	( d ( or e ) )	( d ( or c ) )
+#	( f ( and b ) )	( not d )
+=	( not a )	( not a )
+<	e	( a ( or e ) )
+#	( a ( or a ) )	( not c )
+#	d	( c ( and a ) )
+#	( c ( and d ) )	e
+#	( not c )	( e ( and e ) )
+|	( f ( and a ) )	( not a )
+#	( a ( and b ) )	( not f )
+#	( not e )	( c ( and f ) )
+>	( b ( or f ) )	f
+#	( d ( or b ) )	( b ( or e ) )
+>	( b ( or c ) )	( a ( and b ) )
+#	f	( e ( and e ) )
+#	( c ( or c ) )	( not d )
+>	( c ( or e ) )	( a ( and c ) )
+>	( d ( or b ) )	b
+#	( a ( and a ) )	c
+#	f	( c ( or e ) )
+#	( not a )	( not e )
+#	( c ( and c ) )	( e ( and e ) )
+#	( c ( and e ) )	( a ( and e ) )
+#	( d ( and a ) )	( not c )
+|	( not f )	( f ( and a ) )
+#	( f ( and e ) )	( e ( and a ) )
+#	( not c )	( e ( and f ) )
+#	a	( e ( or b ) )
+v	( not d )	( e ( or d ) )
+#	( not a )	( d ( and b ) )
+#	( e ( and e ) )	( b ( or b ) )
+#	( not c )	( e ( or b ) )
+<	( c ( and d ) )	( d ( or e ) )
+#	( a ( or f ) )	d
+#	( not e )	( f ( or a ) )
+^	( not d )	( d ( or d ) )
+>	( c ( or a ) )	a
+#	( not e )	( b ( and c ) )
+=	d	( d ( or d ) )
+#	( b ( or c ) )	f
+#	( d ( and d ) )	( b ( or c ) )
+>	( f ( or d ) )	( d ( and d ) )
+#	( not a )	( e ( or c ) )
+#	( a ( or f ) )	( d ( or b ) )
+#	e	( not b )
+#	( c ( and b ) )	e
+>	e	( b ( and e ) )
+#	c	( d ( and d ) )
+#	( not d )	( a ( and a ) )
+#	( d ( and c ) )	( f ( and e ) )
+|	( b ( and c ) )	( not b )
+#	( not a )	( b ( or b ) )
+#	b	( not d )
+<	f	( a ( or f ) )
+#	( f ( and d ) )	c
+>	( a ( or c ) )	c
+v	( a ( or f ) )	( not a )
+v	( not b )	( d ( or b ) )
+#	( not d )	( e ( and e ) )
+#	( not b )	( f ( or a ) )
+#	( f ( and b ) )	d
+#	( c ( or f ) )	( c ( or b ) )
+#	( e ( and e ) )	( not f )
+v	( not e )	( e ( or b ) )
+#	( not f )	( a ( or b ) )
+#	( f ( or a ) )	( not e )
+<	f	( e ( or f ) )
+#	( not e )	( b ( and b ) )
+#	( not e )	( a ( and c ) )
+>	( c ( or c ) )	( c ( and b ) )
+#	( not a )	( b ( or d ) )
+#	( b ( or a ) )	c
+#	( c ( and b ) )	( a ( and c ) )
+#	( a ( and b ) )	d
+#	( not d )	( b ( or a ) )
+|	( not e )	( e ( and b ) )
+#	( d ( or c ) )	e
+>	( c ( or b ) )	( c ( and a ) )
+#	( not f )	( d ( and b ) )
+#	( d ( or d ) )	b
+|	( not c )	( c ( and a ) )
+#	e	( f ( or b ) )
+#	( a ( or f ) )	( not c )
+=	( a ( or c ) )	( a ( or c ) )
+#	( e ( or e ) )	d
+<	( e ( and b ) )	e
+<	( b ( and d ) )	( b ( or f ) )
+<	( f ( and f ) )	( d ( or f ) )
+#	( c ( or c ) )	( e ( and f ) )
+#	e	( b ( or d ) )
+=	f	( f ( and f ) )
+<	( b ( and e ) )	( f ( or b ) )
+|	( not b )	( b ( and c ) )
+>	( c ( or e ) )	e
+|	( not c )	( b ( and c ) )
+#	( not a )	( c ( and c ) )
+#	( a ( and f ) )	d
+#	( not a )	( f ( or c ) )
+#	( not b )	( d ( or f ) )
+#	( not b )	( f ( or d ) )
+#	( c ( or d ) )	e
+#	( not e )	( c ( or a ) )
+|	( e ( and d ) )	( not d )
+#	e	( c ( and f ) )
+#	( e ( or e ) )	( not f )
+#	( a ( and d ) )	b
+>	e	( c ( and e ) )
+=	( d ( and c ) )	( c ( and d ) )
+#	f	( b ( or d ) )
+#	( a ( and f ) )	( not e )
+#	( not f )	( c ( or e ) )
+#	( d ( and e ) )	c
+#	( e ( or a ) )	b
+>	( c ( or d ) )	d
+#	( not b )	( e ( or a ) )
+#	( a ( or e ) )	( f ( and f ) )
+#	( not e )	( a ( or b ) )
+|	( b ( and a ) )	( not b )
+#	d	( a ( and e ) )
+#	( not b )	( d ( or d ) )
+=	( f ( or f ) )	f
+#	( a ( and c ) )	( e ( and f ) )
+|	( c ( and d ) )	( not c )
+#	( d ( and a ) )	( not b )
+#	( not c )	( e ( and d ) )
+#	( not f )	( a ( or e ) )
+#	f	( c ( and d ) )
+#	( b ( and b ) )	a
+v	( not c )	( f ( or c ) )
+#	( d ( and b ) )	e
+v	( f ( or e ) )	( not f )
+#	a	( d ( and c ) )
+#	d	( a ( or a ) )
+<	( b ( and e ) )	( e ( or f ) )
+<	( c ( and e ) )	( e ( or c ) )
+#	( not f )	( b ( and c ) )
+^	d	( not d )
+>	( d ( or f ) )	( d ( or d ) )
+#	a	( b ( or b ) )
+#	( c ( and c ) )	( e ( or a ) )
+#	e	( d ( or c ) )
+<	( a ( and f ) )	f
+#	( not c )	( d ( or d ) )
+#	( a ( and b ) )	( c ( and e ) )
+|	( not b )	( b ( and f ) )
+#	a	( c ( and d ) )
+<	( c ( and a ) )	a
+#	( d ( or f ) )	c
+<	( f ( and e ) )	( f ( or f ) )
+#	c	( f ( and f ) )
+^	( not b )	( b ( or b ) )
+#	( c ( or c ) )	a
+#	( a ( and c ) )	( not d )
+>	( a ( or b ) )	a
+#	a	( e ( and c ) )
+#	( not c )	( b ( and e ) )
+=	( b ( or b ) )	b
+|	( not f )	( d ( and f ) )
+#	( f ( or e ) )	( not c )
+#	( not b )	( f ( and a ) )
+#	a	( b ( and f ) )
+#	( d ( and b ) )	( not c )
+>	( e ( or d ) )	( d ( and c ) )
+=	( a ( or d ) )	( a ( or d ) )
+=	( c ( or c ) )	c
+<	( c ( and a ) )	( c ( and c ) )
+#	( f ( or d ) )	c
+#	( not a )	( not d )
+#	( e ( or d ) )	( a ( or a ) )
+#	e	( d ( and b ) )
+#	( not d )	( a ( and f ) )
+#	( f ( or d ) )	( not e )
+#	( not c )	( e ( or f ) )
+#	( d ( and d ) )	( not e )
+<	( c ( and a ) )	( e ( or a ) )
+#	( not a )	( f ( and b ) )
+#	( not f )	( b ( or d ) )
+#	( f ( or a ) )	b
+#	( b ( or f ) )	( not c )
+#	( f ( or a ) )	( not b )
+#	( e ( and c ) )	( a ( and a ) )
+#	( c ( and a ) )	( not d )
+|	( not b )	( e ( and b ) )
+>	( e ( or a ) )	( c ( and e ) )
+v	( a ( or b ) )	( not a )
+#	( not b )	( a ( and f ) )
+>	b	( b ( and d ) )
+#	( d ( and d ) )	( not b )
+|	( not c )	( f ( and c ) )
+#	( a ( and d ) )	( d ( and c ) )
+#	( a ( and e ) )	c
+#	b	( d ( or a ) )
+>	e	( f ( and e ) )
+#	( not a )	( e ( or d ) )
+>	( f ( or f ) )	( e ( and f ) )
+#	( c ( and a ) )	( b ( and c ) )
+#	( a ( or d ) )	b
+v	( b ( or e ) )	( not e )
+#	( e ( and e ) )	( b ( or d ) )
+#	( not a )	( f ( or e ) )
+#	( e ( and a ) )	( not b )
+#	( not f )	( c ( or b ) )
+#	( f ( or b ) )	( d ( or b ) )
+|	( a ( and c ) )	( not a )
+#	( e ( or e ) )	b
+#	( not a )	( not f )
+#	( c ( and a ) )	( a ( and f ) )
+#	( c ( and e ) )	a
+#	( b ( or a ) )	e
+#	a	( d ( and d ) )
+#	( b ( and d ) )	( not a )
+#	( e ( or a ) )	d
+#	( a ( or a ) )	d
+#	d	( f ( or f ) )
+#	( f ( and b ) )	a
+|	( not c )	( c ( and e ) )
+#	c	( b ( or d ) )
+#	b	( d ( and a ) )
+>	( a ( or b ) )	( b ( and d ) )
+v	( c ( or d ) )	( not c )
+#	( not d )	( c ( and f ) )
+#	( not c )	( b ( and d ) )
+>	( f ( or c ) )	( c ( and e ) )
+#	( d ( and d ) )	( c ( or b ) )
+#	( c ( and c ) )	d
+#	( e ( and f ) )	( not a )
+#	( f ( and b ) )	( not e )
+#	( c ( or c ) )	( e ( and b ) )
+#	( e ( and d ) )	f
+#	( d ( or e ) )	f
+#	( b ( and f ) )	( not c )
+#	( not e )	( c ( and c ) )
+#	( c ( and b ) )	( not f )
+|	( not a )	( a ( and b ) )
+<	b	( b ( or f ) )
+#	( a ( or a ) )	( not d )
+>	( b ( or e ) )	( b ( and d ) )
+#	c	( b ( and a ) )
+#	( not c )	( b ( and b ) )
+#	( not c )	( f ( and f ) )
+#	a	( e ( or d ) )
+#	( e ( and b ) )	d
+<	e	( b ( or e ) )
+#	( a ( and d ) )	( f ( or b ) )
+|	( a ( and f ) )	( not f )
+#	f	( not d )
+<	( e ( and f ) )	f
+<	e	( c ( or e ) )
+#	a	( c ( and b ) )
+#	( e ( and c ) )	( e ( and f ) )
+^	( not e )	( e ( and e ) )
+<	( f ( and e ) )	( a ( or e ) )
+#	( not b )	( c ( and a ) )
+#	( f ( or c ) )	( b ( and e ) )
+>	( d ( or e ) )	( d ( and e ) )
+#	( e ( or c ) )	( not d )
+#	( not c )	( f ( and e ) )
+>	( d ( or b ) )	( f ( and b ) )
+#	( d ( and e ) )	( not f )
+#	( not a )	( f ( or b ) )
+#	( not b )	f
+#	( a ( or a ) )	b
+<	( e ( and c ) )	( b ( or c ) )
+#	a	( f ( and c ) )
+#	a	( d ( and f ) )
+<	a	( a ( or d ) )
+<	( f ( and d ) )	( d ( and d ) )
+#	( b ( and d ) )	( not f )
+#	( f ( or f ) )	( not d )
+#	b	( d ( or f ) )
+|	( not a )	( a ( and e ) )
+#	( b ( or a ) )	( not d )
+<	( c ( and c ) )	( b ( or c ) )
+>	( d ( or b ) )	( d ( or d ) )
+#	( f ( and a ) )	e
+#	( a ( and e ) )	( not b )
+|	( not a )	( a ( and c ) )
+>	( d ( or a ) )	( d ( or d ) )
+#	( d ( and e ) )	b
+>	( d ( or f ) )	d
+>	( e ( or a ) )	e
+<	b	( e ( or b ) )
+|	( not a )	( a ( and f ) )
+#	( f ( or d ) )	( c ( or c ) )
+#	( b ( and a ) )	( not d )
+#	( not e )	( c ( and a ) )
+#	( not f )	( c ( and a ) )
+#	( d ( or d ) )	( not c )
+#	( a ( or d ) )	( e ( and b ) )
+#	( f ( and d ) )	e
+#	( f ( and a ) )	( f ( and d ) )
+#	( d ( or d ) )	( not a )
+#	f	( d ( and d ) )
+>	f	( e ( and f ) )
+#	( d ( or c ) )	f
+#	( f ( or d ) )	( not a )
+#	( d ( and e ) )	( not b )
+#	( e ( and f ) )	( c ( and e ) )
+#	( not b )	( c ( and c ) )
+#	( e ( or e ) )	( d ( and b ) )
+#	( c ( or e ) )	( not b )
+#	( f ( and c ) )	( not e )
+<	( e ( and d ) )	( d ( or d ) )
+#	( not c )	( not d )
+>	( a ( or c ) )	( c ( and c ) )
+#	b	( f ( and d ) )
+^	( not a )	a
+#	( not b )	( f ( and f ) )
+>	( f ( or b ) )	( d ( and b ) )
+v	( not c )	( c ( or f ) )
+>	a	( a ( and c ) )
+#	a	( e ( or c ) )
+>	( d ( or b ) )	( d ( and b ) )
+#	( e ( or f ) )	( a ( or f ) )
+#	( b ( or e ) )	( not c )
+|	( not e )	( b ( and e ) )
+#	( c ( or a ) )	( not e )
+>	( a ( or d ) )	d
+#	( b ( or c ) )	( not d )
+#	( a ( or f ) )	e
+|	( e ( and a ) )	( not e )
+#	( b ( or f ) )	( not d )
+#	( b ( and e ) )	( d ( and f ) )
+v	( c ( or b ) )	( not c )
+#	( f ( or d ) )	( a ( or f ) )
+#	( not f )	( e ( and e ) )
+#	( e ( or a ) )	( not c )
+#	( d ( and a ) )	( b ( and b ) )
+=	( f ( and f ) )	f
+#	e	( a ( and b ) )
+#	f	( e ( or a ) )
+#	( f ( or b ) )	e
+#	c	( b ( and f ) )
+#	( not a )	( f ( or f ) )
+#	( f ( and b ) )	( not c )
+#	a	( d ( or d ) )
+>	( a ( or f ) )	a
+#	( e ( and f ) )	a
+#	( e ( and b ) )	( f ( and d ) )
+#	( b ( and c ) )	e
+|	( not b )	( b ( and d ) )
+<	( b ( and f ) )	( d ( or f ) )
+=	( f ( or f ) )	( f ( and f ) )
+#	e	( a ( or c ) )
+#	d	( c ( and f ) )
+#	f	( not a )
+#	e	( a ( or a ) )
+>	b	( c ( and b ) )
+#	e	( f ( or f ) )
+#	( not d )	( f ( or b ) )
+>	c	( c ( and d ) )
+#	( c ( or f ) )	b
+v	( d ( or e ) )	( not d )
+<	d	( f ( or d ) )
+#	d	( c ( and c ) )
+#	( b ( or d ) )	( not f )
+#	( f ( or a ) )	c
+#	( a ( and d ) )	e
+#	( not d )	( b ( or b ) )
+#	( c ( or a ) )	f
+>	d	( f ( and d ) )
+#	( d ( and a ) )	f
+#	( e ( or b ) )	( not c )
+#	( a ( and e ) )	( not f )
+#	( d ( and d ) )	( not c )
+#	d	( c ( or f ) )
+v	( f ( or c ) )	( not c )
+#	( b ( and c ) )	a
