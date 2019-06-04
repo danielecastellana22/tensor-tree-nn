@@ -1,6 +1,5 @@
-import torch as th
 import torch.nn as nn
-from treeLSTM import TreeLSTM, TreeRNN, TreeDataset
+from treeLSTM import TreeLSTM, TreeDataset
 
 import networkx as nx
 import dgl
@@ -72,7 +71,7 @@ class SSTDataset(TreeDataset):
                     fail_cnt += 1
                 pretrained_emb.append(glove_emb.get(line.lower(), np.random.uniform(-0.05, 0.05, 300)))
 
-            self.pretrained_emb = F.tensor(np.stack(pretrained_emb, 0))
+            self.pretrained_emb = torch.tensor(np.stack(pretrained_emb, 0))
             self.logger.info('Miss word in GloVe {0:.4f}'.format(1.0 * fail_cnt / len(self.pretrained_emb)))
             torch.save(self.pretrained_emb, object_file)
 
@@ -145,6 +144,7 @@ def create_sst_model(num_vocabs,
                      dropout,
                      pretrained_emb=None,
                      cell_type='nary', **cell_args):
+
     input_module = nn.Embedding(num_vocabs, x_size)
     if pretrained_emb is not None:
         input_module.weight.data.copy_(pretrained_emb)

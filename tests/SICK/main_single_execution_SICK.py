@@ -7,7 +7,9 @@ import torch.nn.init as INIT
 import torch.optim as optim
 
 from treeLSTM import *
-from utils import load_lrt_dataset, create_lrt_model, lrt_loss_function, lrt_extract_batch_data
+
+from utils import create_sick_model, load_sick_dataset, sick_loss_function, sick_extract_batch_data, MSE_sick
+
 
 def main(args):
 
@@ -17,7 +19,7 @@ def main(args):
         os.makedirs(log_dir)
 
     # initiliase the main ogger
-    main_logger = set_main_logger_settings(log_dir, 'main')
+    set_main_logger_settings(log_dir, 'main')
 
     # set the seed
     np.random.seed(args.seed)
@@ -33,50 +35,53 @@ def main(args):
         th.set_num_threads(10)
 
     # load the data
-    trainset, devset, testset_list = load_lrt_dataset(args.max_n_operator)
+    trainset, devset, testset = load_sick_dataset()
 
     # create the model
-    model = create_lrt_model(args.x_size, args.h_size, cell_type=args.cell_type).to(device)
+    model = create_sick_model(trainset.num_vocabs,
+                              trainset.max_out_degree,
+                              args.x_size,
+                              args.h_size,
+                              pretrained_emb=trainset.pretrained_emb,
+                              cell_type=args.cell_type, rank=args.rank).to(device)
 
-    params_ex_emb = [x for x in list(model.parameters()) if x.requires_grad]
+    params_ex_emb = [x for x in list(model.parameters()) if x.requires_grad and x.size(0) != trainset.num_vocabs]
 
     for p in params_ex_emb:
         if p.dim() > 1:
             INIT.xavier_uniform_(p)
 
     # create the optimizer
-    optimizer = optim.Adagrad([
-        {'params': params_ex_emb, 'lr': args.lr, 'weight_decay': args.weight_decay}])
+    optimizer = optim.Adagrad([{'params':params_ex_emb, 'lr':args.lr, 'weight_decay':args.weight_decay}])
 
     # train and validate
-    best_model, best_dev_metrics = train_and_validate(model, lrt_extract_batch_data, lrt_loss_function, optimizer, trainset, devset, device,
-                                                      metrics_class=[Accuracy],
+    best_model, best_dev_metrics = train_and_validate(model, sick_extract_batch_data, sick_loss_function, optimizer, trainset, devset, device,
+                                                      metrics_class=[MSE_sick],
                                                       batch_size=args.batch_size,
                                                       n_epochs=args.epochs, early_stopping_patience=args.early_stopping)
 
-    for i,testset in enumerate(testset_list):
-        main_logger.info('Test set of len '+str(i))
-        test(best_model, lrt_extract_batch_data, testset, device,
-             metrics_class=[Accuracy],
-             batch_size=args.batch_size)
+    test(best_model, sick_extract_batch_data,  testset, device,
+         metrics_class=[Accuracy, RootAccuracy, LeavesAccuracy],
+         batch_size=args.batch_size)
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
     #TODO: expanme anch savedit can be decided programmatically
+    parser = argparse.ArgumentParser()
     parser.add_argument('--gpu', type=int, default=-1)
     parser.add_argument('--seed', type=int, default=41)
     parser.add_argument('--batch-size', type=int, default=25)
     parser.add_argument('--cell-type', default='nary')
-    parser.add_argument('--max-n-operator', type=int, default=4)
-    parser.add_argument('--x-size', type=int, default=75)
-    parser.add_argument('--h-size', type=int, default=75)
+    parser.add_argument('--rank', type=int, default=20)
+    parser.add_argument('--x-size', type=int, default=300)
+    parser.add_argument('--h-size', type=int, default=160)
     parser.add_argument('--epochs', type=int, default=100)
     parser.add_argument('--early-stopping', type=int, default=10)
-    parser.add_argument('--lr', type=float, default=0.01)
+    parser.add_argument('--lr', type=float, default=0.05)
     parser.add_argument('--weight-decay', type=float, default=1e-4)
+    parser.add_argument('--dropout', type=float, default=0.5)
     parser.add_argument('--save', default='checkpoints/')
-    parser.add_argument('--expname', default='lrt-test')
+    parser.add_argument('--expname', default='test')
     args = parser.parse_args()
     #print(args)
     main(args)

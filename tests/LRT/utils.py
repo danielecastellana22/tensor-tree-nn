@@ -1,7 +1,7 @@
 import torch.nn as nn
 import torch as th
 import torch.nn.functional as F
-from treeLSTM import TreeLSTM, TreeRNN, TreeDataset
+from treeLSTM import TreeLSTM, TreeDataset
 import networkx as nx
 import dgl
 from collections import namedtuple

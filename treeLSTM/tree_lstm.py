@@ -35,14 +35,17 @@ class NaryAggregator(nn.Module):
         h_cat = neighbour_states.view(neighbour_states.size(0), -1)
         return self.U(h_cat)
 
+
 # h = h1 + h2 + ... + hn
 class SumChildAggregator(nn.Module):
-    def __init__(self):
+
+    def __init__(self, in_size, out_size):
         super(SumChildAggregator, self).__init__()
+        self.U = nn.Linear(in_size, out_size)
 
     # neighbour_states has shape batch_size x n_neighbours x insize
     def forward(self, neighbour_states):
-        return th.sum(neighbour_states, 1)
+        return self.U(th.sum(neighbour_states, 1))
 
 
 # TODO: what about bias
@@ -57,11 +60,11 @@ class HOSVDAggregator(nn.Module):
         self.G = nn.Parameter(th.rand(sz_G))
 
         # mode matrices
-        self.U_list = []
+        self.U_list = nn.ParameterList()
         for i in range(max_output_degree):
-            self.U_list.append(nn.Linear(in_size, rank, bias=True))
+            self.U_list.append(nn.Parameter(th.rand((in_size, rank))))
 
-        self.U_output = nn.Linear(rank, out_size, bias=False)
+        self.U_output = nn.Parameter(th.rand((rank, out_size)))
 
     # neighbour_states has shape batch_size x n_neighbours x insize
     def forward(self, neighbour_states):
@@ -72,7 +75,8 @@ class HOSVDAggregator(nn.Module):
         for i in range(self.max_output_degree):
             h = neighbour_states[:, i, :].view(neighbour_states.size(0), -1)
             U = self.U_list[i]
-            operand_list.append(U(h))
+            ris = th.einsum('ar,na->nr', U, h)
+            operand_list.append(ris)
             cc = chr(offset+i)
             ein_str1 += cc
             ein_str2 += 'z'+cc
@@ -80,8 +84,8 @@ class HOSVDAggregator(nn.Module):
                 ein_str2 += ','
 
         out_cc = chr(offset+self.max_output_degree)
-        r_out = th.einsum(ein_str1 + ',' + ein_str2 + '->n'+out_cc, operand_list)
-        h_out = self.U_output(r_out)
+        r_out = th.einsum(ein_str1 + out_cc +',' + ein_str2 + '->z'+out_cc, operand_list)
+        h_out = th.einsum('rb,nr->nb',self.U_output, r_out)
 
         return h_out
 
@@ -95,11 +99,11 @@ class CANCOMPAggregator(nn.Module):
         self.max_output_degree = max_output_degree
 
         # mode matrices
-        self.U_list = []
+        self.U_list = nn.ParameterList()
         for i in range(max_output_degree):
-            self.U_list.append(nn.Linear(in_size, rank, bias=True))
+            self.U_list.append(nn.Parameter(th.rand((in_size, rank))))
 
-        self.U_output = nn.Linear(rank, out_size, bias=False)
+        self.U_output = nn.Parameter(th.rand((rank, out_size)))
 
     # neighbour_states has shape batch_size x n_neighbours x insize
     def forward(self, neighbour_states):
@@ -108,7 +112,8 @@ class CANCOMPAggregator(nn.Module):
         for i in range(self.max_output_degree):
             h = neighbour_states[:, i, :].view(neighbour_states.size(0), -1)
             U = self.U_list[i]
-            operand_list.append(U(h))
+            ris = th.einsum('ar,na->nr',U,h)
+            operand_list.append(ris)
 
             ein_str += 'nr,'
 
@@ -127,7 +132,7 @@ class TTAggregator(nn.Module):
         self.max_output_degree = max_output_degree
 
         # TT tensors
-        self.U_list = []
+        self.U_list = nn.ParameterList()
         self.U_list.append(nn.Parameter(th.rand((in_size, rank))))
         for i in range(max_output_degree):
             self.U_list.append(nn.Parameter(th.rand((in_size, rank, rank))))
@@ -143,9 +148,9 @@ class TTAggregator(nn.Module):
         for i in range(1, self.max_output_degree):
             h = neighbour_states[:, i, :].view(neighbour_states.size(0), -1)
             U = self.U_list[i]
-            ris = th.einsum('abc,na,nb->nc',U,ris,h)
+            ris = th.einsum('abc,na,nb->nc',U,h,ris)
 
-        h_out = th.einsum('ab,na->nb',self.U_output, ris)
+        h_out = th.einsum('ab,na->nb', self.U_output, ris)
 
         return h_out
 
@@ -154,7 +159,7 @@ class GenericTreeLSTMCell(nn.Module):
 
     def __init__(self, x_size, h_size, max_output_degree, cell_type, **cell_args):
         super(GenericTreeLSTMCell, self).__init__()
-        # TODO: add parameter to choose to freeze or not the bottom values
+        # TODO: add parameter to choose to freeze or not the bottom values. Tensor or grad=False?
         self.bottom_h = nn.Parameter(th.zeros(h_size), requires_grad=False)
         self.bottom_c = nn.Parameter(th.zeros(h_size), requires_grad=False)
 
@@ -163,29 +168,31 @@ class GenericTreeLSTMCell(nn.Module):
 
         self.W_iou = nn.Linear(x_size, 3 * h_size, bias=False)
         self.b_iou = nn.Parameter(th.zeros(1, 3 * h_size))
-        # TODO: 2 must be replaced by max_output_degree
+
         self.W_f = nn.Linear(x_size, h_size, bias=False)
         self.b_f = nn.Parameter(th.zeros(1, h_size))
 
+        # one forget gate for each child
+        # 3 remains 3 fot i, o, u
         if cell_type == 'nary':
-            self.f_aggregator = NaryAggregator(h_size, 2 * h_size, max_output_degree, bias=False)
-            self.iou_aggregator = NaryAggregator(h_size, 3 * h_size, max_output_degree, bias=False)
+            self.f_aggregator = NaryAggregator(h_size, max_output_degree*h_size, max_output_degree, bias=False)
+            self.iou_aggregator = NaryAggregator(h_size, 3*h_size, max_output_degree, bias=False)
         elif cell_type == 'sum':
-            self.f_aggregator = SumChildAggregator()
-            self.iou_aggregator = self.f_aggregator
+            self.f_aggregator = SumChildAggregator(h_size, max_output_degree*h_size)
+            self.iou_aggregator = SumChildAggregator(h_size, 3*h_size)
         elif cell_type == 'hosvd':
-            self.f_aggregator = HOSVDAggregator(h_size, 2*h_size, max_output_degree, **cell_args)
+            self.f_aggregator = HOSVDAggregator(h_size, max_output_degree*h_size, max_output_degree, **cell_args)
             self.iou_aggregator = HOSVDAggregator(h_size, 3*h_size, max_output_degree, **cell_args)
         elif cell_type == 'tt':
-            self.f_aggregator = TTAggregator(h_size, 2*h_size, max_output_degree, **cell_args)
+            self.f_aggregator = TTAggregator(h_size, max_output_degree*h_size, max_output_degree, **cell_args)
             self.iou_aggregator = TTAggregator(h_size, 3*h_size, max_output_degree, **cell_args)
         elif cell_type == 'cd':
-            self.f_aggregator = CANCOMPAggregator(h_size, 2 * h_size, max_output_degree, **cell_args)
-            self.iou_aggregator = CANCOMPAggregator(h_size, 3 * h_size, max_output_degree, **cell_args)
+            self.f_aggregator = CANCOMPAggregator(h_size, max_output_degree*h_size, max_output_degree, **cell_args)
+            self.iou_aggregator = CANCOMPAggregator(h_size, 3*h_size, max_output_degree, **cell_args)
         elif cell_type == 'full':
             if max_output_degree > 2:
                 raise ValueError('Full cel type can be use only with a maximum output degree of 2')
-            self.f_aggregator = BinaryFullTensorAggregator(h_size, 2*h_size)
+            self.f_aggregator = BinaryFullTensorAggregator(h_size, max_output_degree*h_size)
             self.iou_aggregator = BinaryFullTensorAggregator(h_size, 3*h_size)
 
     def forward(self, *input):
@@ -207,8 +214,8 @@ class GenericTreeLSTMCell(nn.Module):
     def reduce_func(self, nodes):
         # add the input contribution
         neighbour_h, neighbour_c = self.check_missing_children(nodes.mailbox['h'], nodes.mailbox['c'])
-        #TODO: 2 must be the max_output_degree
-        f_aggr = self.f_aggregator(neighbour_h) + (nodes.data['f_input'] + self.b_f).repeat((1, 2))
+
+        f_aggr = self.f_aggregator(neighbour_h) + (nodes.data['f_input'] + self.b_f).repeat((1, self.max_output_degree))
         iou_aggr = self.iou_aggregator(neighbour_h) + nodes.data['iou_input']
 
         f = th.sigmoid(f_aggr).view(*neighbour_c.size())
@@ -275,109 +282,5 @@ class TreeLSTM(nn.Module):
         # compute output
         #h = g.ndata.pop('h')
         h = g.ndata['h']
-        out = self.output_module(h)
-        return out
-
-
-class GenericTreeRNNCell(nn.Module):
-
-    def __init__(self, x_size, h_size, max_output_degree, cell_type, **cell_args):
-        super(GenericTreeRNNCell, self).__init__()
-        # TODO: add parameter to choose to freeze or not the bottom values
-        self.bottom_h = nn.Parameter(th.zeros(h_size), requires_grad=False)
-
-        # for the input
-        self.max_output_degree = max_output_degree
-
-        # TODO: 2 must be replaced by max_output_degree
-        self.W_f = nn.Linear(x_size, h_size, bias=False)
-        self.b_f = nn.Parameter(th.zeros(1, h_size))
-
-        if cell_type == 'nary':
-            self.h_aggregator = NaryAggregator(h_size, h_size, max_output_degree, bias=False)
-        elif cell_type == 'sum':
-            self.h_aggregator = SumChildAggregator()
-        elif cell_type == 'hosvd':
-            self.h_aggregator = HOSVDAggregator(h_size, h_size, max_output_degree, **cell_args)
-        elif cell_type == 'tt':
-            self.h_aggregator = TTAggregator(h_size, h_size, max_output_degree, **cell_args)
-        elif cell_type == 'cd':
-            self.h_aggregator = CANCOMPAggregator(h_size, h_size, max_output_degree, **cell_args)
-        elif cell_type == 'full':
-            if max_output_degree > 2:
-                raise ValueError('Full cel type can be use only with a maximum output degree of 2')
-            self.h_aggregator = BinaryFullTensorAggregator(h_size, h_size)
-
-    def forward(self, *input):
-        pass
-
-    def check_missing_children(self, neighbour_h):
-        n_missing = self.max_output_degree - neighbour_h.size(1)
-        if n_missing > 0:
-            n_nodes = neighbour_h.size(0)
-            h_size = neighbour_h.size(2)
-            neighbour_h = th.cat((neighbour_h, self.bottom_h.reshape(1, 1, h_size).expand(n_nodes, n_missing, h_size)), dim=1)
-
-        return neighbour_h
-
-    def message_func(self, edges):
-        return {'h': edges.src['h']}
-
-    def reduce_func(self, nodes):
-        # add the input contribution
-        neighbour_h = self.check_missing_children(nodes.mailbox['h'])
-        h_aggr = self.h_aggregator(neighbour_h)
-        return {'h': h_aggr}
-
-    def apply_node_func(self, nodes):
-        h = nodes.data['f_input'] + self.b_f
-        if 'h' in nodes.data:
-            # internal nodes
-            h += nodes.data['h']
-        h = F.tanh(h)
-        return {'h': h}
-
-
-class TreeRNN(nn.Module):
-    def __init__(self,
-                 x_size,
-                 h_size,
-                 max_output_degree,
-                 input_module,
-                 output_module,
-                 cell_type='nary', **cell_args):
-        super(TreeRNN, self).__init__()
-        self.x_size = x_size
-        self.h_size = h_size
-        self.input_module = input_module
-        self.output_module = output_module
-        self.cell = GenericTreeRNNCell(x_size, h_size, max_output_degree, cell_type, **cell_args)
-
-    def forward(self, g, x, mask):
-        """Compute tree-lstm prediction given a batch.
-        Parameters
-        ----------
-        batch : TreeDataset.TreeBatch
-            The data batch.
-        h : Tensor
-            Initial hidden state.
-        c : Tensor
-            Initial cell state.
-        Returns
-        -------
-        logits : Tensor
-            The prediction of each node.
-        """
-        g.register_message_func(self.cell.message_func)
-        g.register_reduce_func(self.cell.reduce_func)
-        g.register_apply_node_func(self.cell.apply_node_func)
-        # feed embedding
-        embeds = self.input_module(x * mask)
-        g.ndata['f_input'] = self.cell.W_f(embeds) * mask.float().unsqueeze(-1)
-        g.ndata['x'] = x
-        # propagate
-        dgl.prop_nodes_topo(g)
-        # compute output
-        h = g.ndata.pop('h')
         out = self.output_module(h)
         return out

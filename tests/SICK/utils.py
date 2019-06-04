@@ -1,268 +1,217 @@
 import torch.nn as nn
-import torch as th
-import torch.nn.functional as F
-from treeLSTM import TreeLSTM, TreeRNN, TreeDataset
+from treeLSTM import TreeLSTM, TreeDataset, MSE
+
 import networkx as nx
 import dgl
-from collections import namedtuple
+import torch.nn.functional as F
+from nltk.corpus.reader import BracketParseCorpusReader
+from collections import namedtuple, OrderedDict
+import numpy as np
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 import os
+import torch as th
 
 
-class LogicalTree:
+class SICKDataset(TreeDataset):
 
-    def __init__(self):
-        self.child = []
-        self.w = None
+    PAD_WORD = -1  # special pad word id
+    UNK_WORD = -1  # out-of-vocabulary word id
 
-    def check_tree(self):
-        if not self.child:
-            #is a leaf
-            # must be a variable
-            assert len(self.w) == 1
-        else:
-            # it is internal node
-            # MUST BE AN OPERATOR
-            assert len(self.w) > 1
+    SICKBatch = namedtuple('SICKBatch', ['batch_a', 'batch_b', 'score', 'target_distr'])
 
-            if self.w == 'not':
-                assert len(self.child) == 1
-            else:
-                assert len(self.child) == 2
+    NUM_CLASSES = 5
 
-            for c in self.child:
-                c.check_tree()
-
-
-
-def parse_string_tree(s, start):
-    idx = start
-
-    assert s[idx] == '('
-    idx = idx+1
-
-    while s[idx] == ' ':
-        idx = idx+1
-
-    if s[idx] == '(':
-
-        tl, idx = parse_string_tree(s, idx)
-        while s[idx] == ' ':
-            idx = idx+1
-
-        if s[idx] == '(':
-            t, idx = parse_string_tree(s, idx)
-
-        # is a leaf
-
-        t.child.insert(0, tl)
-
-        # match closing bracket
-        while s[idx] != ')':
-            idx = idx+1
-        idx = idx+1
-
-        return t, idx
-    else:
-        # there is an input element
-        aux = idx+1
-        while s[aux] != ' ' and s[aux] != ')' and s[aux] != '(':
-            aux = aux+1
-        w = s[idx:aux]
-        idx = aux
-        t = LogicalTree()
-        t.w = w
-
-        while s[idx] == ' ':
-            idx = idx+1
-
-        if s[idx] != '(':
-            if s[idx] != ')':
-                # another word
-                aux = idx+1
-                while s[aux] != ' ' and s[aux] != ')' and s[aux] != '(':
-                    aux = aux + 1
-                wr = s[idx:aux]
-                idx = aux
-                tr = LogicalTree()
-                tr.w = wr
-
-                t.child.append(tr)
-
-            # match closing bracket
-            while s[idx] != ')':
-                idx = idx+1
-            idx = idx+1
-
-            return t, idx
-
-        else:
-            new_t, idx = parse_string_tree(s, idx)
-
-            if len(t.w) == 1:
-                # is a variable
-                new_t.child.insert(0, t)
-                t = new_t
-            else:
-                # is an operator
-                t.child.append(new_t)
-
-            # match closing bracket
-            while s[idx] != ')':
-                idx = idx+1
-            idx = idx+1
-
-            return t, idx
-
-
-class LRTDataset(TreeDataset):
-
-    LRTBatch = namedtuple('LRTBatch', ['batch_a', 'batch_b', 'symbol'])
-
-    NUM_CLASSES = 7
-    NUM_VOCABS = 9
-
-    def __init__(self, path_dir, file_name_list, name):
+    def __init__(self, path_dir, file_name_list, name, glove300_file=None):
         TreeDataset.__init__(self, path_dir, file_name_list, name)
-
-        self.__create_input_vocabulary()
-        self.__create_output_vocabulary()
+        self.pretrained_emb = None
+        self.max_out_degree = 0
+        # print('Preprocessing...')
+        self.__load_vocabulary__()
+        if glove300_file is not None:
+            self.__load_embeddings__(glove300_file)
         self.__load_trees__()
+        # print('Dataset creation finished. #Trees:', len(self.trees))
 
-    def __create_input_vocabulary(self):
-        self.input_vocabulary = {}
-        self.rev_input_vocabulary = []
-        # add letter from a to f
-        for i in range(6):
-            ch = chr(ord('a') + i)
-            self.rev_input_vocabulary.append(ch)
-            self.input_vocabulary[ch] = len(self.input_vocabulary)
+    def __load_vocabulary__(self):
+        object_file = os.path.join(self.path_dir, 'vocab.pkl')
+        text_file = os.path.join(self.path_dir, 'vocab.txt')
+        if os.path.exists(object_file):
+            # load vocab file
+            self.vocab = th.load(object_file)
+        else:
+            # create vocab file
+            self.vocab = OrderedDict()
+            self.logger.debug('Loading vocabulary.')
+            with open(text_file, encoding='utf-8') as vf:
+                for line in tqdm(vf.readlines(), desc='Loading vocabulary: '):
+                    line = line.strip()
+                    self.vocab[line] = len(self.vocab)
+            th.save(self.vocab, object_file)
 
-        # add operator and, or, not
-        self.rev_input_vocabulary.append('and')
-        self.input_vocabulary['and'] = len(self.input_vocabulary)
-        self.rev_input_vocabulary.append('or')
-        self.input_vocabulary['or'] = len(self.input_vocabulary)
-        self.rev_input_vocabulary.append('not')
-        self.input_vocabulary['not'] = len(self.input_vocabulary)
+        self.logger.info('Vocabulary loaded.')
 
-    def __create_output_vocabulary(self):
-        self.output_vocabulary = {}
-        self.rev_output_vocabulary = ['=', '>', '<', '^', '|', 'v', '#']
-        for s in self.rev_output_vocabulary:
-            self.output_vocabulary[s] = len(self.output_vocabulary)
+    def __load_embeddings__(self, pretrained_emb_file):
+
+        object_file = os.path.join(self.path_dir, 'pretrained_emb.pkl')
+        if os.path.exists(object_file):
+            self.pretrained_emb = th.load(object_file)
+        else:
+            # filter glove
+            glove_emb = {}
+            self.logger.debug('Loading pretrained embeddings.')
+            with open(pretrained_emb_file, 'r', encoding='utf-8') as pf:
+                for line in tqdm(pf.readlines(), desc='Loading pretrained embeddings:'):
+                    sp = line.split(' ')
+                    if sp[0].lower() in self.vocab:
+                        glove_emb[sp[0].lower()] = np.array([float(x) for x in sp[1:]])
+
+            # initialize with glove
+            pretrained_emb = []
+            fail_cnt = 0
+            for line in self.vocab.keys():
+                if not line.lower() in glove_emb:
+                    fail_cnt += 1
+                pretrained_emb.append(glove_emb.get(line.lower(), np.random.uniform(-0.05, 0.05, 300)))
+
+            self.pretrained_emb = th.tensor(np.stack(pretrained_emb, 0))
+            self.logger.info('Miss word in GloVe {0:.4f}'.format(1.0 * fail_cnt / len(self.pretrained_emb)))
+            th.save(self.pretrained_emb, object_file)
+
+        self.logger.info('Pretrained embeddigns loaded.')
 
     def __load_trees__(self):
+        A_file_list = list(map(lambda x: x.replace('.txt', '_A.txt'), self.file_name_list))
+        B_file_list = list(map(lambda x: x.replace('.txt', '_B.txt'), self.file_name_list))
+        SCORE_file_list = list(map(lambda x: x.replace('.txt', '_SCORE.txt'), self.file_name_list))
+
+        corpus_a = BracketParseCorpusReader(self.path_dir, A_file_list)
+        sents_a = corpus_a.parsed_sents(A_file_list)
+
+        corpus_b = BracketParseCorpusReader(self.path_dir, B_file_list)
+        sents_b = corpus_b.parsed_sents(B_file_list)
+
         self.logger.debug('Loading trees.')
-        # build trees
-        f_names = [os.path.join(self.path_dir,x) for x in self.file_name_list]
-
-        for f in f_names:
-            with open(f, 'r') as txtfile:
-                for sent in tqdm(txtfile.readlines(), desc='Loading trees: '):
-                    l_sent = sent[:-1].split('\t')
-                    symbol = self.output_vocabulary[l_sent[0]]
-                    if len(l_sent[1]) == 1:
-                        l_sent[1] = '( ' + l_sent[1] + ' )'
-                    if len(l_sent[2]) == 1:
-                        l_sent[2] = '( ' + l_sent[2] + ' )'
-
-                    a_t, _ = parse_string_tree(l_sent[1], 0)
-                    a_t.check_tree()
-                    a_t = self.__build_dgl_tree__(a_t)
-                    b_t, _ = parse_string_tree(l_sent[2], 0)
-                    b_t.check_tree()
-                    b_t = self.__build_dgl_tree__(b_t)
-
-                    self.data.append((symbol, a_t, b_t))
+        with open(os.path.join(self.path_dir, SCORE_file_list[0]), 'r') as f_SCORE:
+            for i,l in tqdm(enumerate(f_SCORE.readlines()), total=len(sents_a), desc='Loading trees: '):
+                s = float(l[:-1])
+                a_t = self.__build_dgl_tree__(sents_a[i])
+                b_t = self.__build_dgl_tree__(sents_b[i])
+                self.data.append((s, a_t, b_t))
 
         self.logger.info('{} trees loaded.'.format(len(self.data)))
 
-    def __build_dgl_tree__(self, root):
-        g = nx.DiGraph()
-        vars_used = {}
-
-        def _rec_build(nid, node):
-
-            g.add_node(nid, x=self.input_vocabulary[node.w], y=-1, mask=1)
-
-            if not node.child:
-                # is a leaf
-                vars_used[node.w] = 1
-
-            for ch in node.child:
-                cid = g.number_of_nodes()
-                _rec_build(cid, ch)
-                g.add_edge(cid, nid)
-
-        _rec_build(0, root)
-        ret = dgl.DGLGraph()
-        ret.from_networkx(g, node_attrs=['x', 'y', 'mask'])
-
-        n_vars = len(vars_used)
-        #assert  n_vars <= 4
-        return ret
-
     def get_loader(self, batch_size, device, shuffle=False):
+        def get_target_distribution(labels):
+            labels = np.array(labels)
+            n_el = len(labels)
+            target = np.zeros((n_el, SICKDataset.NUM_CLASSES))
+            ceil = np.ceil(labels).astype(int)
+            floor = np.floor(labels).astype(int)
+            idx = (ceil == floor)
+            not_idx = np.logical_not(idx)
+            target[idx, floor[idx] - 1] = 1
+            target[not_idx, floor[not_idx] - 1] = ceil[not_idx] - labels[not_idx]
+            target[not_idx, ceil[not_idx] - 1] = labels[not_idx] - floor[not_idx]
+
+            return target
+
         def batcher_dev(tuple_data):
             #tuple data contains (symbol,ltree,rtree)
             symbol_list, graph_a_list, graph_b_list = zip(*tuple_data)
             batched_a_trees = dgl.batch(graph_a_list)
             batched_b_trees = dgl.batch(graph_b_list)
-            tupled_batch_a = LRTDataset.TreeBatch(graph=batched_a_trees,
+            tupled_batch_a = SICKDataset.TreeBatch(graph=batched_a_trees,
                                                   mask=batched_a_trees.ndata['mask'].to(device),
                                                   x=batched_a_trees.ndata['x'].to(device),
                                                   y=batched_a_trees.ndata['y'].to(device))
 
-            tupled_batch_b = LRTDataset.TreeBatch(graph=batched_b_trees,
+            tupled_batch_b = SICKDataset.TreeBatch(graph=batched_b_trees,
                                                   mask=batched_b_trees.ndata['mask'].to(device),
                                                   x=batched_b_trees.ndata['x'].to(device),
                                                   y=batched_a_trees.ndata['y'].to(device))
 
-            return LRTDataset.LRTBatch(batch_a=tupled_batch_a,
-                                       batch_b=tupled_batch_b,
-                                       symbol=th.LongTensor(symbol_list).to(device))
+            return SICKDataset.SICKBatch(batch_a=tupled_batch_a,
+                                         batch_b=tupled_batch_b,
+                                         score=th.FloatTensor(symbol_list).to(device),
+                                         target_distr=th.FloatTensor(get_target_distribution(symbol_list)).to(device))
 
         return DataLoader(dataset=self, batch_size=batch_size, collate_fn=batcher_dev, shuffle=shuffle,
                           num_workers=0)
 
+    def __build_dgl_tree__(self, root):
+        g = nx.DiGraph()
 
-class LRTComparisonModule(nn.Module):
+        def _rec_build(nid, node):
+            n_ch = len(node)
+            if n_ch > self.max_out_degree:
+                self.max_out_degree = n_ch
 
-    def __init__(self, in_size, out_size):
-        super(LRTComparisonModule, self).__init__()
-        self.A = nn.Parameter(th.rand(in_size, in_size, out_size))
-        self.U1 = nn.Linear(in_size, out_size, bias=False)
-        self.U2 = nn.Linear(in_size, out_size, bias=False)
-        self.b = nn.Parameter(th.rand(out_size))
+            for child in node:
+                cid = g.number_of_nodes()
+                if isinstance(child,str):
+                    # leaf
+                    w_id = self.vocab.get(child.lower(), self.UNK_WORD)
+                    assert w_id != -1
+                    g.add_node(cid, x=w_id, y=-1, mask=1)
+                else:
+                    # internal node
+                    w_id = self.vocab.get(child.label().lower(), self.UNK_WORD)
+                    assert w_id != -1
+                    g.add_node(cid, x=w_id, y=-1, mask=1)
+                    _rec_build(cid, child)
+                g.add_edge(cid, nid)
 
-    # neighbour_states has shape batch_size x n_neighbours x insize
-    def forward(self, h_lsent, h_rsent):
-        h_comb = th.einsum('ijk,ni,nj->nk', self.A, h_lsent, h_rsent) + self.U1(h_lsent) + self.U2(h_rsent) + self.b
-        return th.tanh(h_comb)
-        #tz = th.zeros_like(h_comb)
-        #return th.max(h_comb, tz) + 0.01* th.min(h_comb, tz)
+        # add root
+        w_id = self.vocab.get(root.label().lower(), self.UNK_WORD)
+        assert w_id != -1
+        g.add_node(0, x=w_id, y=-1, mask=1)
+        _rec_build(0, root)
+        ret = dgl.DGLGraph()
+        ret.from_networkx(g, node_attrs=['x', 'y', 'mask'])
+        return ret
+
+    @property
+    def num_vocabs(self):
+        return len(self.vocab)
 
 
-class LRTModel(nn.Module):
+class SICKComparisonModule(nn.Module):
 
-    def __init__(self, x_size, h_size, cell_type='nary', **cell_args):
-        super(LRTModel, self).__init__()
-        num_vocabs = LRTDataset.NUM_VOCABS
+    def __init__(self, input_dim, num_classes):
+        super(SICKComparisonModule, self).__init__()
+        self.input_dim = input_dim
+        self.hidden_dim = 50
+        self.num_classes = num_classes
+        self.wh = nn.Linear(2 * self.input_dim, self.hidden_dim)
+        self.wp = nn.Linear(self.hidden_dim, self.num_classes)
+        self.r = nn.Parameter(th.arange(1, num_classes+1).float().t(), requires_grad=False)
+
+    def forward(self, lvec, rvec):
+        mult_dist = th.mul(lvec, rvec)
+        abs_dist = th.abs(th.add(lvec, -rvec))
+        vec_dist = th.cat((mult_dist, abs_dist), 1)
+
+        out = th.sigmoid(self.wh(vec_dist))
+        out = F.softmax(self.wp(out), dim=1)
+        pred = th.matmul(out, self.r)
+
+        return out, pred
+
+
+class SICKModel(nn.Module):
+
+    def __init__(self, num_vocabs, max_output_degree, x_size, h_size, pretrained_emb=None, cell_type='nary', **cell_args):
+        super(SICKModel, self).__init__()
         input_module = nn.Embedding(num_vocabs, x_size)
-
-        #emb_matrix = th.zeros(num_vocabs,x_size, requires_grad=False)
-        #emb_matrix[:num_vocabs-3, :] = th.randn(num_vocabs-3, x_size, requires_grad=False)*0.01
-        #emb_matrix[num_vocabs-3, 0] = 1
-        #emb_matrix[num_vocabs-2, 1] = 1
-        #emb_matrix[num_vocabs-1, 2] = 1
-        #input_module = nn.Embedding.from_pretrained(emb_matrix, freeze=True)
+        if pretrained_emb is not None:
+            input_module.weight.data.copy_(pretrained_emb)
+            input_module.weight.requires_grad = True
 
         output_module = nn.Identity()
-        self.tree_model = TreeLSTM(x_size, h_size, 2, input_module, output_module, cell_type, **cell_args)
-        #self.tree_model = TreeRNN(x_size, h_size, 2, input_module, output_module, cell_type, **cell_args)
-        self.comb_module = LRTComparisonModule(h_size, LRTDataset.NUM_CLASSES)
+
+        self.tree_model = TreeLSTM(x_size, h_size, max_output_degree, input_module, output_module, cell_type, **cell_args)
+        self.comb_module = SICKComparisonModule(h_size, SICKDataset.NUM_CLASSES)
 
     def forward(self, data_a, data_b):
         h_a_tree = self.tree_model(*data_a)
@@ -274,44 +223,32 @@ class LRTModel(nn.Module):
         root_id_a = [i for i in range(g_a.number_of_nodes()) if g_a.out_degree(i) == 0]
         root_id_b = [i for i in range(g_b.number_of_nodes()) if g_b.out_degree(i) == 0]
 
-        #a_list = dgl.unbatch(g_a)
-        #b_list = dgl.unbatch(g_b)
-
         h_root_a = h_a_tree[root_id_a]
         h_root_b = h_b_tree[root_id_b]
 
         return self.comb_module(h_root_a, h_root_b)
 
 
-def create_lrt_model(x_size, h_size, cell_type='nary', **cell_args):
-    return LRTModel(x_size, h_size, cell_type, **cell_args)
+def create_sick_model(num_vocabs, max_output_degree, x_size, h_size, pretrained_emb, cell_type='nary', **cell_args):
+    return SICKModel(num_vocabs, max_output_degree, x_size, h_size, pretrained_emb, cell_type, **cell_args)
 
 
-def load_lrt_dataset(max_n_operator):
-    max_n_operator=1
-    tr_files = ['train' + str(x) for x in range(max_n_operator+1)]
-    dev_files = ['dev' + str(x) for x in range(max_n_operator+1)]
-    train_ds = LRTDataset('data/lrt', tr_files, name='train_set')
-    dev_ds = LRTDataset('data/lrt', dev_files, name='dev_set')
-
-    test_ds_list = []
-    for x in range(1):
-        ds = LRTDataset('data/lrt', ['test'+str(x)], name='test_set'+str(x))
-        test_ds_list.append(ds)
-
-    return train_ds, dev_ds, test_ds_list
+def load_sick_dataset():
+    trainset = SICKDataset('data/sick/', ['SICK_train.txt'], glove300_file='data/glove.840B.300d.txt', name='train')
+    devset = SICKDataset('data/sick/', ['SICK_trial.txt'], glove300_file='data/glove.840B.300d.txt', name='train')
+    testset = SICKDataset('data/sick/', ['SICK_test.txt'], glove300_file='data/glove.840B.300d.txt', name='train')
+    return trainset, devset, testset
 
 
-def lrt_loss_function(output_model, true_label):
-    #logp = F.log_softmax(output_model, 1)
-    #return F.nll_loss(logp, true_label, reduction='sum')
-    return F.cross_entropy(output_model, true_label, reduction='sum')
+def sick_loss_function(output_model, true_label):
+    return F.kl_div(output_model[0], true_label[0], reduction='sum')
 
 
-def lrt_extract_batch_data(batch):
+def sick_extract_batch_data(batch):
     a_batched = batch.batch_a
     b_batched = batch.batch_b
-    sym = batch.symbol
+    sym = batch.score
+    target_distr = batch.target_distr
 
     g_a = a_batched.graph
     x_a = a_batched.x
@@ -323,4 +260,10 @@ def lrt_extract_batch_data(batch):
 
     n_batch = sym.size(0)
 
-    return [[g_a, x_a, mask_a], [g_b, x_b, mask_b]], sym, n_batch, None
+    return [[g_a, x_a, mask_a], [g_b, x_b, mask_b]], [target_distr, sym], n_batch, None
+
+
+class MSE_sick(MSE):
+
+    def update_metric(self, out, gold_label):
+        super(MSE_sick, self).update_metric(out[1],gold_label[1])

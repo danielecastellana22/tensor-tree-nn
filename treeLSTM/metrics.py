@@ -128,3 +128,28 @@ class LeavesAccuracy(TreeMetric):
 
     def is_better_than(self, value):
         return self.final_value > value
+
+
+class MSE(ValueMetric):
+
+    def __init__(self):
+        BaseMetric.__init__(self)
+        self.val = 0
+        self.n_val = 0
+
+    def initialise_metric(self):
+        self.val = 0
+        self.n_val = 0
+
+    def update_metric(self, out, gold_label):
+        self.val += th.sum((out-gold_label).pow(2))
+        self.n_val += len(gold_label)
+
+    def finalise_metric(self):
+        self.final_value = self.val / self.n_val
+
+    def __str__(self):
+        return "MSE: {:4f}".format(self.final_value)
+
+    def is_better_than(self, value):
+        return self.final_value < value

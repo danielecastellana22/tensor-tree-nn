@@ -11,7 +11,7 @@ def train(model, trainset):
 def train_and_validate(model, extract_batch_data, loss_function, optimizer, trainset, devset, device, metrics_class, batch_size=25, n_epochs=200, early_stopping_patience=20):
     logger = get_new_logger('train_and_validate')
 
-    best_dev_metric = 0
+    best_dev_metric = None
     trainloader = trainset.get_loader(batch_size, device, shuffle=True)
     devloader = devset.get_loader(batch_size, device)
 
@@ -64,17 +64,23 @@ def train_and_validate(model, extract_batch_data, loss_function, optimizer, trai
             s += str(v) + " | "
         logger.info(s)
 
-        # the metrics in poisiton 0 is the one used to validate the model
-        if metrics[0].is_better_than(best_dev_metric):
+        if epoch == 0:
             best_dev_metric = metrics[0].get_value()
             best_epoch = epoch
             best_metrics = metrics
             best_model = copy.deepcopy(model)
-            logger.debug('Epoch {:03d}: New optimum found'.format(epoch))
         else:
-            # early stopping
-            if best_epoch <= epoch - early_stopping_patience:
-                break
+            # the metrics in poisiton 0 is the one used to validate the model
+            if metrics[0].is_better_than(best_dev_metric):
+                best_dev_metric = metrics[0].get_value()
+                best_epoch = epoch
+                best_metrics = metrics
+                best_model = copy.deepcopy(model)
+                logger.debug('Epoch {:03d}: New optimum found'.format(epoch))
+            else:
+                # early stopping
+                if best_epoch <= epoch - early_stopping_patience:
+                    break
 
         # lr decay
         for param_group in optimizer.param_groups:
