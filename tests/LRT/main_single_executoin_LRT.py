@@ -46,7 +46,7 @@ def main(args):
 
     # create the optimizer
     optimizer = optim.Adagrad([
-        {'params': params_ex_emb, 'lr': args.lr, 'weight_decay': args.weight_decay}])
+        {'params': params_ex_emb, 'lr': args.lr, 'weight_decay': args.weight_decay, 'lr_decay':0.05}])
 
     # train and validate
     best_model, best_dev_metrics = train_and_validate(model, lrt_extract_batch_data, lrt_loss_function, optimizer, trainset, devset, device,

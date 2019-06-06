@@ -1,10 +1,10 @@
 import torch.nn as nn
-from treeLSTM import TreeLSTM, TreeDataset, MSE
+from treeLSTM import TreeLSTM, TreeDataset, MSE, Pearson
 
 import networkx as nx
 import dgl
 import torch.nn.functional as F
-from nltk.corpus.reader import BracketParseCorpusReader
+from nltk.corpus.reader import Tree
 from collections import namedtuple, OrderedDict
 import numpy as np
 from torch.utils.data import DataLoader
@@ -84,19 +84,23 @@ class SICKDataset(TreeDataset):
         A_file_list = list(map(lambda x: x.replace('.txt', '_A.txt'), self.file_name_list))
         B_file_list = list(map(lambda x: x.replace('.txt', '_B.txt'), self.file_name_list))
         SCORE_file_list = list(map(lambda x: x.replace('.txt', '_SCORE.txt'), self.file_name_list))
-
-        corpus_a = BracketParseCorpusReader(self.path_dir, A_file_list)
-        sents_a = corpus_a.parsed_sents(A_file_list)
-
-        corpus_b = BracketParseCorpusReader(self.path_dir, B_file_list)
-        sents_b = corpus_b.parsed_sents(B_file_list)
-
         self.logger.debug('Loading trees.')
+
+        tree_a = []
+        with open(os.path.join(self.path_dir, A_file_list[0]), 'r') as f_A:
+            for l in f_A.readlines():
+                tree_a.append(Tree.fromstring(l))
+
+        tree_b = []
+        with open(os.path.join(self.path_dir, B_file_list[0]), 'r') as f_B:
+            for l in f_B.readlines():
+                tree_b.append(Tree.fromstring(l))
+
         with open(os.path.join(self.path_dir, SCORE_file_list[0]), 'r') as f_SCORE:
-            for i,l in tqdm(enumerate(f_SCORE.readlines()), total=len(sents_a), desc='Loading trees: '):
+            for i,l in tqdm(enumerate(f_SCORE.readlines()), total=len(tree_a), desc='Loading trees: '):
                 s = float(l[:-1])
-                a_t = self.__build_dgl_tree__(sents_a[i])
-                b_t = self.__build_dgl_tree__(sents_b[i])
+                a_t = self.__build_dgl_tree__(tree_a[i])
+                b_t = self.__build_dgl_tree__(tree_b[i])
                 self.data.append((s, a_t, b_t))
 
         self.logger.info('{} trees loaded.'.format(len(self.data)))
@@ -193,8 +197,8 @@ class SICKComparisonModule(nn.Module):
         vec_dist = th.cat((mult_dist, abs_dist), 1)
 
         out = th.sigmoid(self.wh(vec_dist))
-        out = F.softmax(self.wp(out), dim=1)
-        pred = th.matmul(out, self.r)
+        out = F.log_softmax(self.wp(out), dim=1)
+        pred = th.matmul(th.exp(out), self.r)
 
         return out, pred
 
@@ -206,7 +210,7 @@ class SICKModel(nn.Module):
         input_module = nn.Embedding(num_vocabs, x_size)
         if pretrained_emb is not None:
             input_module.weight.data.copy_(pretrained_emb)
-            input_module.weight.requires_grad = True
+            input_module.weight.requires_grad = False
 
         output_module = nn.Identity()
 
@@ -241,7 +245,7 @@ def load_sick_dataset():
 
 
 def sick_loss_function(output_model, true_label):
-    return F.kl_div(output_model[0], true_label[0], reduction='sum')
+    return F.kl_div(output_model[0], true_label[0], reduction='batchmean')
 
 
 def sick_extract_batch_data(batch):
@@ -267,3 +271,9 @@ class MSE_sick(MSE):
 
     def update_metric(self, out, gold_label):
         super(MSE_sick, self).update_metric(out[1],gold_label[1])
+
+
+class Pearson_sick(Pearson):
+
+    def update_metric(self, out, gold_label):
+        super(Pearson_sick, self).update_metric(out[1], gold_label[1])

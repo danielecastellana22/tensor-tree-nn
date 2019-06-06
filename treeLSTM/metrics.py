@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 import torch as th
 import numpy as np
-
+import copy
 
 class BaseMetric(ABC):
 
@@ -27,18 +27,12 @@ class BaseMetric(ABC):
 
 class TreeMetric(BaseMetric):
 
-    def __init__(self):
-        BaseMetric.__init__()
-
-
     @abstractmethod
     def update_metric(self, out, gold_label, graph):
         raise NotImplementedError('users must define update_metrics to use this base class')
 
 
 class ValueMetric(BaseMetric):
-    def __init__(self):
-        BaseMetric.__init__()
 
     @abstractmethod
     def update_metric(self, out, gold_label):
@@ -46,11 +40,6 @@ class ValueMetric(BaseMetric):
 
 
 class Accuracy(ValueMetric):
-
-    def __init__(self):
-        BaseMetric.__init__(self)
-        self.n_nodes = 0
-        self.n_correct = 0
 
     def initialise_metric(self):
         self.n_nodes = 0
@@ -72,11 +61,6 @@ class Accuracy(ValueMetric):
 
 
 class RootAccuracy(TreeMetric):
-
-    def __init__(self):
-        BaseMetric.__init__(self)
-        self.n_nodes = 0
-        self.n_correct = 0
 
     def initialise_metric(self):
         self.n_nodes = 0
@@ -103,11 +87,6 @@ class RootAccuracy(TreeMetric):
 
 class LeavesAccuracy(TreeMetric):
 
-    def __init__(self):
-        BaseMetric.__init__(self)
-        self.n_nodes = 0
-        self.n_correct = 0
-
     def initialise_metric(self):
         self.n_nodes = 0
         self.n_correct = 0
@@ -132,11 +111,6 @@ class LeavesAccuracy(TreeMetric):
 
 class MSE(ValueMetric):
 
-    def __init__(self):
-        BaseMetric.__init__(self)
-        self.val = 0
-        self.n_val = 0
-
     def initialise_metric(self):
         self.val = 0
         self.n_val = 0
@@ -153,3 +127,39 @@ class MSE(ValueMetric):
 
     def is_better_than(self, value):
         return self.final_value < value
+
+
+class Pearson(ValueMetric):
+
+    def initialise_metric(self):
+        self.x = None
+        self.y = None
+
+    def update_metric(self, out, gold_label):
+        x = copy.deepcopy(out)
+        y = copy.deepcopy(gold_label)
+
+        if self.x is None:
+            self.x = x
+        else:
+            self.x = th.cat((self.x, x), dim=0)
+
+        if self.y is None:
+            self.y = y
+        else:
+            self.y = th.cat((self.y, y), dim=0)
+
+    def finalise_metric(self):
+
+        vx = self.x - th.mean(self.x)
+        vy = self.y - th.mean(self.y)
+
+        cost = th.sum(vx * vy) / (th.sqrt(th.sum(vx ** 2)) * th.sqrt(th.sum(vy ** 2)))
+        self.final_value = cost
+
+    def __str__(self):
+        return "Pearson: {:4f}".format(self.final_value)
+
+    def is_better_than(self, value):
+        return self.final_value > value
+

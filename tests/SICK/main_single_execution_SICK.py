@@ -8,7 +8,7 @@ import torch.optim as optim
 
 from treeLSTM import *
 
-from utils import create_sick_model, load_sick_dataset, sick_loss_function, sick_extract_batch_data, MSE_sick
+from utils import create_sick_model, load_sick_dataset, sick_loss_function, sick_extract_batch_data, MSE_sick, Pearson_sick
 
 
 def main(args):
@@ -45,7 +45,7 @@ def main(args):
                               pretrained_emb=trainset.pretrained_emb,
                               cell_type=args.cell_type, rank=args.rank).to(device)
 
-    params_ex_emb = [x for x in list(model.parameters()) if x.requires_grad and x.size(0) != trainset.num_vocabs]
+    params_ex_emb = [x for x in list(model.parameters()) if x.requires_grad]
 
     for p in params_ex_emb:
         if p.dim() > 1:
@@ -56,12 +56,12 @@ def main(args):
 
     # train and validate
     best_model, best_dev_metrics = train_and_validate(model, sick_extract_batch_data, sick_loss_function, optimizer, trainset, devset, device,
-                                                      metrics_class=[MSE_sick],
+                                                      metrics_class=[MSE_sick, Pearson_sick],
                                                       batch_size=args.batch_size,
                                                       n_epochs=args.epochs, early_stopping_patience=args.early_stopping)
 
     test(best_model, sick_extract_batch_data,  testset, device,
-         metrics_class=[Accuracy, RootAccuracy, LeavesAccuracy],
+         metrics_class=[MSE_sick, Pearson_sick],
          batch_size=args.batch_size)
 
 
@@ -74,7 +74,7 @@ if __name__ == '__main__':
     parser.add_argument('--cell-type', default='nary')
     parser.add_argument('--rank', type=int, default=20)
     parser.add_argument('--x-size', type=int, default=300)
-    parser.add_argument('--h-size', type=int, default=160)
+    parser.add_argument('--h-size', type=int, default=150)
     parser.add_argument('--epochs', type=int, default=100)
     parser.add_argument('--early-stopping', type=int, default=10)
     parser.add_argument('--lr', type=float, default=0.05)
