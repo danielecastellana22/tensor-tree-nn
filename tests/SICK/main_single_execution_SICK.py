@@ -52,7 +52,8 @@ def main(args):
             INIT.xavier_uniform_(p)
 
     # create the optimizer
-    optimizer = optim.Adagrad([{'params':params_ex_emb, 'lr':args.lr, 'weight_decay':args.weight_decay}])
+    #optimizer = optim.Adagrad([{'params':params_ex_emb, 'lr':args.lr, 'weight_decay':args.weight_decay}])
+    optimizer = optim.Adagrad([{'params': params_ex_emb, 'lr': args.lr, 'weight_decay': args.weight_decay}])
 
     # train and validate
     best_model, best_dev_metrics = train_and_validate(model, sick_extract_batch_data, sick_loss_function, optimizer, trainset, devset, device,
@@ -69,7 +70,7 @@ if __name__ == '__main__':
     #TODO: expanme anch savedit can be decided programmatically
     parser = argparse.ArgumentParser()
     parser.add_argument('--gpu', type=int, default=-1)
-    parser.add_argument('--seed', type=int, default=41)
+    parser.add_argument('--seed', type=int, default=89)
     parser.add_argument('--batch-size', type=int, default=25)
     parser.add_argument('--cell-type', default='nary')
     parser.add_argument('--rank', type=int, default=20)
@@ -78,8 +79,8 @@ if __name__ == '__main__':
     parser.add_argument('--epochs', type=int, default=100)
     parser.add_argument('--early-stopping', type=int, default=10)
     parser.add_argument('--lr', type=float, default=0.05)
-    parser.add_argument('--weight-decay', type=float, default=1e-4)
-    parser.add_argument('--dropout', type=float, default=0.5)
+    parser.add_argument('--weight-decay', type=float, default=1e-3)
+    #parser.add_argument('--dropout', type=float, default=0.2)
     parser.add_argument('--save', default='checkpoints/')
     parser.add_argument('--expname', default='test')
     args = parser.parse_args()

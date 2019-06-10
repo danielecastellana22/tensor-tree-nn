@@ -1,7 +1,6 @@
 import torch as th
 import torch.nn as nn
 import dgl
-import torch.nn.functional as F
 
 # TODO: maybe is reasonable a flag for positional stationarity
 # The Full aggregator is available only when maxOutput Degree is 2
@@ -24,10 +23,10 @@ class BinaryFullTensorAggregator(nn.Module):
 
 # h = U1*h1 + U2*h2 + ... + Un*hn
 class NaryAggregator(nn.Module):
-    def __init__(self, in_size, out_size, max_output_degree, **kwargs):
+    def __init__(self, in_size, out_size, max_output_degree):
         super(NaryAggregator, self).__init__()
         self.max_output_degree = max_output_degree
-        self.U = nn.Linear(max_output_degree * in_size, out_size, kwargs)
+        self.U = nn.Linear(max_output_degree * in_size, out_size, bias=False)
 
     # neighbour_states has shape batch_size x n_neighbours x insize
     def forward(self, neighbour_states):
@@ -41,11 +40,24 @@ class SumChildAggregator(nn.Module):
 
     def __init__(self, in_size, out_size):
         super(SumChildAggregator, self).__init__()
-        self.U = nn.Linear(in_size, out_size)
+        self.U = nn.Linear(in_size, out_size, bias=False)
 
     # neighbour_states has shape batch_size x n_neighbours x insize
     def forward(self, neighbour_states):
         return self.U(th.sum(neighbour_states, 1))
+
+
+class SumChildAggregator_F(nn.Module):
+
+    def __init__(self, in_size, out_size):
+        super(SumChildAggregator_F, self).__init__()
+        self.in_size = in_size
+        self.out_size = out_size
+        self.U = nn.Linear(in_size, out_size, bias=False)
+
+    # neighbour_states has shape batch_size x n_neighbours x insize
+    def forward(self, neighbour_states):
+        return self.U(neighbour_states.view(-1, self.in_size)).view(-1, neighbour_states.size()[1] * self.out_size)
 
 
 # TODO: what about bias
@@ -55,6 +67,10 @@ class HOSVDAggregator(nn.Module):
         super(HOSVDAggregator, self).__init__()
 
         self.max_output_degree = max_output_degree
+        self.in_size = in_size
+        self.out_size = out_size
+        self.rank = rank
+
         # core tensor
         sz_G = tuple(rank for i in range(max_output_degree+1))
         self.G = nn.Parameter(th.rand(sz_G))
@@ -68,24 +84,20 @@ class HOSVDAggregator(nn.Module):
 
     # neighbour_states has shape batch_size x n_neighbours x insize
     def forward(self, neighbour_states):
-        ein_str1 = ''
-        ein_str2 = ''
-        offset = ord('a')
-        operand_list = [self.G]
-        for i in range(self.max_output_degree):
+        # first pos
+        h = neighbour_states[:, 0, :].view(neighbour_states.size(0), -1)
+        U = self.U_list[0]
+        # size is N \times r^d
+        r_out = th.chain_matmul(h, U, self.G.view(self.rank, -1))
+
+        for i in range(1, self.max_output_degree):
             h = neighbour_states[:, i, :].view(neighbour_states.size(0), -1)
             U = self.U_list[i]
-            ris = th.einsum('ar,na->nr', U, h)
-            operand_list.append(ris)
-            cc = chr(offset+i)
-            ein_str1 += cc
-            ein_str2 += 'z'+cc
-            if i < self.max_output_degree-1:
-                ein_str2 += ','
+            ris = th.matmul(h, U)
 
-        out_cc = chr(offset+self.max_output_degree)
-        r_out = th.einsum(ein_str1 + out_cc +',' + ein_str2 + '->z'+out_cc, operand_list)
-        h_out = th.einsum('rb,nr->nb',self.U_output, r_out)
+            r_out = th.bmm(r_out.view(h.size()[0], -1, self.rank), ris.view(-1, self.rank, 1))
+
+        h_out = th.matmul(r_out.squeeze(), self.U_output)
 
         return h_out
 
@@ -107,20 +119,15 @@ class CANCOMPAggregator(nn.Module):
 
     # neighbour_states has shape batch_size x n_neighbours x insize
     def forward(self, neighbour_states):
-        ein_str = ''
-        operand_list = []
         for i in range(self.max_output_degree):
             h = neighbour_states[:, i, :].view(neighbour_states.size(0), -1)
             U = self.U_list[i]
-            ris = th.einsum('ar,na->nr',U,h)
-            operand_list.append(ris)
+            if i ==0:
+                ris = th.matmul(h, U)
+            else:
+                ris = ris * th.matmul(h, U)
 
-            ein_str += 'nr,'
-
-        ein_str += 'rk->nk'
-
-        operand_list.append(self.U_output)
-        h_out = th.einsum(ein_str, operand_list)
+        h_out = th.matmul(ris, self.U_output)
 
         return h_out
 
@@ -130,28 +137,31 @@ class TTAggregator(nn.Module):
         super(TTAggregator, self).__init__()
 
         self.max_output_degree = max_output_degree
+        self.in_size = in_size
+        self.out_size = out_size
+        self.rank = rank
+
+        self.U_fisrt = nn.Parameter(th.rand((in_size, rank)))
 
         # TT tensors
         self.U_list = nn.ParameterList()
-        self.U_list.append(nn.Parameter(th.rand((in_size, rank))))
         for i in range(max_output_degree):
-            self.U_list.append(nn.Parameter(th.rand((in_size, rank, rank))))
+            self.U_list.append(nn.Parameter(th.rand((in_size, rank * rank))))
 
-        self.U_output = nn.Parameter(th.rand((rank, out_size)))
+        self.U_last = nn.Parameter(th.rand((rank, out_size)))
 
     # neighbour_states has shape batch_size x n_neighbours x insize
     def forward(self, neighbour_states):
 
         h = neighbour_states[:, 0, :].view(neighbour_states.size(0), -1)
-        U = self.U_list[0]
-        ris = th.einsum('bc,nb->nc',U,h)
+        ris = th.matmul(h, self.U_fisrt).view(-1, self.rank, 1)
+
         for i in range(1, self.max_output_degree):
             h = neighbour_states[:, i, :].view(neighbour_states.size(0), -1)
             U = self.U_list[i]
-            ris = th.einsum('abc,na,nb->nc',U,h,ris)
+            ris = th.bmm(th.matmul(h, U).view((-1, self.rank, self.rank)), ris)
 
-        h_out = th.einsum('ab,na->nb', self.U_output, ris)
-
+        h_out = th.matmul(ris.squeeze(), self.U_last)
         return h_out
 
 
@@ -175,10 +185,11 @@ class GenericTreeLSTMCell(nn.Module):
         # one forget gate for each child
         # 3 remains 3 fot i, o, u
         if cell_type == 'nary':
-            self.f_aggregator = NaryAggregator(h_size, max_output_degree*h_size, max_output_degree, bias=False)
-            self.iou_aggregator = NaryAggregator(h_size, 3*h_size, max_output_degree, bias=False)
+            self.f_aggregator = NaryAggregator(h_size, max_output_degree*h_size, max_output_degree)
+            self.iou_aggregator = NaryAggregator(h_size, 3*h_size, max_output_degree)
         elif cell_type == 'sum':
-            self.f_aggregator = SumChildAggregator(h_size, max_output_degree*h_size)
+            self.f_aggregator = SumChildAggregator_F(h_size, h_size)
+            #self.f_aggregator = SumChildAggregator(h_size, h_size*max_output_degree)
             self.iou_aggregator = SumChildAggregator(h_size, 3*h_size)
         elif cell_type == 'hosvd':
             self.f_aggregator = HOSVDAggregator(h_size, max_output_degree*h_size, max_output_degree, **cell_args)
@@ -212,9 +223,10 @@ class GenericTreeLSTMCell(nn.Module):
         return {'h': edges.src['h'], 'c': edges.src['c']}
 
     def reduce_func(self, nodes):
-        # add the input contribution
+        #check missin child
         neighbour_h, neighbour_c = self.check_missing_children(nodes.mailbox['h'], nodes.mailbox['c'])
 
+        # add the input contribution
         f_aggr = self.f_aggregator(neighbour_h) + (nodes.data['f_input'] + self.b_f).repeat((1, self.max_output_degree))
         iou_aggr = self.iou_aggregator(neighbour_h) + nodes.data['iou_input']
 
@@ -274,6 +286,7 @@ class TreeLSTM(nn.Module):
         g.register_reduce_func(self.cell.reduce_func)
         g.register_apply_node_func(self.cell.apply_node_func)
         # feed embedding
+        # TODO: x * mask does not make sense. use x[mask]
         embeds = self.input_module(x * mask)
         g.ndata['iou_input'] = self.cell.W_iou(embeds) * mask.float().unsqueeze(-1)
         g.ndata['f_input'] = self.cell.W_f(embeds) * mask.float().unsqueeze(-1)

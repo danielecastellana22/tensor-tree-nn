@@ -74,7 +74,7 @@ class SICKDataset(TreeDataset):
                     fail_cnt += 1
                 pretrained_emb.append(glove_emb.get(line.lower(), np.random.uniform(-0.05, 0.05, 300)))
 
-            self.pretrained_emb = th.tensor(np.stack(pretrained_emb, 0))
+            self.pretrained_emb = th.tensor(np.stack(pretrained_emb, 0)).float()
             self.logger.info('Miss word in GloVe {0:.4f}'.format(1.0 * fail_cnt / len(self.pretrained_emb)))
             th.save(self.pretrained_emb, object_file)
 
@@ -207,10 +207,7 @@ class SICKModel(nn.Module):
 
     def __init__(self, num_vocabs, max_output_degree, x_size, h_size, pretrained_emb=None, cell_type='nary', **cell_args):
         super(SICKModel, self).__init__()
-        input_module = nn.Embedding(num_vocabs, x_size)
-        if pretrained_emb is not None:
-            input_module.weight.data.copy_(pretrained_emb)
-            input_module.weight.requires_grad = False
+        input_module = nn.Embedding.from_pretrained(pretrained_emb, freeze=True)
 
         output_module = nn.Identity()
 
@@ -233,14 +230,14 @@ class SICKModel(nn.Module):
         return self.comb_module(h_root_a, h_root_b)
 
 
-def create_sick_model(num_vocabs, max_output_degree, x_size, h_size, pretrained_emb, cell_type='nary', **cell_args):
+def create_sick_model(num_vocabs, max_output_degree, x_size, h_size, pretrained_emb=None, cell_type='nary', **cell_args):
     return SICKModel(num_vocabs, max_output_degree, x_size, h_size, pretrained_emb, cell_type, **cell_args)
 
 
 def load_sick_dataset():
     trainset = SICKDataset('data/sick/', ['SICK_train.txt'], glove300_file='data/glove.840B.300d.txt', name='train')
-    devset = SICKDataset('data/sick/', ['SICK_trial.txt'], glove300_file='data/glove.840B.300d.txt', name='train')
-    testset = SICKDataset('data/sick/', ['SICK_test.txt'], glove300_file='data/glove.840B.300d.txt', name='train')
+    devset = SICKDataset('data/sick/', ['SICK_trial.txt'], glove300_file='data/glove.840B.300d.txt', name='dev')
+    testset = SICKDataset('data/sick/', ['SICK_test.txt'], glove300_file='data/glove.840B.300d.txt', name='test')
     return trainset, devset, testset
 
 
