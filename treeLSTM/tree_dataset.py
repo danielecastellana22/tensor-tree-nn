@@ -1,11 +1,9 @@
-from abc import ABC, abstractmethod
 from .utils import get_new_logger
 from collections import namedtuple
-import os
 
 
 # TODO: mnaybe you need to inehirt from torch dataset
-class TreeDataset(ABC):
+class TreeDataset():
 
     TreeBatch = namedtuple('TreeBatch', ['graph', 'mask', 'x', 'y'])
 
@@ -23,7 +21,6 @@ class TreeDataset(ABC):
     def __len__(self):
         return len(self.data)
 
-    @abstractmethod
     def get_loader(self, batch_size, device, shuffle=False):
         raise NotImplementedError('users must define __load__ to use this base class')
 

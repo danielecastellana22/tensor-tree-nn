@@ -26,7 +26,7 @@ def train_and_validate(model, extract_batch_data, loss_function, optimizer, trai
         for c in metrics_class:
             metrics.append(c())
 
-        # TODO: check is tqdm remains filled if > len
+        # TODO: check if tqdm remains filled if > len
         with tqdm(total=len(trainset), desc='Training epoch ' + str(epoch) + ': ') as pbar:
             for step, batch in enumerate(trainloader):
 

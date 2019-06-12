@@ -6,9 +6,10 @@ import torch as th
 import torch.nn.init as INIT
 import torch.optim as optim
 
-from treeLSTM import *
+from treeLSTM.utils import set_main_logger_settings
+from treeLSTM.trainer import train_and_validate, test
 
-from utils import create_sick_model, load_sick_dataset, sick_loss_function, sick_extract_batch_data, MSE_sick, Pearson_sick
+from utils import load_vocabulary, load_embeddings, create_sick_model, load_sick_dataset, sick_loss_function, sick_extract_batch_data, MSE_sick, Pearson_sick
 
 
 def main(args):
@@ -19,7 +20,7 @@ def main(args):
         os.makedirs(log_dir)
 
     # initiliase the main ogger
-    set_main_logger_settings(log_dir, 'main')
+    logger = set_main_logger_settings(log_dir, 'main')
 
     # set the seed
     np.random.seed(args.seed)
@@ -34,16 +35,16 @@ def main(args):
     else:
         th.set_num_threads(10)
 
+    vocab = load_vocabulary(logger=logger)
+    petrained_embs = load_embeddings(pretrained_emb_file='data/glove.840B.300d.txt', vocab=vocab, logger=logger)
     # load the data
-    trainset, devset, testset = load_sick_dataset()
+    trainset, devset, testset = load_sick_dataset(vocab)
 
     # create the model
-    model = create_sick_model(trainset.num_vocabs,
-                              trainset.max_out_degree,
-                              args.x_size,
+    model = create_sick_model(args.x_size,
                               args.h_size,
-                              pretrained_emb=trainset.pretrained_emb,
-                              cell_type=args.cell_type, rank=args.rank).to(device)
+                              pretrained_emb=petrained_embs,
+                              cell_type=args.cell_type, max_output_degree=trainset.max_out_degree, rank=args.rank).to(device)
 
     params_ex_emb = [x for x in list(model.parameters()) if x.requires_grad]
 
@@ -79,7 +80,7 @@ if __name__ == '__main__':
     parser.add_argument('--epochs', type=int, default=100)
     parser.add_argument('--early-stopping', type=int, default=10)
     parser.add_argument('--lr', type=float, default=0.05)
-    parser.add_argument('--weight-decay', type=float, default=1e-3)
+    parser.add_argument('--weight-decay', type=float, default=1e-4)
     #parser.add_argument('--dropout', type=float, default=0.2)
     parser.add_argument('--save', default='checkpoints/')
     parser.add_argument('--expname', default='test')

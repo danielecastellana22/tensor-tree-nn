@@ -1,6 +1,3 @@
-import torch.nn as nn
-from treeLSTM import TreeLSTM, TreeDataset, MSE, Pearson
-
 import networkx as nx
 import dgl
 import torch.nn.functional as F
@@ -10,7 +7,64 @@ import numpy as np
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 import os
-import torch as th
+
+from treeLSTM.cells import *
+from treeLSTM.models import TreeLSTM
+from treeLSTM.tree_dataset import TreeDataset
+from treeLSTM.metrics import MSE, Pearson
+
+def load_vocabulary(logger):
+    data_dir = 'data/sick/'
+    object_file = os.path.join(data_dir, 'vocab.pkl')
+    text_file = os.path.join(data_dir, 'vocab.txt')
+    if os.path.exists(object_file):
+        # load vocab file
+        vocab = th.load(object_file)
+    else:
+        # create vocab file
+        vocab = OrderedDict()
+        logger.debug('Loading vocabulary.')
+        with open(text_file, encoding='utf-8') as vf:
+            for line in tqdm(vf.readlines(), desc='Loading vocabulary: '):
+                line = line.strip()
+                vocab[line] = len(vocab)
+        th.save(vocab, object_file)
+
+    logger.info('Vocabulary loaded.')
+    return vocab
+
+
+def load_embeddings(pretrained_emb_file, vocab, logger):
+    data_dir = 'data/sick/'
+    object_file = os.path.join(data_dir, 'pretrained_emb.pkl')
+    if os.path.exists(object_file):
+        pretrained_emb = th.load(object_file)
+    else:
+        # filter glove
+        glove_emb = {}
+        logger.debug('Loading pretrained embeddings.')
+        with open(pretrained_emb_file, 'r', encoding='utf-8') as pf:
+            for line in tqdm(pf.readlines(), desc='Loading pretrained embeddings:'):
+                sp = line.split(' ')
+                #if sp[0].lower() == 'playing':
+                #    sss=4
+                if sp[0] in vocab:
+                    glove_emb[sp[0].lower()] = np.array([float(x) for x in sp[1:]])
+
+        # initialize with glove
+        pretrained_emb = []
+        fail_cnt = 0
+        for line in vocab.keys():
+            if not line.lower() in glove_emb:
+                fail_cnt += 1
+            pretrained_emb.append(glove_emb.get(line.lower(), np.random.uniform(-0.05, 0.05, 300)))
+
+        logger.info('Miss word in GloVe {0:.4f}'.format(1.0 * fail_cnt / len(pretrained_emb)))
+        pretrained_emb = th.tensor(np.stack(pretrained_emb, 0)).float()
+        th.save(pretrained_emb, object_file)
+
+    logger.info('Pretrained embeddings loaded.')
+    return pretrained_emb
 
 
 class SICKDataset(TreeDataset):
@@ -22,63 +76,12 @@ class SICKDataset(TreeDataset):
 
     NUM_CLASSES = 5
 
-    def __init__(self, path_dir, file_name_list, name, glove300_file=None):
+    def __init__(self, path_dir, file_name_list, vocab, name):
         TreeDataset.__init__(self, path_dir, file_name_list, name)
         self.pretrained_emb = None
         self.max_out_degree = 0
-        # print('Preprocessing...')
-        self.__load_vocabulary__()
-        if glove300_file is not None:
-            self.__load_embeddings__(glove300_file)
+        self.vocab = vocab
         self.__load_trees__()
-        # print('Dataset creation finished. #Trees:', len(self.trees))
-
-    def __load_vocabulary__(self):
-        object_file = os.path.join(self.path_dir, 'vocab.pkl')
-        text_file = os.path.join(self.path_dir, 'vocab.txt')
-        if os.path.exists(object_file):
-            # load vocab file
-            self.vocab = th.load(object_file)
-        else:
-            # create vocab file
-            self.vocab = OrderedDict()
-            self.logger.debug('Loading vocabulary.')
-            with open(text_file, encoding='utf-8') as vf:
-                for line in tqdm(vf.readlines(), desc='Loading vocabulary: '):
-                    line = line.strip()
-                    self.vocab[line] = len(self.vocab)
-            th.save(self.vocab, object_file)
-
-        self.logger.info('Vocabulary loaded.')
-
-    def __load_embeddings__(self, pretrained_emb_file):
-
-        object_file = os.path.join(self.path_dir, 'pretrained_emb.pkl')
-        if os.path.exists(object_file):
-            self.pretrained_emb = th.load(object_file)
-        else:
-            # filter glove
-            glove_emb = {}
-            self.logger.debug('Loading pretrained embeddings.')
-            with open(pretrained_emb_file, 'r', encoding='utf-8') as pf:
-                for line in tqdm(pf.readlines(), desc='Loading pretrained embeddings:'):
-                    sp = line.split(' ')
-                    if sp[0].lower() in self.vocab:
-                        glove_emb[sp[0].lower()] = np.array([float(x) for x in sp[1:]])
-
-            # initialize with glove
-            pretrained_emb = []
-            fail_cnt = 0
-            for line in self.vocab.keys():
-                if not line.lower() in glove_emb:
-                    fail_cnt += 1
-                pretrained_emb.append(glove_emb.get(line.lower(), np.random.uniform(-0.05, 0.05, 300)))
-
-            self.pretrained_emb = th.tensor(np.stack(pretrained_emb, 0)).float()
-            self.logger.info('Miss word in GloVe {0:.4f}'.format(1.0 * fail_cnt / len(self.pretrained_emb)))
-            th.save(self.pretrained_emb, object_file)
-
-        self.logger.info('Pretrained embeddigns loaded.')
 
     def __load_trees__(self):
         A_file_list = list(map(lambda x: x.replace('.txt', '_A.txt'), self.file_name_list))
@@ -205,13 +208,17 @@ class SICKComparisonModule(nn.Module):
 
 class SICKModel(nn.Module):
 
-    def __init__(self, num_vocabs, max_output_degree, x_size, h_size, pretrained_emb=None, cell_type='nary', **cell_args):
+    def __init__(self, x_size, h_size, cell, pretrained_emb=None, num_vocabs=-1):
         super(SICKModel, self).__init__()
-        input_module = nn.Embedding.from_pretrained(pretrained_emb, freeze=True)
+
+        if pretrained_emb is None:
+            input_module = nn.Embedding(num_vocabs, x_size)
+        else:
+            input_module = nn.Embedding.from_pretrained(pretrained_emb, freeze=True)
 
         output_module = nn.Identity()
 
-        self.tree_model = TreeLSTM(x_size, h_size, max_output_degree, input_module, output_module, cell_type, **cell_args)
+        self.tree_model = TreeLSTM(x_size, h_size, input_module, output_module, cell)
         self.comb_module = SICKComparisonModule(h_size, SICKDataset.NUM_CLASSES)
 
     def forward(self, data_a, data_b):
@@ -230,14 +237,28 @@ class SICKModel(nn.Module):
         return self.comb_module(h_root_a, h_root_b)
 
 
-def create_sick_model(num_vocabs, max_output_degree, x_size, h_size, pretrained_emb=None, cell_type='nary', **cell_args):
-    return SICKModel(num_vocabs, max_output_degree, x_size, h_size, pretrained_emb, cell_type, **cell_args)
+def create_sick_model(x_size, h_size, max_output_degree, pretrained_emb=None, num_vocabs=None, cell_type='nary', rank=None):
+    if cell_type == 'nary':
+        cell = NaryCell(h_size, max_output_degree)
+    elif cell_type == 'sum':
+        cell = SumChildCell(h_size, max_output_degree)
+    elif cell_type == 'hosvd':
+        cell = HOSVDCell(h_size, max_output_degree, rank=rank)
+    elif cell_type == 'tt':
+        cell = TTCell(h_size, max_output_degree, rank=rank)
+    elif cell_type == 'cancomp':
+        cell = CANCOMPCell(h_size, max_output_degree, rank=rank)
+    elif cell_type == 'full':
+        cell = BinaryFullTensorCell(h_size, max_output_degree)
+    else:
+        raise ValueError('Cell type not known')
+    return SICKModel(x_size, h_size, cell, pretrained_emb, num_vocabs)
 
 
-def load_sick_dataset():
-    trainset = SICKDataset('data/sick/', ['SICK_train.txt'], glove300_file='data/glove.840B.300d.txt', name='train')
-    devset = SICKDataset('data/sick/', ['SICK_trial.txt'], glove300_file='data/glove.840B.300d.txt', name='dev')
-    testset = SICKDataset('data/sick/', ['SICK_test.txt'], glove300_file='data/glove.840B.300d.txt', name='test')
+def load_sick_dataset(vocab):
+    trainset = SICKDataset('data/sick/', ['SICK_train.txt'], vocab, name='train')
+    devset = SICKDataset('data/sick/', ['SICK_trial.txt'], vocab, name='dev')
+    testset = SICKDataset('data/sick/', ['SICK_test.txt'], vocab, name='test')
     return trainset, devset, testset
 
 

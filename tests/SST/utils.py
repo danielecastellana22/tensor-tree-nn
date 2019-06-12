@@ -14,6 +14,8 @@ import torch
 
 
 # TODO: modfy the dataset class according to TreeDataset
+# TODO: embeddigns anf vocabulray must be loaded outside the class and sahred amogn test/train/dev
+# TODO: check out to load embeddings (remove lower on emdeggings key)
 class SSTDataset(TreeDataset):
 
     PAD_WORD = -1  # special pad word id
