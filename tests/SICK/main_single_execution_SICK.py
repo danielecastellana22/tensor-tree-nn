@@ -44,7 +44,9 @@ def main(args):
     model = create_sick_model(args.x_size,
                               args.h_size,
                               pretrained_emb=petrained_embs,
-                              cell_type=args.cell_type, max_output_degree=trainset.max_out_degree, rank=args.rank).to(device)
+                              cell_type=args.cell_type, max_output_degree=trainset.max_out_degree, rank=args.rank, pos_stationarity=args.pos_stationarity).to(device)
+
+    logger.info(str(model))
 
     params_ex_emb = [x for x in list(model.parameters()) if x.requires_grad]
 
@@ -78,12 +80,13 @@ if __name__ == '__main__':
     parser.add_argument('--x-size', type=int, default=300)
     parser.add_argument('--h-size', type=int, default=150)
     parser.add_argument('--epochs', type=int, default=100)
-    parser.add_argument('--early-stopping', type=int, default=10)
+    parser.add_argument('--early-stopping', type=int, default=5)
     parser.add_argument('--lr', type=float, default=0.05)
     parser.add_argument('--weight-decay', type=float, default=1e-4)
-    #parser.add_argument('--dropout', type=float, default=0.2)
+    parser.add_argument('--pos-stationarity', dest='pos_stationarity', action='store_true')
     parser.add_argument('--save', default='checkpoints/')
     parser.add_argument('--expname', default='test')
+    parser.set_defaults(pos_stationarity=False)
     args = parser.parse_args()
     #print(args)
     main(args)

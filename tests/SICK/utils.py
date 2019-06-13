@@ -237,19 +237,17 @@ class SICKModel(nn.Module):
         return self.comb_module(h_root_a, h_root_b)
 
 
-def create_sick_model(x_size, h_size, max_output_degree, pretrained_emb=None, num_vocabs=None, cell_type='nary', rank=None):
+def create_sick_model(x_size, h_size, max_output_degree, pretrained_emb=None, num_vocabs=None, cell_type='nary', rank=None, pos_stationarity=False):
     if cell_type == 'nary':
-        cell = NaryCell(h_size, max_output_degree)
-    elif cell_type == 'sum':
-        cell = SumChildCell(h_size, max_output_degree)
+        cell = NaryCell(h_size, max_output_degree, pos_stationarity=pos_stationarity)
     elif cell_type == 'hosvd':
-        cell = HOSVDCell(h_size, max_output_degree, rank=rank)
+        cell = HOSVDCell(h_size, max_output_degree, rank=rank, pos_stationarity=pos_stationarity)
     elif cell_type == 'tt':
         cell = TTCell(h_size, max_output_degree, rank=rank)
     elif cell_type == 'cancomp':
-        cell = CANCOMPCell(h_size, max_output_degree, rank=rank)
+        cell = CANCOMPCell(h_size, max_output_degree, rank=rank, pos_stationarity=pos_stationarity)
     elif cell_type == 'full':
-        cell = BinaryFullTensorCell(h_size, max_output_degree)
+        raise ValueError('The Full Tensora agrregation cannot be used')
     else:
         raise ValueError('Cell type not known')
     return SICKModel(x_size, h_size, cell, pretrained_emb, num_vocabs)
