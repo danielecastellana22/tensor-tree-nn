@@ -100,7 +100,7 @@ if __name__ == '__main__':
     trainer_fun = get_train_and_validate_fun(args, logger)
 
     lr_list = [0.01, 0.02, 0.05]
-    rank_list = [10, 20, 30]
+    rank_list = [2, 4, 5]
     weight_decay_list = [1e-5, 1e-4, 1e-3]
 
     it_list = list(range(1, 6))

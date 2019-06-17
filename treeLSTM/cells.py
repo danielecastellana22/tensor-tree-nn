@@ -1,26 +1,34 @@
 import torch as th
 import torch.nn as nn
 
+from itertools import permutations
 
 def __create_symmetric_tensor__(size, output_axis):
-    # TODO: create symmetric tensor enumerating the position
-    aa=3
+    # TODO: implement this function!!
+    aa =3
 
 
 class GenericTreeLSTMCell(nn.Module):
 
-    def __init__(self, h_size, max_output_degree):
+    def __init__(self, h_size, max_output_degree, pos_stationarity):
         super(GenericTreeLSTMCell, self).__init__()
 
         self.h_size = h_size
         self.max_output_degree = max_output_degree
+        self.pos_stationarity = pos_stationarity
 
         # TODO: add parameter to choose to freeze or not the bottom values. Tensor or grad=False?
         self.bottom_h = nn.Parameter(th.zeros(h_size), requires_grad=False)
         self.bottom_c = nn.Parameter(th.zeros(h_size), requires_grad=False)
 
         # matrix for the forget gate. WE ASSUME FORGET GATE DEPENDS ONLY ON h_i
-        self.U_f = nn.Linear(h_size, h_size, bias=False)
+        if pos_stationarity:
+            self.U_f = nn.Linear(h_size, h_size, bias=False)
+        else:
+            self.U_f_list = nn.ParameterList()
+
+            for i in range(max_output_degree):
+                self.U_f_list.append(nn.Linear(h_size, h_size, bias=False))
 
     def forward(self, *input):
         pass
@@ -36,7 +44,19 @@ class GenericTreeLSTMCell(nn.Module):
         return neighbour_h, neighbour_c
 
     def compute_forget_gate(self, neighbour_h):
-        return self.U_f(neighbour_h.view(-1, self.h_size)).view(-1, self.max_output_degree * self.h_size)
+        if self.pos_stationarity:
+            return self.U_f(neighbour_h.view(-1, self.h_size)).view(-1, self.max_output_degree * self.h_size)
+        else:
+            ris = None
+            for i in range(self.max_output_degree):
+                U = self.U_f_list[i]
+                h = neighbour_h[:, i, :].view(-1, self.h_size)
+                if ris:
+                    ris = th.cat((ris, U(h)), dim=1)
+                else:
+                    ris = U(h)
+
+            return ris
 
     def compute_iou_gate(self, neighbour_h):
         raise NotImplementedError('users must define compute_iou to use this base class')
@@ -74,7 +94,6 @@ class GenericTreeLSTMCell(nn.Module):
         return {'h': h, 'c': c}
 
 
-# TODO: implement positionality
 # TODO: impement one aggrefator for each gate!
 # The Full aggregator is available only when maxOutput Degree is 2
 # h = A*h1*h2 + U1*h1 + U2*h2 + b
@@ -84,28 +103,35 @@ class BinaryFullTensorCell(GenericTreeLSTMCell):
         if max_output_degree > 2:
             raise ValueError('Full cel type can be use only with a maximum output degree of 2')
 
-        super(BinaryFullTensorCell, self).__init__(h_size, max_output_degree)
+        super(BinaryFullTensorCell, self).__init__(h_size, max_output_degree, pos_stationarity)
 
-        # define parameters for the computation of iou
-        self.A = nn.Parameter(th.rand(h_size, h_size, 3*h_size))
-        self.U1 = nn.Linear(h_size, 3*h_size, bias=False)
-        self.U2 = nn.Linear(h_size, 3*h_size, bias=True)
+        if self.pos_stationarity:
+            # TODO: implement positionality
+            raise NotImplementedError('This is not implemented yet')
+        else:
+            # define parameters for the computation of iou
+            self.A = nn.Parameter(th.rand(h_size, h_size, 3*h_size))
+            self.U1 = nn.Linear(h_size, 3*h_size, bias=False)
+            self.U2 = nn.Linear(h_size, 3*h_size, bias=True)
 
     # neighbour_states has shape batch_size x n_neighbours x insize
     def compute_iou_gate(self, neighbour_h):
-        h1 = neighbour_h[:, 0, :].view(neighbour_h.size(0), -1)
-        h2 = neighbour_h[:, 1, :].view(neighbour_h.size(0), -1)
-        return th.einsum('ijk,ni,nj->nk', self.A, h1, h2) + self.U1(h1) + self.U2(h2)
+        if self.pos_stationarity:
+            # TODO: implement positionality
+            raise NotImplementedError('This is not implemented yet')
+        else:
+            h1 = neighbour_h[:, 0, :].view(neighbour_h.size(0), -1)
+            h2 = neighbour_h[:, 1, :].view(neighbour_h.size(0), -1)
+            return th.einsum('ijk,ni,nj->nk', self.A, h1, h2) + self.U1(h1) + self.U2(h2)
 
 
 # h = U1*h1 + U2*h2 + ... + Un*hn
 class NaryCell(GenericTreeLSTMCell):
 
     def __init__(self, h_size, max_output_degree, pos_stationarity=True):
-        super(NaryCell, self).__init__(h_size, max_output_degree)
-        self.pos_stationarity = pos_stationarity
+        super(NaryCell, self).__init__(h_size, max_output_degree, pos_stationarity)
 
-        if not pos_stationarity:
+        if not self.pos_stationarity:
             #NARY aggregation
             # define parameters for the computation of iou
             self.U = nn.Linear(max_output_degree * h_size, 3*h_size, bias=False)
@@ -126,12 +152,11 @@ class NaryCell(GenericTreeLSTMCell):
 class HOSVDCell(GenericTreeLSTMCell):
 
     def __init__(self, h_size, max_output_degree, rank, pos_stationarity=True):
-        super(HOSVDCell, self).__init__(h_size, max_output_degree)
+        super(HOSVDCell, self).__init__(h_size, max_output_degree, pos_stationarity)
 
         self.rank = rank
-        self.pos_stationarity = pos_stationarity
 
-        if not pos_stationarity:
+        if not self.pos_stationarity:
             # core tensor
             sz_G = tuple(rank for i in range(max_output_degree + 1))
             self.G_i = nn.Parameter(th.rand(sz_G))
@@ -147,7 +172,7 @@ class HOSVDCell(GenericTreeLSTMCell):
             # TODO: core tensors must be symmetric
             # symmetric core tensor
             sz_G = tuple(rank for i in range(max_output_degree + 1))
-            self.G = nn.Parameter(th.rand(sz_G))
+            self.G = __create_symmetric_tensor__(sz_G, 1)
 
             # shared mode matrices
             self.U = nn.Parameter(th.rand((h_size, rank)))
@@ -156,42 +181,41 @@ class HOSVDCell(GenericTreeLSTMCell):
 
     # neighbour_states has shape batch_size x n_neighbours x insize
     def compute_iou_gate(self, neighbour_h):
+        # first pos
+        h = neighbour_h[:, 0, :].view(neighbour_h.size(0), -1)
         if not self.pos_stationarity:
-            # first pos
-            h = neighbour_h[:, 0, :].view(neighbour_h.size(0), -1)
             U = self.U_list[0]
-            # size is N \times r^d
-            aux_i, aux_o, aux_u = th.matmul(h, U).chunk(3, dim=1)
-            r_i = th.matmul(aux_i, self.G_i.view(self.rank, -1))
-            r_o = th.matmul(aux_o, self.G_o.view(self.rank, -1))
-            r_u = th.matmul(aux_u, self.G_u.view(self.rank, -1))
-
-            for i in range(1, self.max_output_degree):
-                h = neighbour_h[:, i, :].view(neighbour_h.size(0), -1)
-                U = self.U_list[i]
-                aux_i, aux_o, aux_u = th.matmul(h, U).chunk(3, dim=1)
-                r_i = th.bmm(r_i.view(h.size()[0], -1, self.rank), aux_i.view(-1, self.rank, 1))
-                r_o = th.bmm(r_o.view(h.size()[0], -1, self.rank), aux_o.view(-1, self.rank, 1))
-                r_u = th.bmm(r_u.view(h.size()[0], -1, self.rank), aux_u.view(-1, self.rank, 1))
-
-            r_iou = th.cat((r_i, r_o, r_u), dim=1)
-            h_out = th.matmul(r_iou.squeeze(), self.U_output)
-
-            return h_out
         else:
-            raise NotImplementedError('This is not implemented yet')
+            U = self.U
+        # size is N \times r^d
+        aux_i, aux_o, aux_u = th.matmul(h, U).chunk(3, dim=1)
+        r_i = th.matmul(aux_i, self.G_i.view(self.rank, -1))
+        r_o = th.matmul(aux_o, self.G_o.view(self.rank, -1))
+        r_u = th.matmul(aux_u, self.G_u.view(self.rank, -1))
+
+        for i in range(1, self.max_output_degree):
+            h = neighbour_h[:, i, :].view(neighbour_h.size(0), -1)
+            U = self.U_list[i]
+            aux_i, aux_o, aux_u = th.matmul(h, U).chunk(3, dim=1)
+            r_i = th.bmm(r_i.view(h.size()[0], -1, self.rank), aux_i.view(-1, self.rank, 1))
+            r_o = th.bmm(r_o.view(h.size()[0], -1, self.rank), aux_o.view(-1, self.rank, 1))
+            r_u = th.bmm(r_u.view(h.size()[0], -1, self.rank), aux_u.view(-1, self.rank, 1))
+
+        r_iou = th.cat((r_i, r_o, r_u), dim=1)
+        h_out = th.matmul(r_iou.squeeze(), self.U_output)
+
+        return h_out
 
 
 # h3 =  Canonical decomposition
 class CANCOMPCell(GenericTreeLSTMCell):
 
     def __init__(self, h_size, max_output_degree, rank, pos_stationarity=True):
-        super(CANCOMPCell, self).__init__(h_size, max_output_degree)
+        super(CANCOMPCell, self).__init__(h_size, max_output_degree, pos_stationarity)
 
         self.rank = rank
-        self.pos_stationarity = pos_stationarity
 
-        if not pos_stationarity:
+        if not self.pos_stationarity:
             # mode matrices
             self.U_list = nn.ParameterList()
             for i in range(max_output_degree):
@@ -225,7 +249,7 @@ class CANCOMPCell(GenericTreeLSTMCell):
 class TTCell(GenericTreeLSTMCell):
 
     def __init__(self, h_size, max_output_degree, rank):
-        super(TTCell, self).__init__(h_size, max_output_degree)
+        super(TTCell, self).__init__(h_size, max_output_degree, pos_stationarity=False)
 
         self.rank = rank
 
