@@ -222,12 +222,14 @@ class CANCOMPCell(GenericTreeLSTMCell):
         if not self.pos_stationarity:
             # mode matrices
             self.U_list = nn.ParameterList()
+            self.B_list = nn.ParameterList()
             for i in range(max_output_degree):
                 self.U_list.append(nn.Parameter(th.rand((h_size, 3*rank))))
-
+                self.B_list.append(nn.Parameter(th.rand(1)))
         else:
             # mode matrices shared
             self.U = nn.Parameter(th.rand((h_size, 3*rank)))
+            self.B = nn.Parameter(th.rand(1))
 
         self.Ui_output = nn.Parameter(th.rand((rank, h_size)))
         self.Uo_output = nn.Parameter(th.rand((rank, h_size)))
@@ -239,10 +241,12 @@ class CANCOMPCell(GenericTreeLSTMCell):
             h = neighbour_h[:, i, :].view(neighbour_h.size(0), -1)
             if not self.pos_stationarity:
                 U = self.U_list[i]
+                B = self.B_list[i]
             else:
                 U = self.U
+                B = self.B
             if i == 0:
-                ris = th.matmul(h, U)
+                ris = th.matmul(h, U) + B
             else:
                 ris = ris * th.matmul(h, U)
 
