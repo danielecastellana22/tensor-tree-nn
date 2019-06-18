@@ -177,7 +177,9 @@ class HOSVDCell(GenericTreeLSTMCell):
             # shared mode matrices
             self.U = nn.Parameter(th.rand((h_size, rank)))
 
-        self.U_output = nn.Parameter(th.rand((3*rank, 3*h_size)))
+        self.Ui_output = nn.Parameter(th.rand((rank, h_size)))
+        self.Uo_output = nn.Parameter(th.rand((rank, h_size)))
+        self.Uu_output = nn.Parameter(th.rand((rank, h_size)))
 
     # neighbour_states has shape batch_size x n_neighbours x insize
     def compute_iou_gate(self, neighbour_h):
@@ -201,10 +203,11 @@ class HOSVDCell(GenericTreeLSTMCell):
             r_o = th.bmm(r_o.view(h.size()[0], -1, self.rank), aux_o.view(-1, self.rank, 1))
             r_u = th.bmm(r_u.view(h.size()[0], -1, self.rank), aux_u.view(-1, self.rank, 1))
 
-        r_iou = th.cat((r_i, r_o, r_u), dim=1)
-        h_out = th.matmul(r_iou.squeeze(), self.U_output)
+        gate_i = th.matmul(r_i, self.Ui_output)
+        gate_o = th.matmul(r_o, self.Uo_output)
+        gate_u = th.matmul(r_u, self.Uu_output)
 
-        return h_out
+        return th.cat((gate_i, gate_o, gate_u), dim=1)
 
 
 # h3 =  Canonical decomposition
@@ -225,7 +228,9 @@ class CANCOMPCell(GenericTreeLSTMCell):
             # mode matrices shared
             self.U = nn.Parameter(th.rand((h_size, 3*rank)))
 
-        self.U_output = nn.Parameter(th.rand((3*rank, 3*h_size)))
+        self.Ui_output = nn.Parameter(th.rand((rank, h_size)))
+        self.Uo_output = nn.Parameter(th.rand((rank, h_size)))
+        self.Uu_output = nn.Parameter(th.rand((rank, h_size)))
 
     # neighbour_states has shape batch_size x n_neighbours x insize
     def compute_iou_gate(self, neighbour_h):
@@ -240,14 +245,19 @@ class CANCOMPCell(GenericTreeLSTMCell):
             else:
                 ris = ris * th.matmul(h, U)
 
-        h_out = th.matmul(ris, self.U_output)
+        (r_i, r_o, r_u) = th.chunk(ris, 3, 1)
+        gate_i = th.matmul(r_i, self.Ui_output)
+        gate_o = th.matmul(r_o, self.Uo_output)
+        gate_u = th.matmul(r_u, self.Uu_output)
 
-        return h_out
+        return th.cat((gate_i, gate_o, gate_u), dim=1)
 
 
 # Tensor Train can't express positional stationarity
 class TTCell(GenericTreeLSTMCell):
 
+    # TODO: one rank for each gate
+    # TODO: what about pos stationarity?
     def __init__(self, h_size, max_output_degree, rank):
         super(TTCell, self).__init__(h_size, max_output_degree, pos_stationarity=False)
 
