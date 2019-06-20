@@ -6,9 +6,11 @@ import torch as th
 import torch.nn.init as INIT
 import torch.optim as optim
 
-from treeLSTM import *
+from treeLSTM.utils import set_main_logger_settings, load_embeddings, load_vocabulary
+from treeLSTM.trainer import train_and_validate, test
+from treeLSTM.metrics import Accuracy, LeavesAccuracy, RootAccuracy
 
-from utils import create_sst_model, load_sst_dataset, sst_loss_function, sst_extract_batch_data
+from tests.SST.utils import create_sst_model, load_sst_dataset, sst_loss_function, sst_extract_batch_data
 
 
 def main(args):
@@ -19,7 +21,7 @@ def main(args):
         os.makedirs(log_dir)
 
     # initiliase the main ogger
-    set_main_logger_settings(log_dir, 'main')
+    logger = set_main_logger_settings(log_dir, 'main')
 
     # set the seed
     np.random.seed(args.seed)
@@ -34,17 +36,19 @@ def main(args):
     else:
         th.set_num_threads(10)
 
+    vocab = load_vocabulary('data/sst/', logger=logger)
+    pretrained_embs = load_embeddings('data/sst/', pretrained_emb_file='data/glove.840B.300d.txt', vocab=vocab, logger=logger)
     # load the data
-    trainset, devset, testset = load_sst_dataset()
+    trainset, devset, testset = load_sst_dataset(vocab)
 
     # create the model
-    model = create_sst_model(trainset.num_vocabs,
-                     args.x_size,
-                     args.h_size,
-                     trainset.num_classes,
-                     args.dropout,
-                     pretrained_emb=trainset.pretrained_emb,
-                     cell_type=args.cell_type).to(device)
+    model = create_sst_model(args.x_size, args.h_size, trainset.num_classes,
+                             max_output_degree=trainset.max_out_degree,
+                             dropout=args.dropout,
+                             pretrained_emb=pretrained_embs,
+                             cell_type=args.cell_type,
+                             rank=args.rank,
+                             pos_stationarity=args.pos_stationarity).to(device)
 
     params_ex_emb = [x for x in list(model.parameters()) if x.requires_grad and x.size(0) != trainset.num_vocabs]
     params_emb = list(model.input_module.parameters())
@@ -81,6 +85,8 @@ if __name__ == '__main__':
     parser.add_argument('--epochs', type=int, default=100)
     parser.add_argument('--early-stopping', type=int, default=10)
     parser.add_argument('--lr', type=float, default=0.05)
+    parser.add_argument('--rank', type=int, default=20)
+    parser.add_argument('--pos-stationarity', dest='pos_stationarity', action='store_true')
     parser.add_argument('--weight-decay', type=float, default=1e-4)
     parser.add_argument('--dropout', type=float, default=0.5)
     parser.add_argument('--save', default='checkpoints/')

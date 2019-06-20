@@ -12,18 +12,14 @@ def __bin_coeff__(n,k):
 def __comb_with_rep__(n,k):
     return __bin_coeff__(n+k-1, k)
 
+
 # we assume size contains same len, i.e otuptu has size n^d \time n.
 # only n^d is symmentric.
-def __create_symmetric_tensor__(n, d, output_axis):
-    # times n is for the output dim
-    n_diff_elements = __comb_with_rep__(n,d)
-
-    w = nn.Parameter(th.randn(n_diff_elements*n))
-
+def __get_symmetric_idx__(n, d):
     out_shape = tuple([n for i in range(d+1)])
     n_el = n**(d+1)
     v_idx = {}
-    gather_idx = np.array([-1 for i in n_el])
+    gather_idx = np.array([-1 for i in range(n_el)])
 
     for i in range(n_el):
         i_tuple = list(np.unravel_index(i, out_shape))
@@ -39,10 +35,11 @@ def __create_symmetric_tensor__(n, d, output_axis):
 
         gather_idx[i] = idx_param
 
-    #TODO: we are sure that backprop is computed correctly?
-    # maybe th.gather ensure this
-    return w[gather_idx].view(out_shape).transpose(output_axis, d)
+    return nn.Parameter(th.LongTensor(gather_idx), requires_grad=False)
 
+
+def __get_symmetric_tensor_view__(w, idx, out_shape, output_axis):
+    return w.gather(0, idx).view(out_shape).transpose(output_axis, len(out_shape)-1).contiguous()
 
 
 class GenericTreeLSTMCell(nn.Module):
@@ -132,8 +129,6 @@ class GenericTreeLSTMCell(nn.Module):
         return {'h': h, 'c': c}
 
 
-# TODO: impement one aggrefator for each gate!
-# TODO: implement positionality
 # The Full aggregator is available only when maxOutput Degree is 2
 # h = A*h1*h2 + U1*h1 + U2*h2 + b
 class BinaryFullTensorCell(GenericTreeLSTMCell):
@@ -144,10 +139,17 @@ class BinaryFullTensorCell(GenericTreeLSTMCell):
 
         super(BinaryFullTensorCell, self).__init__(h_size, max_output_degree, pos_stationarity)
 
+        self.h_size = h_size
+        self.max_output_degree = max_output_degree
+
         if self.pos_stationarity:
-            raise NotImplementedError('This is not implemented yet')
+            n_diff_elements = __comb_with_rep__(h_size, 2)
+            self.A_w = nn.Parameter(th.randn(n_diff_elements * h_size))
+            self.symmetric_idx = __get_symmetric_idx__(h_size, 2)
+            self.U = nn.Linear(h_size, 3*h_size, bias=False)
         else:
             # define parameters for the computation of iou
+
             self.A = nn.Parameter(th.rand(h_size, h_size, 3*h_size))
             self.U1 = nn.Linear(h_size, 3*h_size, bias=False)
             self.U2 = nn.Linear(h_size, 3*h_size, bias=True)
@@ -155,11 +157,16 @@ class BinaryFullTensorCell(GenericTreeLSTMCell):
     # neighbour_states has shape batch_size x n_neighbours x insize
     def compute_iou_gate(self, neighbour_h):
         if self.pos_stationarity:
-            raise NotImplementedError('This is not implemented yet')
+            A = __get_symmetric_tensor_view__(self.A_w, self.symmetric_idx, (self.h_size, self.h_size, self.h_size), 2)
+            U1 = self.U
+            U2 = self.U
         else:
-            h1 = neighbour_h[:, 0, :].view(neighbour_h.size(0), -1)
-            h2 = neighbour_h[:, 1, :].view(neighbour_h.size(0), -1)
-            return th.einsum('ijk,ni,nj->nk', self.A, h1, h2) + self.U1(h1) + self.U2(h2)
+            A = self.A
+            U1 = self.U1
+            U2 = self.U2
+        h1 = neighbour_h[:, 0, :].view(neighbour_h.size(0), -1)
+        h2 = neighbour_h[:, 1, :].view(neighbour_h.size(0), -1)
+        return th.einsum('ijk,ni,nj->nk', A, h1, h2) + U1(h1) + U2(h2)
 
 
 # h = U1*h1 + U2*h2 + ... + Un*hn
@@ -191,37 +198,40 @@ class HOSVDCell(GenericTreeLSTMCell):
         super(HOSVDCell, self).__init__(h_size, max_output_degree, pos_stationarity)
 
         self.rank = rank
-
         sz_G = tuple(rank for i in range(max_output_degree + 1))
+        self.G_size = sz_G
 
         if not self.pos_stationarity:
 
+            sz_G = tuple(rank for i in range(max_output_degree + 1))
             # core tensor
-            self.G_i = nn.Parameter(th.rand(sz_G))
-            self.G_o = nn.Parameter(th.rand(sz_G))
-            self.G_u = nn.Parameter(th.rand(sz_G))
+            self.G_i = nn.Parameter(th.randn(sz_G))
+            self.G_o = nn.Parameter(th.randn(sz_G))
+            self.G_u = nn.Parameter(th.randn(sz_G))
 
             # mode matrices
             self.U_list = nn.ParameterList()
             self.B_list = nn.ParameterList()
             for i in range(max_output_degree):
-                self.U_list.append(nn.Parameter(th.rand((h_size, 3*rank))))
-                self.B_list.append(nn.Parameter(th.rand(3*rank)))
+                self.U_list.append(nn.Parameter(th.randn((h_size, 3*rank))))
+                self.B_list.append(nn.Parameter(th.randn(3*rank)))
         else:
-            raise NotImplementedError('This is not implemented yet')
             # symmetric core tensor
-            self.G_i = __create_symmetric_tensor__(sz_G, 1)
-            self.G_o = __create_symmetric_tensor__(sz_G, 1)
-            self.G_u = __create_symmetric_tensor__(sz_G, 1)
+            n_diff_elements = __comb_with_rep__(rank, max_output_degree)
+            self.G_i_w = nn.Parameter(th.randn(n_diff_elements * rank))
+            self.G_o_w = nn.Parameter(th.randn(n_diff_elements * rank))
+            self.G_u_w = nn.Parameter(th.randn(n_diff_elements * rank))
+
+            self.symmetric_idx = __get_symmetric_idx__(rank, max_output_degree)
 
             # shared mode matrices
-            self.U = nn.Parameter(th.rand((h_size, 3*rank)))
-            self.B = nn.Parameter(th.rand(3*rank))
+            self.U = nn.Parameter(th.randn((h_size, 3*rank)))
+            self.B = nn.Parameter(th.randn(3*rank))
 
         # output matrices
-        self.Ui_output = nn.Parameter(th.rand((rank, h_size)))
-        self.Uo_output = nn.Parameter(th.rand((rank, h_size)))
-        self.Uu_output = nn.Parameter(th.rand((rank, h_size)))
+        self.Ui_output = nn.Parameter(th.randn((rank, h_size)))
+        self.Uo_output = nn.Parameter(th.randn((rank, h_size)))
+        self.Uu_output = nn.Parameter(th.randn((rank, h_size)))
 
     # neighbour_states has shape batch_size x n_neighbours x insize
     def compute_iou_gate(self, neighbour_h):
@@ -246,20 +256,26 @@ class HOSVDCell(GenericTreeLSTMCell):
                 r_u = th.bmm(r_u.view(h.size()[0], -1, self.rank), aux_u.view(-1, self.rank, 1))
 
         else:
-            aux = th.addmm(self.B, neighbour_h.view((-1, self.h_size)), self.U).view(-1, self.max_output_degree, self.rank)
-            aux_i, aux_o, aux_u = aux[:, 0, :].squeeze().chunk(3, dim=1)
-            r_i = th.matmul(aux_i, self.G_i.view(self.rank, -1))
-            r_o = th.matmul(aux_o, self.G_o.view(self.rank, -1))
-            r_u = th.matmul(aux_u, self.G_u.view(self.rank, -1))
+            aux = th.addmm(self.B, neighbour_h.view((-1, self.h_size)), self.U).view(-1, self.max_output_degree, 3*self.rank)
+            aux_i, aux_o, aux_u = aux[:, 0, :].squeeze(1).chunk(3, dim=1)
+
+            G_i = __get_symmetric_tensor_view__(self.G_i_w, self.symmetric_idx, self.G_size, 1)
+            G_o = __get_symmetric_tensor_view__(self.G_o_w, self.symmetric_idx, self.G_size, 1)
+            G_u = __get_symmetric_tensor_view__(self.G_u_w, self.symmetric_idx, self.G_size, 1)
+
+            r_i = th.matmul(aux_i, G_i.view(self.rank, -1))
+            r_o = th.matmul(aux_o, G_o.view(self.rank, -1))
+            r_u = th.matmul(aux_u, G_u.view(self.rank, -1))
+
             for i in range(1, self.max_output_degree):
-                aux_i, aux_o, aux_u = aux[:, i, :].squeeze().chunk(3, dim=1)
+                aux_i, aux_o, aux_u = aux[:, i, :].squeeze(1).chunk(3, dim=1)
                 r_i = th.bmm(r_i.view(aux.size()[0], -1, self.rank), aux_i.view(-1, self.rank, 1))
                 r_o = th.bmm(r_o.view(aux.size()[0], -1, self.rank), aux_o.view(-1, self.rank, 1))
                 r_u = th.bmm(r_u.view(aux.size()[0], -1, self.rank), aux_u.view(-1, self.rank, 1))
 
-        gate_i = th.matmul(r_i, self.Ui_output)
-        gate_o = th.matmul(r_o, self.Uo_output)
-        gate_u = th.matmul(r_u, self.Uu_output)
+        gate_i = th.matmul(r_i.squeeze(2), self.Ui_output)
+        gate_o = th.matmul(r_o.squeeze(2), self.Uo_output)
+        gate_u = th.matmul(r_u.squeeze(2), self.Uu_output)
 
         return th.cat((gate_i, gate_o, gate_u), dim=1)
 
@@ -277,16 +293,16 @@ class CANCOMPCell(GenericTreeLSTMCell):
             self.U_list = nn.ParameterList()
             self.B_list = nn.ParameterList()
             for i in range(max_output_degree):
-                self.U_list.append(nn.Parameter(th.rand((h_size, 3*rank))))
-                self.B_list.append(nn.Parameter(th.rand(3*rank)))
+                self.U_list.append(nn.Parameter(th.randn((h_size, 3*rank))))
+                self.B_list.append(nn.Parameter(th.randn(3*rank)))
         else:
             # mode matrices shared
-            self.U = nn.Parameter(th.rand((h_size, 3*rank)))
-            self.B = nn.Parameter(th.rand(3*rank))
+            self.U = nn.Parameter(th.randn((h_size, 3*rank)))
+            self.B = nn.Parameter(th.randn(3*rank))
 
-        self.Ui_output = nn.Parameter(th.rand((rank, h_size)))
-        self.Uo_output = nn.Parameter(th.rand((rank, h_size)))
-        self.Uu_output = nn.Parameter(th.rand((rank, h_size)))
+        self.Ui_output = nn.Parameter(th.randn((rank, h_size)))
+        self.Uo_output = nn.Parameter(th.randn((rank, h_size)))
+        self.Uu_output = nn.Parameter(th.randn((rank, h_size)))
 
     # neighbour_states has shape batch_size x n_neighbours x insize
     def compute_iou_gate(self, neighbour_h):
@@ -323,14 +339,14 @@ class TTCell(GenericTreeLSTMCell):
 
         self.rank = rank
 
-        self.U_fisrt = nn.Parameter(th.rand((h_size, rank)))
+        self.U_fisrt = nn.Parameter(th.randn((h_size, rank)))
 
         # TT tensors
         self.U_list = nn.ParameterList()
         for i in range(max_output_degree):
-            self.U_list.append(nn.Parameter(th.rand((h_size, rank * rank))))
+            self.U_list.append(nn.Parameter(th.randn((h_size, rank * rank))))
 
-        self.U_last = nn.Parameter(th.rand((rank, 3*h_size)))
+        self.U_last = nn.Parameter(th.randn((rank, 3*h_size)))
 
     # neighbour_states has shape batch_size x n_neighbours x insize
     def compute_iou_gate(self, neighbour_h):

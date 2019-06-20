@@ -1,83 +1,29 @@
-import torch.nn as nn
-from treeLSTM import TreeLSTM, TreeDataset
-
+from treeLSTM.models import TreeLSTM
+from treeLSTM.dataset import TreeDataset
+from treeLSTM.cells import *
 import networkx as nx
 import dgl
 import torch.nn.functional as F
 from nltk.corpus.reader import BracketParseCorpusReader
-from collections import namedtuple, OrderedDict
-import numpy as np
 from torch.utils.data import DataLoader
 from tqdm import tqdm
-import os
-import torch
 
 
 # TODO: modfy the dataset class according to TreeDataset
 # TODO: embeddigns anf vocabulray must be loaded outside the class and sahred amogn test/train/dev
 # TODO: check out to load embeddings (remove lower on emdeggings key)
+
 class SSTDataset(TreeDataset):
 
     PAD_WORD = -1  # special pad word id
     UNK_WORD = -1  # out-of-vocabulary word id
 
-    def __init__(self, path_dir, file_name_list, name, glove300_file=None):
+    def __init__(self, path_dir, file_name_list, vocab, name):
         TreeDataset.__init__(self, path_dir, file_name_list, name)
-        self.pretrained_emb = None
         self.num_classes = 5
-        # print('Preprocessing...')
-        self.__load_vocabulary__()
-        if glove300_file is not None:
-            self.__load_embeddings__(glove300_file)
+        self.max_out_degree = 2
+        self.vocab = vocab
         self.__load_trees__()
-        # print('Dataset creation finished. #Trees:', len(self.trees))
-
-    def __load_vocabulary__(self):
-        object_file = os.path.join(self.path_dir, 'vocab.pkl')
-        text_file = os.path.join(self.path_dir, 'vocab.txt')
-        if os.path.exists(object_file):
-            # load vocab file
-            self.vocab = torch.load(object_file)
-        else:
-            # create vocab file
-            self.vocab = OrderedDict()
-            self.logger.debug('Loading vocabulary.')
-            with open(text_file, encoding='utf-8') as vf:
-                for line in tqdm(vf.readlines(), desc='Loading vocabulary: '):
-                    line = line.strip()
-                    self.vocab[line] = len(self.vocab)
-            torch.save(self.vocab, object_file)
-
-        self.logger.info('Vocabulary loaded.')
-
-    def __load_embeddings__(self, pretrained_emb_file):
-
-        object_file = os.path.join(self.path_dir, 'pretrained_emb.pkl')
-        if os.path.exists(object_file):
-            self.pretrained_emb = torch.load(object_file)
-        else:
-            # filter glove
-            glove_emb = {}
-            self.logger.debug('Loading pretrained embeddings.')
-            with open(pretrained_emb_file, 'r', encoding='utf-8') as pf:
-                for line in tqdm(pf.readlines(), desc='Loading pretrained embeddings:'):
-                    sp = line.split(' ')
-                    if sp[0].lower() in self.vocab:
-                        glove_emb[sp[0].lower()] = np.array([float(x) for x in sp[1:]])
-
-            # initialize with glove
-            pretrained_emb = []
-            fail_cnt = 0
-            for line in self.vocab.keys():
-                if not line.lower() in glove_emb:
-                    fail_cnt += 1
-                pretrained_emb.append(glove_emb.get(line.lower(), np.random.uniform(-0.05, 0.05, 300)))
-
-            self.pretrained_emb = torch.tensor(np.stack(pretrained_emb, 0))
-            self.logger.info('Miss word in GloVe {0:.4f}'.format(1.0 * fail_cnt / len(self.pretrained_emb)))
-            torch.save(self.pretrained_emb, object_file)
-
-        self.logger.info('Pretrained embeddigns loaded.')
 
     def __load_trees__(self):
         corpus = BracketParseCorpusReader(self.path_dir, self.file_name_list)
@@ -139,31 +85,33 @@ class SSTOutputModule(nn.Module):
         return self.linear(self.dropout(h))
 
 
-def create_sst_model(num_vocabs,
-                     x_size,
-                     h_size,
-                     num_classes,
-                     dropout,
-                     pretrained_emb=None,
-                     cell_type='nary', **cell_args):
-
-    input_module = nn.Embedding(num_vocabs, x_size)
-    if pretrained_emb is not None:
-        input_module.weight.data.copy_(pretrained_emb)
-        input_module.weight.requires_grad = True
+def create_sst_model(x_size, h_size, num_classes, max_output_degree=2, dropout=0.5, pretrained_emb=None, num_vocabs=None, cell_type='nary', rank=None, pos_stationarity=False):
+    if cell_type == 'nary':
+        cell = NaryCell(h_size, max_output_degree, pos_stationarity=pos_stationarity)
+    elif cell_type == 'hosvd':
+        cell = HOSVDCell(h_size, max_output_degree, rank=rank, pos_stationarity=pos_stationarity)
+    elif cell_type == 'tt':
+        cell = TTCell(h_size, max_output_degree, rank=rank)
+    elif cell_type == 'cancomp':
+        cell = CANCOMPCell(h_size, max_output_degree, rank=rank, pos_stationarity=pos_stationarity)
+    elif cell_type == 'full':
+        raise ValueError('The Full Tensora agrregation cannot be used')
+    else:
+        raise ValueError('Cell type not known')
+    if pretrained_emb is None:
+        input_module = nn.Embedding(num_vocabs, x_size)
+    else:
+        input_module = nn.Embedding.from_pretrained(pretrained_emb, freeze=True)
 
     output_module = SSTOutputModule(h_size, num_classes, dropout)
 
-    m = TreeLSTM(x_size, h_size, 2, input_module, output_module, cell_type, **cell_args)
-    #m = TreeRNN(x_size, h_size, 2, input_module, output_module, cell_type, **cell_args)
-
-    return m
+    return TreeLSTM(x_size, h_size, input_module, output_module, cell)
 
 
-def load_sst_dataset():
-    trainset = SSTDataset('data/sst/', ['train.txt'], glove300_file='data/glove.840B.300d.txt', name='train')
-    devset = SSTDataset('data/sst/', ['dev.txt'], glove300_file='data/glove.840B.300d.txt', name='dev')
-    testset = SSTDataset('data/sst/', ['test.txt'], glove300_file='data/glove.840B.300d.txt', name='test')
+def load_sst_dataset(vocab):
+    trainset = SSTDataset('data/sst/', ['train.txt'], vocab, name='train')
+    devset = SSTDataset('data/sst/', ['dev.txt'], vocab, name='dev')
+    testset = SSTDataset('data/sst/', ['test.txt'], vocab, name='test')
     return trainset, devset, testset
 
 

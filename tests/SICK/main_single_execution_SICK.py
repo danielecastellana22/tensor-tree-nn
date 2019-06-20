@@ -6,10 +6,10 @@ import torch as th
 import torch.nn.init as INIT
 import torch.optim as optim
 
-from treeLSTM.utils import set_main_logger_settings
+from treeLSTM.utils import set_main_logger_settings, load_embeddings, load_vocabulary
 from treeLSTM.trainer import train_and_validate, test
 
-from utils import load_vocabulary, load_embeddings, create_sick_model, load_sick_dataset, sick_loss_function, sick_extract_batch_data, MSE_sick, Pearson_sick
+from tests.SICK.utils import create_sick_model, load_sick_dataset, sick_loss_function, sick_extract_batch_data, MSE_sick, Pearson_sick
 
 
 def main(args):
@@ -35,15 +35,15 @@ def main(args):
     else:
         th.set_num_threads(10)
 
-    vocab = load_vocabulary(logger=logger)
-    petrained_embs = load_embeddings(pretrained_emb_file='data/glove.840B.300d.txt', vocab=vocab, logger=logger)
+    vocab = load_vocabulary('data/sick/', logger=logger)
+    pretrained_embs = load_embeddings('data/sick/', pretrained_emb_file='data/glove.840B.300d.txt', vocab=vocab, logger=logger)
     # load the data
     trainset, devset, testset = load_sick_dataset(vocab)
 
     # create the model
     model = create_sick_model(args.x_size,
                               args.h_size,
-                              pretrained_emb=petrained_embs,
+                              pretrained_emb=pretrained_embs,
                               cell_type=args.cell_type, max_output_degree=trainset.max_out_degree, rank=args.rank, pos_stationarity=args.pos_stationarity).to(device)
 
     logger.info(str(model))

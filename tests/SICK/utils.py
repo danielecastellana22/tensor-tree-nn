@@ -10,61 +10,8 @@ import os
 
 from treeLSTM.cells import *
 from treeLSTM.models import TreeLSTM
-from treeLSTM.tree_dataset import TreeDataset
+from treeLSTM.dataset import TreeDataset
 from treeLSTM.metrics import MSE, Pearson
-
-def load_vocabulary(logger):
-    data_dir = 'data/sick/'
-    object_file = os.path.join(data_dir, 'vocab.pkl')
-    text_file = os.path.join(data_dir, 'vocab.txt')
-    if os.path.exists(object_file):
-        # load vocab file
-        vocab = th.load(object_file)
-    else:
-        # create vocab file
-        vocab = OrderedDict()
-        logger.debug('Loading vocabulary.')
-        with open(text_file, encoding='utf-8') as vf:
-            for line in tqdm(vf.readlines(), desc='Loading vocabulary: '):
-                line = line.strip()
-                vocab[line] = len(vocab)
-        th.save(vocab, object_file)
-
-    logger.info('Vocabulary loaded.')
-    return vocab
-
-
-def load_embeddings(pretrained_emb_file, vocab, logger):
-    data_dir = 'data/sick/'
-    object_file = os.path.join(data_dir, 'pretrained_emb.pkl')
-    if os.path.exists(object_file):
-        pretrained_emb = th.load(object_file)
-    else:
-        # filter glove
-        glove_emb = {}
-        logger.debug('Loading pretrained embeddings.')
-        with open(pretrained_emb_file, 'r', encoding='utf-8') as pf:
-            for line in tqdm(pf.readlines(), desc='Loading pretrained embeddings:'):
-                sp = line.split(' ')
-                #if sp[0].lower() == 'playing':
-                #    sss=4
-                if sp[0] in vocab:
-                    glove_emb[sp[0].lower()] = np.array([float(x) for x in sp[1:]])
-
-        # initialize with glove
-        pretrained_emb = []
-        fail_cnt = 0
-        for line in vocab.keys():
-            if not line.lower() in glove_emb:
-                fail_cnt += 1
-            pretrained_emb.append(glove_emb.get(line.lower(), np.random.uniform(-0.05, 0.05, 300)))
-
-        logger.info('Miss word in GloVe {0:.4f}'.format(1.0 * fail_cnt / len(pretrained_emb)))
-        pretrained_emb = th.tensor(np.stack(pretrained_emb, 0)).float()
-        th.save(pretrained_emb, object_file)
-
-    logger.info('Pretrained embeddings loaded.')
-    return pretrained_emb
 
 
 class SICKDataset(TreeDataset):
@@ -78,7 +25,6 @@ class SICKDataset(TreeDataset):
 
     def __init__(self, path_dir, file_name_list, vocab, name):
         TreeDataset.__init__(self, path_dir, file_name_list, name)
-        self.pretrained_emb = None
         self.max_out_degree = 0
         self.vocab = vocab
         self.__load_trees__()

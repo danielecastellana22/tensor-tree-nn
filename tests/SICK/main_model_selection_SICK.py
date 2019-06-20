@@ -6,13 +6,13 @@ import torch.optim as optim
 
 from cannon import ParamListTrainer
 
-from treeLSTM.utils import set_main_logger_settings, get_new_logger
+from treeLSTM.utils import set_main_logger_settings, get_new_logger, load_vocabulary, load_embeddings
 from treeLSTM.trainer import train_and_validate, test
 
-from utils import load_vocabulary, load_embeddings, create_sick_model, load_sick_dataset, sick_loss_function, sick_extract_batch_data, MSE_sick, Pearson_sick
+from tests.SICK.utils import create_sick_model, load_sick_dataset, sick_loss_function, sick_extract_batch_data, MSE_sick, Pearson_sick
+
 
 # TODO: my logger and cannon logger should be unified
-
 def get_train_and_validate_fun(args, logger):
     cuda = args.gpu >= 0
     device = th.device('cuda:{}'.format(args.gpu)) if cuda else th.device('cpu')
@@ -21,8 +21,8 @@ def get_train_and_validate_fun(args, logger):
     else:
         th.set_num_threads(10)
 
-    vocab = load_vocabulary(logger=logger)
-    petrained_embs = load_embeddings(pretrained_emb_file='data/glove.840B.300d.txt', vocab=vocab, logger=logger)
+    vocab = load_vocabulary('data/sick/', logger=logger)
+    pretrained_embs = load_embeddings('data/sick/', pretrained_emb_file='data/glove.840B.300d.txt', vocab=vocab, logger=logger)
     # load the data
     trainset, devset, testset = load_sick_dataset(vocab)
 
@@ -33,7 +33,7 @@ def get_train_and_validate_fun(args, logger):
         # create the model
         model = create_sick_model(args.x_size,
                                   args.h_size,
-                                  pretrained_emb=petrained_embs,
+                                  pretrained_emb=pretrained_embs,
                                   cell_type=args.cell_type, max_output_degree=trainset.max_out_degree, rank=params['rank'],
                                   pos_stationarity=args.pos_stationarity).to(device)
 
@@ -99,22 +99,40 @@ if __name__ == '__main__':
 
     trainer_fun = get_train_and_validate_fun(args, logger)
 
-    lr_list = [0.01, 0.02, 0.05]
-    rank_list = [70, 100, 150]
-    weight_decay_list = [1e-5, 1e-4, 1e-3]
+    if args.cell_type == 'cancomp':
+        lr_list = [0.01, 0.02, 0.05]
+        rank_list = [70, 100, 150]
+        weight_decay_list = [1e-5, 1e-4, 1e-3]
 
-    it_list = list(range(1, 6))
-    param_list = []
-    for lr in lr_list:
-        for rank in rank_list:
-            for w in weight_decay_list:
-                for it in it_list:
-                    d = {}
-                    d['lr'] = lr
-                    d['it'] = it
-                    d['rank'] = rank
-                    d['weight_decay'] = w
-                    param_list.append(d)
+        it_list = list(range(1, 6))
+        param_list = []
+        for lr in lr_list:
+            for rank in rank_list:
+                for w in weight_decay_list:
+                    for it in it_list:
+                        d = {}
+                        d['lr'] = lr
+                        d['it'] = it
+                        d['rank'] = rank
+                        d['weight_decay'] = w
+                        param_list.append(d)
+    elif args.cell_type == 'hosvd':
+        lr_list = [0.01, 0.02, 0.05]
+        rank_list = [2, 3]
+        weight_decay_list = [1e-5, 1e-4, 1e-3]
+
+        it_list = list(range(1, 6))
+        param_list = []
+        for lr in lr_list:
+            for rank in rank_list:
+                for w in weight_decay_list:
+                    for it in it_list:
+                        d = {}
+                        d['lr'] = lr
+                        d['it'] = it
+                        d['rank'] = rank
+                        d['weight_decay'] = w
+                        param_list.append(d)
 
     exp_dir = os.path.join(args.save, args.expname)
     m_sel = ParamListTrainer(exp_dir, param_list, trainer_fun)

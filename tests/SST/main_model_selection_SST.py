@@ -6,12 +6,14 @@ import torch.optim as optim
 
 from cannon import ParamListTrainer
 
-from treeLSTM import *
+from treeLSTM.utils import set_main_logger_settings, get_new_logger, load_vocabulary, load_embeddings
+from treeLSTM.trainer import train_and_validate, test
+from treeLSTM.metrics import Accuracy, LeavesAccuracy, RootAccuracy
 
-from utils import create_sst_model, load_sst_dataset, sst_loss_function, sst_extract_batch_data
+from tests.SST.utils import create_sst_model, load_sst_dataset, sst_loss_function, sst_extract_batch_data
 
 
-def get_train_and_validate_fun(args):
+def get_train_and_validate_fun(args, logger):
     cuda = args.gpu >= 0
     device = th.device('cuda:{}'.format(args.gpu)) if cuda else th.device('cpu')
     if cuda:
@@ -19,21 +21,24 @@ def get_train_and_validate_fun(args):
     else:
         th.set_num_threads(10)
 
-
+    vocab = load_vocabulary('data/sst/', logger=logger)
+    pretrained_embs = load_embeddings('data/sst/', pretrained_emb_file='data/glove.840B.300d.txt', vocab=vocab,
+                                     logger=logger)
     # load the data
-    trainset, devset, testset = load_sst_dataset()
+    trainset, devset, testset = load_sst_dataset(vocab)
 
     def train_foo(id, log_dir, params):
         set_main_logger_settings(log_dir, 'exp{}'.format(id))
         logger = get_new_logger('main')
 
-        model = create_sst_model(trainset.num_vocabs,
-                         args.x_size,
-                         params["h_size"],
-                         trainset.num_classes,
-                         args.dropout,
-                         pretrained_emb=trainset.pretrained_emb,
-                         cell_type=args.cell_type).to(device)
+        #create the model
+        model = create_sst_model(args.x_size, params["h_size"], trainset.num_classes,
+                                 max_output_degree=trainset.max_out_degree,
+                                 dropout=args.dropout,
+                                 pretrained_emb=pretrained_embs,
+                                 cell_type=args.cell_type,
+                                 rank=params['rank'],
+                                 pos_stationarity=args.pos_stationarity).to(device)
 
         # log model info
         logger.info(str(model))
@@ -62,10 +67,10 @@ def get_train_and_validate_fun(args):
                                 metrics_class=[Accuracy, RootAccuracy, LeavesAccuracy],
                                 batch_size=args.batch_size)
         ris = {}
-        ris['tr_loss'] = training_metrics[0].get_value()
-        ris['tr_acc'] = training_metrics[1].get_value()
-        ris['vl_loss'] = best_dev_metrics[0].get_value()
-        ris['vl_acc'] = best_dev_metrics[1].get_value()
+        ris['tr_node_acc'] = training_metrics[0].get_value()
+        ris['tr_root_acc'] = training_metrics[1].get_value()
+        ris['vl_node_acc'] = best_dev_metrics[0].get_value()
+        ris['vl_root_acc'] = best_dev_metrics[1].get_value()
         return ris
 
     return train_foo
@@ -84,13 +89,15 @@ if __name__ == '__main__':
     parser.add_argument('--early-stopping', type=int, default=10)
     parser.add_argument('--log-every', type=int, default=5)
     #parser.add_argument('--lr', type=float, default=0.05)
+    parser.add_argument('--pos-stationarity', dest='pos_stationarity', action='store_true')
     parser.add_argument('--weight-decay', type=float, default=1e-4)
     parser.add_argument('--dropout', type=float, default=0.5)
     parser.add_argument('--save', default='checkpoints/')
     parser.add_argument('--expname', default='test')
     args = parser.parse_args()
     #print(args)
-    trainer_fun = get_train_and_validate_fun(args)
+    logger = set_main_logger_settings(args.save, args.expname)
+    trainer_fun = get_train_and_validate_fun(args, logger)
     #Model selection experiment
     exp_dir = os.path.join(args.save, args.expname)
 
