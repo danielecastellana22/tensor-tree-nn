@@ -3,9 +3,11 @@ import argparse
 import torch as th
 import torch.nn.init as INIT
 import torch.optim as optim
-from treeLSTM import *
 from cannon import ParamListTrainer
-from utils import load_htens_dataset, create_htens_model, htens_loss_function, htens_extract_batch_data
+from treeLSTM.utils import set_main_logger_settings, get_new_logger
+from treeLSTM.trainer import train_and_validate, test
+from treeLSTM.metrics import Accuracy, RootAccuracy, LeavesAccuracy
+from tests.HTENS.utils import load_htens_dataset, create_htens_model, htens_loss_function, htens_extract_batch_data
 
 
 def get_train_and_validate_fun(args):
@@ -38,23 +40,32 @@ def get_train_and_validate_fun(args):
         optimizer = optim.Adagrad([
             {'params': params_ex_emb, 'lr': params['lr'], 'weight_decay': args.weight_decay}])
 
-        best_model, best_dev_metrics = train_and_validate(model, htens_extract_batch_data, htens_loss_function, optimizer, trainset, devset, device,
-                                                          metrics_class=[LabelAccuracy, RootAccuracy, LeavesAccuracy],
-                                                          batch_size=args.batch_size,
-                                                          n_epochs=args.epochs,
-                                                          early_stopping_patience=args.early_stopping)
+        best_model, best_dev_metrics, best_epoch, tr_forw_time, tr_backw_time, tr_val_time = train_and_validate(model,
+                                                                                                             htens_extract_batch_data,
+                                                                                                             htens_loss_function,
+                                                                                                             optimizer, trainset, devset, device,
+                                                                                                             metrics_class=[Accuracy, RootAccuracy, LeavesAccuracy],
+                                                                                                             batch_size=args.batch_size,
+                                                                                                             n_epochs=args.epochs,
+                                                                                                             early_stopping_patience=args.early_stopping)
 
         th.save(best_model.state_dict(), os.path.join(log_dir, 'best.pkl'))
 
         #test on training set
         training_metrics = test(best_model, htens_extract_batch_data, trainset, device,
-                                metrics_class=[LabelAccuracy, RootAccuracy, LeavesAccuracy],
+                                metrics_class=[Accuracy, RootAccuracy, LeavesAccuracy],
                                 batch_size=args.batch_size)
+
         ris = {}
-        ris['tr_loss'] = training_metrics[0].get_value()
-        ris['tr_acc'] = training_metrics[1].get_value()
-        ris['vl_loss'] = best_dev_metrics[0].get_value()
-        ris['vl_acc'] = best_dev_metrics[1].get_value()
+        ris['nodes_tr'] = training_metrics[0].get_value()
+        ris['root_tr'] = training_metrics[1].get_value()
+        ris['nodes_val'] = best_dev_metrics[0].get_value()
+        ris['root_val'] = best_dev_metrics[1].get_value()
+        ris['best_epoch'] = best_epoch
+        ris['n_cell_param'] = sum(p.numel() for p in model.cell.parameters() if p.requires_grad)
+        ris['tr_forw_time'] = sum(tr_forw_time)
+        ris['tr_backw_time'] = sum(tr_backw_time)
+        ris['val_time'] = sum(tr_val_time)
         return ris
 
     return train_foo
@@ -85,9 +96,9 @@ if __name__ == '__main__':
 
     lr_list = [0.01, 0.02, 0.05]
     if args.cell_type == 'nary':
-        hsize_list = [10, 25, 66, 255, 714, 937, 1308, 2010]
-    else:
-        hsize_list = [5, 10, 20, 50, 100, 120, 150, 200]
+        hsize_list = [9, 22, 58, 222, 621]
+    elif args.cell_type == 'full':
+        hsize_list = [5, 10, 20, 50, 100]
 
     it_list = list(range(1, 6))
     param_list = []

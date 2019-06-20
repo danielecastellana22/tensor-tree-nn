@@ -6,8 +6,10 @@ import torch as th
 import torch.nn.init as INIT
 import torch.optim as optim
 
-from treeLSTM import *
-from utils import load_htens_dataset, create_htens_model, htens_loss_function, htens_extract_batch_data
+from treeLSTM.utils import set_main_logger_settings
+from treeLSTM.trainer import train_and_validate, test
+from treeLSTM.metrics import Accuracy, RootAccuracy, LeavesAccuracy
+from tests.HTENS.utils import load_htens_dataset, create_htens_model, htens_loss_function, htens_extract_batch_data
 
 def main(args):
 
@@ -46,10 +48,10 @@ def main(args):
 
     # create the optimizer
     optimizer = optim.Adagrad([
-        {'params':params_ex_emb, 'lr':args.lr, 'weight_decay':args.weight_decay}])
+        {'params': params_ex_emb, 'lr': args.lr, 'weight_decay': args.weight_decay}])
 
     # train and validate
-    best_model, best_dev_metrics = train_and_validate(model, htens_extract_batch_data, htens_loss_function, optimizer, trainset, devset, device,
+    best_model, best_dev_metrics, *others = train_and_validate(model, htens_extract_batch_data, htens_loss_function, optimizer, trainset, devset, device,
                                                       metrics_class=[Accuracy, RootAccuracy, LeavesAccuracy],
                                                       batch_size=args.batch_size,
                                                       n_epochs=args.epochs, early_stopping_patience=args.early_stopping)

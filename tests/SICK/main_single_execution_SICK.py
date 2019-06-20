@@ -73,7 +73,7 @@ if __name__ == '__main__':
     #TODO: expanme anch savedit can be decided programmatically
     parser = argparse.ArgumentParser()
     parser.add_argument('--gpu', type=int, default=-1)
-    parser.add_argument('--seed', type=int, default=89)
+    parser.add_argument('--seed', type=int, default=148)
     parser.add_argument('--batch-size', type=int, default=25)
     parser.add_argument('--cell-type', default='nary')
     parser.add_argument('--rank', type=int, default=20)

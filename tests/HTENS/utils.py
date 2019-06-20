@@ -1,9 +1,8 @@
-import torch as th
 import torch.nn as nn
 import torch.nn.functional as F
-from treeLSTM import TreeLSTM, TreeRNN, TreeDataset
-
-from collections import namedtuple
+from treeLSTM.models import TreeLSTM
+from treeLSTM.dataset import TreeDataset
+from treeLSTM.cells import *
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 import os
@@ -12,7 +11,6 @@ import dgl
 import networkx as nx
 
 
-# TODO: modfy the dataset class according to TreeDataset
 class HTENSDataset(TreeDataset):
 
     def __init__(self, path_dir, file_name_list, name):
@@ -77,10 +75,21 @@ class HTENSOutputModule(nn.Module):
         return self.linear(self.dropout(h))
 
 
-def create_htens_model(x_size,
-                     h_size,
-                     dropout,
-                     cell_type='nary', **cell_args):
+def create_htens_model(x_size, h_size, dropout, cell_type='nary', rank=None, pos_stationarity=False):
+    max_output_degree = 2
+
+    if cell_type == 'nary':
+        cell = NaryCell(h_size, max_output_degree, pos_stationarity=pos_stationarity)
+    elif cell_type == 'hosvd':
+        cell = HOSVDCell(h_size, max_output_degree, rank=rank, pos_stationarity=pos_stationarity)
+    elif cell_type == 'tt':
+        cell = TTCell(h_size, max_output_degree, rank=rank)
+    elif cell_type == 'cancomp':
+        cell = CANCOMPCell(h_size, max_output_degree, rank=rank, pos_stationarity=pos_stationarity)
+    elif cell_type == 'full':
+        cell = BinaryFullTensorCell(h_size, max_output_degree, pos_stationarity)
+    else:
+        raise ValueError('Cell type not known')
 
     num_classes = 2
     num_vocabs = 2
@@ -88,10 +97,8 @@ def create_htens_model(x_size,
 
     output_module = HTENSOutputModule(h_size, num_classes, dropout)
 
-    m = TreeLSTM(x_size, h_size, 2, input_module, output_module, cell_type, **cell_args)
-    #m = TreeRNN(x_size, h_size, 2, input_module, output_module, cell_type, **cell_args)
-
-    return m
+    return TreeLSTM(x_size, h_size, input_module, output_module, cell)
+    #m = TreeLSTM(x_size, h_size, 2, input_module, output_module, cell_type, **cell_args)
 
 
 def load_htens_dataset():

@@ -4,9 +4,10 @@ from .utils import get_new_logger
 import copy
 from .metrics import ValueMetric, TreeMetric
 
+import time
+
 def train(model, trainset):
     raise Exception('This function is not implemented yet!')
-
 
 def train_and_validate(model, extract_batch_data, loss_function, optimizer, trainset, devset, device, metrics_class, batch_size=25, n_epochs=200, early_stopping_patience=20):
     logger = get_new_logger('train_and_validate')
@@ -19,6 +20,10 @@ def train_and_validate(model, extract_batch_data, loss_function, optimizer, trai
     best_epoch = -1
     best_model = None
 
+    tr_forw_time_list = []
+    tr_backw_time_list = []
+    val_time_list = []
+
     for epoch in range(n_epochs):
         model.train()
 
@@ -26,17 +31,24 @@ def train_and_validate(model, extract_batch_data, loss_function, optimizer, trai
         for c in metrics_class:
             metrics.append(c())
 
+        tr_forw_time = 0
+        tr_backw_time = 0
+        val_time = 0
         # TODO: check if tqdm remains filled if > len
         with tqdm(total=len(trainset), desc='Training epoch ' + str(epoch) + ': ') as pbar:
             for step, batch in enumerate(trainloader):
 
+                t = time.time()
                 in_data, out_data, n_samples,  _ = extract_batch_data(batch)
                 model_output = model(*in_data)
                 loss = loss_function(model_output, out_data)
+                tr_forw_time += (time.time() - t)
 
+                t = time.time()
                 optimizer.zero_grad()
                 loss.backward()
                 optimizer.step()
+                tr_backw_time += (time.time() - t)
 
                 pbar.update(n_samples)
 
@@ -44,6 +56,8 @@ def train_and_validate(model, extract_batch_data, loss_function, optimizer, trai
         model.eval()
         with tqdm(total=len(devset), desc='Validate epoch ' + str(epoch) + ' on dev set: ') as pbar:
             for step, batch in enumerate(devloader):
+
+                t = time.time()
                 in_data, out_data, n_samples, graph = extract_batch_data(batch)
                 with th.no_grad():
                     out = model(*in_data)
@@ -55,6 +69,7 @@ def train_and_validate(model, extract_batch_data, loss_function, optimizer, trai
 
                     if isinstance(v, TreeMetric):
                         v.update_metric(out, out_data, graph)
+                val_time += (time.time() - t)
 
                 pbar.update(n_samples)
 
@@ -87,7 +102,11 @@ def train_and_validate(model, extract_batch_data, loss_function, optimizer, trai
         for param_group in optimizer.param_groups:
             param_group['lr'] = max(1e-5, param_group['lr'] * 0.99)  # 10
 
-    return best_model, best_metrics
+        tr_forw_time_list.append(tr_forw_time)
+        tr_backw_time_list.append(tr_backw_time)
+        val_time_list.append(val_time)
+
+    return best_model, best_metrics, best_epoch, tr_forw_time_list[:best_epoch+1], tr_backw_time_list[:best_epoch+1], val_time_list[:best_epoch+1]
 
 
 def test(model, extract_batch_data, testset, device, metrics_class, batch_size=25):

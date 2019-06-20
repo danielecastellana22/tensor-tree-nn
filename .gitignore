@@ -4,3 +4,4 @@ checkpoints/
 data/lrt_bkp
 .idea/
 treeLSTM/__pycache__
+plots/

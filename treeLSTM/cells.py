@@ -35,10 +35,12 @@ def __get_symmetric_idx__(n, d):
 
         gather_idx[i] = idx_param
 
+    #TODO: return a tensor and register as a buffer
     return nn.Parameter(th.LongTensor(gather_idx), requires_grad=False)
 
 
 def __get_symmetric_tensor_view__(w, idx, out_shape, output_axis):
+    #TODO: this function can be called only after a optim.step() rahter than every time
     return w.gather(0, idx).view(out_shape).transpose(output_axis, len(out_shape)-1).contiguous()
 
 
