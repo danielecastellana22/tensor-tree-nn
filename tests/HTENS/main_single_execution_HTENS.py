@@ -19,7 +19,9 @@ def main(args):
         os.makedirs(log_dir)
 
     # initiliase the main ogger
-    set_main_logger_settings(log_dir, 'main')
+    logger = set_main_logger_settings(log_dir, 'main')
+
+    logger.info(str(args))
 
     # set the seed
     np.random.seed(args.seed)
@@ -35,10 +37,11 @@ def main(args):
         th.set_num_threads(10)
 
     # load the data
-    trainset, devset, testset = load_htens_dataset()
+    trainset, devset, testset = load_htens_dataset(args.data_dir)
 
     # create the model
-    model = create_htens_model(args.x_size, args.h_size, args.dropout, cell_type=args.cell_type).to(device)
+    model = create_htens_model(args.x_size, args.h_size, args.dropout, max_output_degree=trainset.max_out_degree,
+                               cell_type=args.cell_type, rank=args.rank, pos_stationarity=False).to(device)
 
     params_ex_emb = [x for x in list(model.parameters()) if x.requires_grad]
 
@@ -64,6 +67,7 @@ def main(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     #TODO: expanme anch savedit can be decided programmatically
+    parser.add_argument('--data-dir', default='data/htens')
     parser.add_argument('--gpu', type=int, default=-1)
     parser.add_argument('--seed', type=int, default=41)
     parser.add_argument('--batch-size', type=int, default=25)
@@ -74,6 +78,7 @@ if __name__ == '__main__':
     parser.add_argument('--early-stopping', type=int, default=10)
     parser.add_argument('--lr', type=float, default=0.05)
     parser.add_argument('--weight-decay', type=float, default=1e-4)
+    parser.add_argument('--rank', type=int, default=20)
     parser.add_argument('--dropout', type=float, default=0.5)
     parser.add_argument('--save', default='checkpoints/')
     parser.add_argument('--expname', default='test')

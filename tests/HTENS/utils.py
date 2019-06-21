@@ -15,6 +15,7 @@ class HTENSDataset(TreeDataset):
 
     def __init__(self, path_dir, file_name_list, name):
         TreeDataset.__init__(self, path_dir, file_name_list, name)
+        self.max_out_degree = 0
         self.__load_trees__()
 
     def __load_trees__(self):
@@ -45,6 +46,11 @@ class HTENSDataset(TreeDataset):
         g = nx.DiGraph()
 
         def _rec_build(nid, node):
+
+            n_ch = len(node)
+            if n_ch > self.max_out_degree:
+                self.max_out_degree = n_ch
+
             for child in node:
                 cid = g.number_of_nodes()
                 if isinstance(child[0], str) or isinstance(child[0], bytes):
@@ -75,8 +81,7 @@ class HTENSOutputModule(nn.Module):
         return self.linear(self.dropout(h))
 
 
-def create_htens_model(x_size, h_size, dropout, cell_type='nary', rank=None, pos_stationarity=False):
-    max_output_degree = 2
+def create_htens_model(x_size, h_size, dropout, max_output_degree, cell_type, rank, pos_stationarity):
 
     if cell_type == 'nary':
         cell = NaryCell(h_size, max_output_degree, pos_stationarity=pos_stationarity)
@@ -101,10 +106,10 @@ def create_htens_model(x_size, h_size, dropout, cell_type='nary', rank=None, pos
     #m = TreeLSTM(x_size, h_size, 2, input_module, output_module, cell_type, **cell_args)
 
 
-def load_htens_dataset():
-    trainset = HTENSDataset('data/htens/', ['train.txt'], name='train')
-    devset = HTENSDataset('data/htens/', ['dev.txt'], name='dev')
-    testset = HTENSDataset('data/htens/', ['test.txt'], name='test')
+def load_htens_dataset(data_dir):
+    trainset = HTENSDataset(data_dir, ['train.txt'], name='train')
+    devset = HTENSDataset(data_dir, ['dev.txt'], name='dev')
+    testset = HTENSDataset(data_dir, ['test.txt'], name='test')
 
     return trainset, devset, testset
 

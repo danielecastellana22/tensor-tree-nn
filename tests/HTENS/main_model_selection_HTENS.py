@@ -19,14 +19,16 @@ def get_train_and_validate_fun(args):
         th.set_num_threads(10)
 
     # load the data
-    trainset, devset, testset = load_htens_dataset()
+    trainset, devset, testset = load_htens_dataset(args.data_dir)
+
 
     def train_foo(id, log_dir, params):
         set_main_logger_settings(log_dir, 'exp{}'.format(id))
         logger = get_new_logger('main')
 
         # create the model
-        model = create_htens_model(args.x_size, params["h_size"], args.dropout, cell_type=args.cell_type).to(device)
+        model = create_htens_model(args.x_size, args.h_size, args.dropout, max_output_degree=trainset.max_out_degree,
+                                   cell_type=args.cell_type, rank=args.rank, pos_stationarity=False).to(device)
 
         # log model info
         logger.info(str(model))
@@ -88,6 +90,9 @@ if __name__ == '__main__':
     parser.add_argument('--dropout', type=float, default=0.5)
     parser.add_argument('--save', default='checkpoints/')
     parser.add_argument('--expname', default='test')
+    parser.add_argument('--data-dir', default='data/htens')
+    parser.add_argument('--rank', type=int, default=20)
+
     args = parser.parse_args()
     #print(args)
     trainer_fun = get_train_and_validate_fun(args)

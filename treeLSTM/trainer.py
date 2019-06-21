@@ -6,8 +6,10 @@ from .metrics import ValueMetric, TreeMetric
 
 import time
 
+
 def train(model, trainset):
     raise Exception('This function is not implemented yet!')
+
 
 def train_and_validate(model, extract_batch_data, loss_function, optimizer, trainset, devset, device, metrics_class, batch_size=25, n_epochs=200, early_stopping_patience=20):
     logger = get_new_logger('train_and_validate')

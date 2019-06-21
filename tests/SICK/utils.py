@@ -232,7 +232,7 @@ def sick_extract_batch_data(batch):
 class MSE_sick(MSE):
 
     def update_metric(self, out, gold_label):
-        super(MSE_sick, self).update_metric(out[1],gold_label[1])
+        super(MSE_sick, self).update_metric(out[1], gold_label[1])
 
 
 class Pearson_sick(Pearson):
