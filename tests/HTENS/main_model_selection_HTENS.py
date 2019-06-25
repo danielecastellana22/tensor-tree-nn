@@ -27,8 +27,8 @@ def get_train_and_validate_fun(args):
         logger = get_new_logger('main')
 
         # create the model
-        model = create_htens_model(args.x_size, args.h_size, args.dropout, max_output_degree=trainset.max_out_degree,
-                                   cell_type=args.cell_type, rank=args.rank, pos_stationarity=False).to(device)
+        model = create_htens_model(args.x_size,  params['h_size'], args.dropout, max_output_degree=trainset.max_out_degree,
+                                   cell_type=args.cell_type, rank=params['rank'], pos_stationarity=args.pos_stationarity).to(device)
 
         # log model info
         logger.info(str(model))
@@ -51,7 +51,7 @@ def get_train_and_validate_fun(args):
                                                                                                              n_epochs=args.epochs,
                                                                                                              early_stopping_patience=args.early_stopping)
 
-        th.save(best_model.state_dict(), os.path.join(log_dir, 'best.pkl'))
+        #th.save(best_model.state_dict(), os.path.join(log_dir, 'best.pkl'))
 
         #test on training set
         training_metrics = test(best_model, htens_extract_batch_data, trainset, device,
@@ -100,10 +100,32 @@ if __name__ == '__main__':
     exp_dir = os.path.join(args.save, args.expname)
 
     lr_list = [0.01, 0.02, 0.05]
-    if args.cell_type == 'nary':
-        hsize_list = [9, 22, 58, 222, 621]
-    elif args.cell_type == 'full':
+    if args.data_dir == 'data/htens':
+        h_to_rank = lambda x: -1
+        args.pos_stationarity = False
+        if args.cell_type == 'nary':
+            hsize_list = [9, 22, 58, 222, 621]
+        elif args.cell_type == 'full':
+            hsize_list = [5, 10, 20, 50, 100]
+        else:
+            raise ValueError('Cell type not supported yet')
+    elif args.data_dir == 'data/prod':
+        args.pos_stationarity = True
         hsize_list = [5, 10, 20, 50, 100]
+        if args.cell_type == 'nary':
+            h_to_rank = lambda x: -1
+        elif args.cell_type == 'cancomp':
+            h_to_rank = lambda x: x//2
+        elif args.cell_type == 'hosvd':
+            rank_list = [2,3,4,5,5]
+            h_to_rank = lambda x: rank_list[hsize_list.index(x)]
+        else:
+            raise ValueError('Cell type not supported yet')
+    else:
+        raise ValueError('Data not supported yet')
+
+
+
 
     it_list = list(range(1, 6))
     param_list = []
@@ -113,6 +135,7 @@ if __name__ == '__main__':
                 d = {}
                 d['lr'] = lr
                 d['h_size'] = hsize
+                d['rank'] = h_to_rank(hsize)
                 d['it'] = it
                 param_list.append(d)
 

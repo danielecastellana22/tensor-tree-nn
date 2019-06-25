@@ -1,7 +1,10 @@
-import torch.nn as nn
-import torch as th
+import numpy as np
 import torch.nn.functional as F
-from treeLSTM import TreeLSTM, TreeDataset
+
+from treeLSTM.cells import *
+from treeLSTM.models import TreeLSTM
+from treeLSTM.dataset import TreeDataset
+
 import networkx as nx
 import dgl
 from collections import namedtuple
@@ -33,7 +36,6 @@ class LogicalTree:
 
             for c in self.child:
                 c.check_tree()
-
 
 
 def parse_string_tree(s, start):
@@ -122,6 +124,7 @@ class LRTDataset(TreeDataset):
 
     NUM_CLASSES = 7
     NUM_VOCABS = 9
+    MAX_OUT_DEGREE = 2
 
     def __init__(self, path_dir, file_name_list, name):
         TreeDataset.__init__(self, path_dir, file_name_list, name)
@@ -163,6 +166,10 @@ class LRTDataset(TreeDataset):
                 for sent in tqdm(txtfile.readlines(), desc='Loading trees: '):
                     l_sent = sent[:-1].split('\t')
                     symbol = self.output_vocabulary[l_sent[0]]
+                    if symbol == 6:
+                        if np.random.rand()>1/10:
+                            continue
+
                     if len(l_sent[1]) == 1:
                         l_sent[1] = '( ' + l_sent[1] + ' )'
                     if len(l_sent[2]) == 1:
@@ -247,7 +254,7 @@ class LRTComparisonModule(nn.Module):
 
 class LRTModel(nn.Module):
 
-    def __init__(self, x_size, h_size, cell_type='nary', **cell_args):
+    def __init__(self, x_size, h_size, cell):
         super(LRTModel, self).__init__()
         num_vocabs = LRTDataset.NUM_VOCABS
         input_module = nn.Embedding(num_vocabs, x_size)
@@ -260,8 +267,7 @@ class LRTModel(nn.Module):
         #input_module = nn.Embedding.from_pretrained(emb_matrix, freeze=True)
 
         output_module = nn.Identity()
-        self.tree_model = TreeLSTM(x_size, h_size, 2, input_module, output_module, cell_type, **cell_args)
-        #self.tree_model = TreeRNN(x_size, h_size, 2, input_module, output_module, cell_type, **cell_args)
+        self.tree_model = TreeLSTM(x_size, h_size, input_module, output_module, cell)
         self.comb_module = LRTComparisonModule(h_size, LRTDataset.NUM_CLASSES)
 
     def forward(self, data_a, data_b):
@@ -283,12 +289,24 @@ class LRTModel(nn.Module):
         return self.comb_module(h_root_a, h_root_b)
 
 
-def create_lrt_model(x_size, h_size, cell_type='nary', **cell_args):
-    return LRTModel(x_size, h_size, cell_type, **cell_args)
+def create_lrt_model(x_size, h_size, cell_type, rank, pos_stationarity):
+    if cell_type == 'nary':
+        cell = NaryCell(h_size, LRTDataset.MAX_OUT_DEGREE, pos_stationarity=pos_stationarity)
+    elif cell_type == 'hosvd':
+        cell = HOSVDCell(h_size, LRTDataset.MAX_OUT_DEGREE, rank=rank, pos_stationarity=pos_stationarity)
+    elif cell_type == 'tt':
+        cell = TTCell(h_size, LRTDataset.MAX_OUT_DEGREE, rank=rank)
+    elif cell_type == 'cancomp':
+        cell = CANCOMPCell(h_size, LRTDataset.MAX_OUT_DEGREE, rank=rank, pos_stationarity=pos_stationarity)
+    elif cell_type == 'full':
+        cell = BinaryFullTensorCell(h_size, LRTDataset.MAX_OUT_DEGREE, pos_stationarity)
+    else:
+        raise ValueError('Cell type not known')
+
+    return LRTModel(x_size, h_size, cell)
 
 
 def load_lrt_dataset(max_n_operator):
-    max_n_operator=1
     tr_files = ['train' + str(x) for x in range(max_n_operator+1)]
     dev_files = ['dev' + str(x) for x in range(max_n_operator+1)]
     train_ds = LRTDataset('data/lrt', tr_files, name='train_set')

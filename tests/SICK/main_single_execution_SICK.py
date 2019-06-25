@@ -22,6 +22,8 @@ def main(args):
     # initiliase the main ogger
     logger = set_main_logger_settings(log_dir, 'main')
 
+    logger.info(args)
+
     # set the seed
     np.random.seed(args.seed)
     th.manual_seed(args.seed)
@@ -46,25 +48,34 @@ def main(args):
                               pretrained_emb=pretrained_embs,
                               cell_type=args.cell_type, max_output_degree=trainset.max_out_degree, rank=args.rank, pos_stationarity=args.pos_stationarity).to(device)
 
+    # load model weight
+
+    with open('checkpoints/SICK_cancomp_stat_ms/k_132/best.pkl','rb') as ff:
+        m_w = th.load(ff, map_location=device)
+
+    for (k, v) in model.named_parameters():
+        v.data = m_w[k].data
+
     logger.info(str(model))
 
     params_ex_emb = [x for x in list(model.parameters()) if x.requires_grad]
 
-    for p in params_ex_emb:
-        if p.dim() > 1:
-            INIT.xavier_uniform_(p)
+    # for p in params_ex_emb:
+    #     if p.dim() > 1:
+    #         INIT.xavier_uniform_(p)
 
-    # create the optimizer
-    #optimizer = optim.Adagrad([{'params':params_ex_emb, 'lr':args.lr, 'weight_decay':args.weight_decay}])
-    optimizer = optim.Adagrad([{'params': params_ex_emb, 'lr': args.lr, 'weight_decay': args.weight_decay}])
+    #create the optimizer
+    # optimizer = optim.Adagrad([{'params':params_ex_emb, 'lr':args.lr, 'weight_decay':args.weight_decay}])
+    #
+    # #train and validate
+    # best_model, best_dev_metrics, *others = train_and_validate(model, sick_extract_batch_data, sick_loss_function, optimizer, trainset, devset, device,
+    #                                                   metrics_class=[MSE_sick, Pearson_sick],
+    #                                                   batch_size=args.batch_size,
+    #                                                   n_epochs=args.epochs, early_stopping_patience=args.early_stopping)
 
-    # train and validate
-    best_model, best_dev_metrics = train_and_validate(model, sick_extract_batch_data, sick_loss_function, optimizer, trainset, devset, device,
-                                                      metrics_class=[MSE_sick, Pearson_sick],
-                                                      batch_size=args.batch_size,
-                                                      n_epochs=args.epochs, early_stopping_patience=args.early_stopping)
+    best_model = model
 
-    test(best_model, sick_extract_batch_data,  testset, device,
+    test(best_model, sick_extract_batch_data,  devset, device,
          metrics_class=[MSE_sick, Pearson_sick],
          batch_size=args.batch_size)
 
@@ -73,7 +84,7 @@ if __name__ == '__main__':
     #TODO: expanme anch savedit can be decided programmatically
     parser = argparse.ArgumentParser()
     parser.add_argument('--gpu', type=int, default=-1)
-    parser.add_argument('--seed', type=int, default=148)
+    parser.add_argument('--seed', type=int, default=0)
     parser.add_argument('--batch-size', type=int, default=25)
     parser.add_argument('--cell-type', default='nary')
     parser.add_argument('--rank', type=int, default=20)

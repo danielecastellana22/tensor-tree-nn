@@ -2,7 +2,7 @@ from .utils import get_new_logger
 from collections import namedtuple
 
 
-# TODO: mnaybe you need to inehirt from torch dataset
+# TODO: you MUST to inehirt from torch dataset
 class TreeDataset():
 
     TreeBatch = namedtuple('TreeBatch', ['graph', 'mask', 'x', 'y'])

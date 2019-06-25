@@ -144,6 +144,7 @@ class BinaryFullTensorCell(GenericTreeLSTMCell):
         self.h_size = h_size
         self.max_output_degree = max_output_degree
 
+        #TODO: use parameter instead of module
         if self.pos_stationarity:
             n_diff_elements = __comb_with_rep__(h_size, 2)
             self.A_w = nn.Parameter(th.randn(n_diff_elements * h_size))
@@ -174,9 +175,9 @@ class BinaryFullTensorCell(GenericTreeLSTMCell):
 # h = U1*h1 + U2*h2 + ... + Un*hn
 class NaryCell(GenericTreeLSTMCell):
 
-    def __init__(self, h_size, max_output_degree, pos_stationarity=True):
+    def __init__(self, h_size, max_output_degree, pos_stationarity):
         super(NaryCell, self).__init__(h_size, max_output_degree, pos_stationarity)
-
+        #TODO: use parameter instead of module
         if not self.pos_stationarity:
             #NARY aggregation
             # define parameters for the computation of iou
@@ -196,7 +197,7 @@ class NaryCell(GenericTreeLSTMCell):
 # h = U3*r3, where r3 = G*r1*r2, r1 = U1*h1 and r2 = U2*h2
 class HOSVDCell(GenericTreeLSTMCell):
 
-    def __init__(self, h_size, max_output_degree, rank, pos_stationarity=True):
+    def __init__(self, h_size, max_output_degree, rank, pos_stationarity):
         super(HOSVDCell, self).__init__(h_size, max_output_degree, pos_stationarity)
 
         self.rank = rank
@@ -285,7 +286,7 @@ class HOSVDCell(GenericTreeLSTMCell):
 # h3 =  Canonical decomposition
 class CANCOMPCell(GenericTreeLSTMCell):
 
-    def __init__(self, h_size, max_output_degree, rank, pos_stationarity=True):
+    def __init__(self, h_size, max_output_degree, rank, pos_stationarity):
         super(CANCOMPCell, self).__init__(h_size, max_output_degree, pos_stationarity)
 
         self.rank = rank
@@ -302,6 +303,7 @@ class CANCOMPCell(GenericTreeLSTMCell):
             self.U = nn.Parameter(th.randn((h_size, 3*rank)))
             self.B = nn.Parameter(th.randn(3*rank))
 
+        # TODO: maybe is better using 3 x rank x hsize with batched matrix multiplication
         self.Ui_output = nn.Parameter(th.randn((rank, h_size)))
         self.Uo_output = nn.Parameter(th.randn((rank, h_size)))
         self.Uu_output = nn.Parameter(th.randn((rank, h_size)))
@@ -330,35 +332,72 @@ class CANCOMPCell(GenericTreeLSTMCell):
         return th.cat((gate_i, gate_o, gate_u), dim=1)
 
 
-# TODO: one rank for each gate
 # TODO: what about pos stationarity?
-# TODO: add bias
-# Tensor Train can't express positional stationarity
+# PROBABLY, tensor Train can't express positional stationarity
 class TTCell(GenericTreeLSTMCell):
 
-    def __init__(self, h_size, max_output_degree, rank):
-        super(TTCell, self).__init__(h_size, max_output_degree, pos_stationarity=False)
+    def __init__(self, h_size, max_output_degree, rank, pos_stationarity):
+        super(TTCell, self).__init__(h_size, max_output_degree, pos_stationarity)
 
-        self.rank = rank
+        if pos_stationarity:
+            raise NotImplementedError('TT with positional stationarity is not implemented yet.')
+        else:
+            self.rank = rank
 
-        self.U_fisrt = nn.Parameter(th.randn((h_size, rank)))
+            self.U_fisrt = nn.Parameter(th.randn((h_size, 3*rank)))
+            self.B_first = nn.Parameter(th.randn(3 * rank))
 
-        # TT tensors
-        self.U_list = nn.ParameterList()
-        for i in range(max_output_degree):
-            self.U_list.append(nn.Parameter(th.randn((h_size, rank * rank))))
+            # TT tensors
+            self.Ui_list = nn.ParameterList()
+            self.Bi_list = nn.ParameterList()
 
-        self.U_last = nn.Parameter(th.randn((rank, 3*h_size)))
+            self.Uo_list = nn.ParameterList()
+            self.Bo_list = nn.ParameterList()
+
+            self.Uu_list = nn.ParameterList()
+            self.Bu_list = nn.ParameterList()
+            for i in range(max_output_degree-1):
+                self.Ui_list.append(nn.Parameter(th.randn((h_size, rank*rank))))
+                self.Bi_list.append(nn.Parameter(th.randn(rank)))
+
+                self.Uo_list.append(nn.Parameter(th.randn((h_size, rank*rank))))
+                self.Bo_list.append(nn.Parameter(th.randn(rank)))
+
+                self.Uu_list.append(nn.Parameter(th.randn((h_size, rank*rank))))
+                self.Bu_list.append(nn.Parameter(th.randn(rank)))
+
+            self.Ui_output = nn.Parameter(th.randn((rank, h_size)))
+            self.Uo_output = nn.Parameter(th.randn((rank, h_size)))
+            self.Uu_output = nn.Parameter(th.randn((rank, h_size)))
 
     # neighbour_states has shape batch_size x n_neighbours x insize
     def compute_iou_gate(self, neighbour_h):
-        h = neighbour_h[:, 0, :].view(neighbour_h.size(0), -1)
-        ris = th.matmul(h, self.U_fisrt).view(-1, self.rank, 1)
 
-        for i in range(1, self.max_output_degree):
-            h = neighbour_h[:, i, :].view(neighbour_h.size(0), -1)
-            U = self.U_list[i]
-            ris = th.bmm(th.matmul(h, U).view((-1, self.rank, self.rank)), ris)
+        if self.pos_stationarity:
+            raise NotImplementedError('TT with positional stationarity is not implemented yet.')
+        else:
+            h = neighbour_h[:, 0, :].view(neighbour_h.size(0), -1)
 
-        h_out = th.matmul(ris.squeeze(), self.U_last)
-        return h_out
+            ris = th.addmm(self.B_first, h, self.U_fisrt).view(-1, 3*self.rank, 1)
+            (r_i, r_o, r_u) = th.chunk(ris, 3, 1)
+            for i in range(0, self.max_output_degree-1):
+                h = neighbour_h[:, i+1, :].view(neighbour_h.size(0), -1)
+
+                U_i = self.Ui_list[i]
+                B_i = self.Bi_list[i]
+
+                U_o = self.Uo_list[i]
+                B_o = self.Bo_list[i]
+
+                U_u = self.Uu_list[i]
+                B_u = self.Bu_list[i]
+
+                r_i = th.bmm(th.addmm(B_i, h, U_i).view(-1, self.rank, self.rank), r_i)
+                r_o = th.bmm(th.addmm(B_o, h, U_o).view(-1, self.rank, self.rank), r_o)
+                r_u = th.bmm(th.addmm(B_u, h, U_u).view(-1, self.rank, self.rank), r_u)
+
+            gate_i = th.matmul(r_i.squeeze(2), self.Ui_output)
+            gate_o = th.matmul(r_o.squeeze(2), self.Uo_output)
+            gate_u = th.matmul(r_u.squeeze(2), self.Uu_output)
+
+            return th.cat((gate_i, gate_o, gate_u), dim=1)

@@ -1,13 +1,15 @@
 import os
 
 import argparse
-import numpy as np
-import torch as th
 import torch.nn.init as INIT
 import torch.optim as optim
 
-from treeLSTM import *
-from utils import load_lrt_dataset, create_lrt_model, lrt_loss_function, lrt_extract_batch_data
+from treeLSTM.utils import set_main_logger_settings
+from treeLSTM.cells import *
+from treeLSTM.trainer import *
+from treeLSTM.metrics import Accuracy
+
+from tests.LRT.utils import load_lrt_dataset, create_lrt_model, lrt_loss_function, lrt_extract_batch_data
 
 def main(args):
 
@@ -36,7 +38,7 @@ def main(args):
     trainset, devset, testset_list = load_lrt_dataset(args.max_n_operator)
 
     # create the model
-    model = create_lrt_model(args.x_size, args.h_size, cell_type=args.cell_type).to(device)
+    model = create_lrt_model(args.x_size, args.h_size, args.cell_type, args.rank, args.pos_stationarity).to(device)
 
     params_ex_emb = [x for x in list(model.parameters()) if x.requires_grad]
 
@@ -49,7 +51,7 @@ def main(args):
         {'params': params_ex_emb, 'lr': args.lr, 'weight_decay': args.weight_decay, 'lr_decay':0.05}])
 
     # train and validate
-    best_model, best_dev_metrics = train_and_validate(model, lrt_extract_batch_data, lrt_loss_function, optimizer, trainset, devset, device,
+    best_model, best_dev_metrics, *others = train_and_validate(model, lrt_extract_batch_data, lrt_loss_function, optimizer, trainset, devset, device,
                                                       metrics_class=[Accuracy],
                                                       batch_size=args.batch_size,
                                                       n_epochs=args.epochs, early_stopping_patience=args.early_stopping)
@@ -73,10 +75,12 @@ if __name__ == '__main__':
     parser.add_argument('--h-size', type=int, default=75)
     parser.add_argument('--epochs', type=int, default=100)
     parser.add_argument('--early-stopping', type=int, default=10)
-    parser.add_argument('--lr', type=float, default=0.01)
+    parser.add_argument('--lr', type=float, default=0.05)
     parser.add_argument('--weight-decay', type=float, default=1e-4)
     parser.add_argument('--save', default='checkpoints/')
     parser.add_argument('--expname', default='lrt-test')
+    parser.add_argument('--rank', type=int, default=20)
+    parser.add_argument('--pos-stationarity', dest='pos_stationarity', action='store_true')
     args = parser.parse_args()
     #print(args)
     main(args)

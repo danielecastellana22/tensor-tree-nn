@@ -2,6 +2,20 @@ import json
 import numpy as np
 #import matplotlib.pyplot as plt
 
+
+
+with open('checkpoints/SICK_cancomp_stat_ms/checkpoint.json', 'r') as f:
+    cancomp_d = json.load(f)
+
+cancomp_results = cancomp_d['results']
+
+
+with open('checkpoints/SICK_hosvd_stat_ms/checkpoint.json', 'r') as f:
+    full_hosvd = json.load(f)
+
+hosvd_results = full_hosvd['results']
+
+
 with open('checkpoints/SICK_cancomp_stat_ms/checkpoint.json', 'r') as f:
     d = json.load(f)
 

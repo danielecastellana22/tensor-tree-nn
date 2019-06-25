@@ -79,6 +79,7 @@ if __name__ == '__main__':
     parser.add_argument('--lr', type=float, default=0.05)
     parser.add_argument('--weight-decay', type=float, default=1e-4)
     parser.add_argument('--rank', type=int, default=20)
+    parser.add_argument('--pos-stationarity', dest='pos_stationarity', action='store_true')
     parser.add_argument('--dropout', type=float, default=0.5)
     parser.add_argument('--save', default='checkpoints/')
     parser.add_argument('--expname', default='test')

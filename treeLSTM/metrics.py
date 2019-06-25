@@ -68,12 +68,9 @@ class RootAccuracy(TreeMetric):
 
     def update_metric(self, out, gold_label, graph):
         root_ids = [i for i in range(graph.number_of_nodes()) if graph.out_degree(i) == 0]
-        # leaves_ids = [i for i in range(batch.graph.number_of_nodes()) if batch.graph.in_degree(i) == 0]
         pred = th.argmax(out, 1)
-        root_pred = pred.cpu().data.numpy()[root_ids]
-        root_labels = gold_label.cpu().data.numpy()[root_ids]
-        self.n_correct += np.sum(root_labels == root_pred)
-        self.n_nodes += len(root_pred)
+        self.n_correct += th.sum(th.eq(pred[root_ids], gold_label[root_ids])).item()
+        self.n_nodes += len(root_ids)
 
     def finalise_metric(self):
         self.final_value = self.n_correct / self.n_nodes
@@ -94,10 +91,8 @@ class LeavesAccuracy(TreeMetric):
     def update_metric(self, out, gold_label, graph):
         leaves_ids = [i for i in range(graph.number_of_nodes()) if graph.in_degree(i) == 0]
         pred = th.argmax(out, 1)
-        leaves_pred = pred.cpu().data.numpy()[leaves_ids]
-        leaves_labels = gold_label.cpu().data.numpy()[leaves_ids]
-        self.n_correct += np.sum(leaves_labels == leaves_pred)
-        self.n_nodes += len(leaves_pred)
+        self.n_correct += th.sum(th.eq(pred[leaves_ids], gold_label[leaves_ids])).item()
+        self.n_nodes += len(leaves_ids)
 
     def finalise_metric(self):
         self.final_value = self.n_correct / self.n_nodes
@@ -116,7 +111,7 @@ class MSE(ValueMetric):
         self.n_val = 0
 
     def update_metric(self, out, gold_label):
-        self.val += th.sum((out-gold_label).pow(2))
+        self.val += th.sum((out-gold_label).pow(2)).item()
         self.n_val += len(gold_label)
 
     def finalise_metric(self):
@@ -155,7 +150,7 @@ class Pearson(ValueMetric):
         vy = self.y - th.mean(self.y)
 
         cost = th.sum(vx * vy) / (th.sqrt(th.sum(vx ** 2)) * th.sqrt(th.sum(vy ** 2)))
-        self.final_value = cost
+        self.final_value = cost.item()
 
     def __str__(self):
         return "Pearson: {:4f}".format(self.final_value)
