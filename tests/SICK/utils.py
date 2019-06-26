@@ -189,7 +189,7 @@ def create_sick_model(x_size, h_size, max_output_degree, pretrained_emb=None, nu
     elif cell_type == 'hosvd':
         cell = HOSVDCell(h_size, max_output_degree, rank=rank, pos_stationarity=pos_stationarity)
     elif cell_type == 'tt':
-        cell = TTCell(h_size, max_output_degree, rank=rank)
+        cell = TTCell(h_size, max_output_degree, rank=rank, pos_stationarity=pos_stationarity)
     elif cell_type == 'cancomp':
         cell = CANCOMPCell(h_size, max_output_degree, rank=rank, pos_stationarity=pos_stationarity)
     elif cell_type == 'full':

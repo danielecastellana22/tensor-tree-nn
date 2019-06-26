@@ -49,33 +49,31 @@ def main(args):
                               cell_type=args.cell_type, max_output_degree=trainset.max_out_degree, rank=args.rank, pos_stationarity=args.pos_stationarity).to(device)
 
     # load model weight
-
-    with open('checkpoints/SICK_cancomp_stat_ms/k_132/best.pkl','rb') as ff:
-        m_w = th.load(ff, map_location=device)
-
-    for (k, v) in model.named_parameters():
-        v.data = m_w[k].data
-
-    logger.info(str(model))
+    # with open('checkpoints/SICK_cancomp_stat_ms/k_132/best.pkl','rb') as ff:
+    #     m_w = th.load(ff, map_location=device)
+    #
+    # for (k, v) in model.named_parameters():
+    #     v.data = m_w[k].data
+    #
+    # logger.info(str(model))
 
     params_ex_emb = [x for x in list(model.parameters()) if x.requires_grad]
 
-    # for p in params_ex_emb:
-    #     if p.dim() > 1:
-    #         INIT.xavier_uniform_(p)
+    for p in params_ex_emb:
+        if p.dim() > 1:
+            INIT.xavier_uniform_(p)
 
     #create the optimizer
-    # optimizer = optim.Adagrad([{'params':params_ex_emb, 'lr':args.lr, 'weight_decay':args.weight_decay}])
-    #
-    # #train and validate
-    # best_model, best_dev_metrics, *others = train_and_validate(model, sick_extract_batch_data, sick_loss_function, optimizer, trainset, devset, device,
-    #                                                   metrics_class=[MSE_sick, Pearson_sick],
-    #                                                   batch_size=args.batch_size,
-    #                                                   n_epochs=args.epochs, early_stopping_patience=args.early_stopping)
+    optimizer = optim.Adagrad([{'params':params_ex_emb, 'lr':args.lr, 'weight_decay':args.weight_decay}])
 
-    best_model = model
+    #train and validate
+    best_model, best_dev_metrics, *others = train_and_validate(model, sick_extract_batch_data, sick_loss_function, optimizer, trainset, devset, device,
+                                                      metrics_class=[MSE_sick, Pearson_sick],
+                                                      batch_size=args.batch_size,
+                                                      n_epochs=args.epochs, early_stopping_patience=args.early_stopping)
 
-    test(best_model, sick_extract_batch_data,  devset, device,
+
+    test(best_model, sick_extract_batch_data,  testset, device,
          metrics_class=[MSE_sick, Pearson_sick],
          batch_size=args.batch_size)
 

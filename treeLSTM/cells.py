@@ -384,17 +384,17 @@ class TTCell(GenericTreeLSTMCell):
                 h = neighbour_h[:, i+1, :].view(neighbour_h.size(0), -1)
 
                 U_i = self.Ui_list[i]
-                B_i = self.Bi_list[i]
+                B_i = self.Bi_list[i].view(1, self.rank, 1).expand(neighbour_h.size(0), -1, -1)
 
                 U_o = self.Uo_list[i]
-                B_o = self.Bo_list[i]
+                B_o = self.Bo_list[i].view(1, self.rank, 1).expand(neighbour_h.size(0), -1, -1)
 
                 U_u = self.Uu_list[i]
-                B_u = self.Bu_list[i]
+                B_u = self.Bu_list[i].view(1, self.rank, 1).expand(neighbour_h.size(0), -1, -1)
 
-                r_i = th.bmm(th.addmm(B_i, h, U_i).view(-1, self.rank, self.rank), r_i)
-                r_o = th.bmm(th.addmm(B_o, h, U_o).view(-1, self.rank, self.rank), r_o)
-                r_u = th.bmm(th.addmm(B_u, h, U_u).view(-1, self.rank, self.rank), r_u)
+                r_i = th.baddbmm(B_i, th.matmul(h, U_i).view(-1, self.rank, self.rank), r_i)
+                r_o = th.baddbmm(B_o, th.matmul(h, U_o).view(-1, self.rank, self.rank), r_i)
+                r_u = th.baddbmm(B_u, th.matmul(h, U_u).view(-1, self.rank, self.rank), r_i)
 
             gate_i = th.matmul(r_i.squeeze(2), self.Ui_output)
             gate_o = th.matmul(r_o.squeeze(2), self.Uo_output)
