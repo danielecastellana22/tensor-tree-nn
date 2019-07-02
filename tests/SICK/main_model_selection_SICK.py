@@ -50,7 +50,7 @@ def get_train_and_validate_fun(args, logger):
         optimizer = optim.Adagrad([{'params': params_ex_emb, 'lr': params['lr'], 'weight_decay': params['weight_decay']}])
 
         # train and validate
-        best_model, best_dev_metrics = train_and_validate(model, sick_extract_batch_data, sick_loss_function, optimizer, trainset, devset, device,
+        best_model, best_dev_metrics, *others = train_and_validate(model, sick_extract_batch_data, sick_loss_function, optimizer, trainset, devset, device,
                                                       metrics_class=[MSE_sick, Pearson_sick],
                                                       batch_size=args.batch_size,
                                                       n_epochs=args.epochs, early_stopping_patience=args.early_stopping)
@@ -103,8 +103,8 @@ if __name__ == '__main__':
         lr_list = [0.01, 0.02, 0.05]
         rank_list = [70, 100, 150]
         weight_decay_list = [1e-5, 1e-4, 1e-3]
-
         it_list = list(range(1, 6))
+
         param_list = []
         for lr in lr_list:
             for rank in rank_list:
@@ -120,8 +120,25 @@ if __name__ == '__main__':
         lr_list = [0.01, 0.02, 0.05]
         rank_list = [2, 3]
         weight_decay_list = [1e-5, 1e-4, 1e-3]
-
         it_list = list(range(1, 6))
+
+        param_list = []
+        for lr in lr_list:
+            for rank in rank_list:
+                for w in weight_decay_list:
+                    for it in it_list:
+                        d = {}
+                        d['lr'] = lr
+                        d['it'] = it
+                        d['rank'] = rank
+                        d['weight_decay'] = w
+                        param_list.append(d)
+    elif args.cell_type == 'nary':
+        lr_list = [0.02, 0.05]
+        weight_decay_list = [1e-4]
+        it_list = list(range(1, 6))
+        rank_list = [-1]
+
         param_list = []
         for lr in lr_list:
             for rank in rank_list:

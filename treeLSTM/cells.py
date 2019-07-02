@@ -107,7 +107,7 @@ class GenericTreeLSTMCell(nn.Module):
 
         # add the input contribution
         f_aggr = self.compute_forget_gate(neighbour_h) + (nodes.data['f_input']).repeat((1, self.max_output_degree))
-        iou_aggr = self.compute_iou_gate(neighbour_h) + nodes.data['iou_input']
+        iou_aggr = self.compute_iou_gate(neighbour_h)
 
         f = th.sigmoid(f_aggr).view(*neighbour_c.size())
         c = th.sum(f * neighbour_c, 1)
@@ -401,3 +401,169 @@ class TTCell(GenericTreeLSTMCell):
             gate_u = th.matmul(r_u.squeeze(2), self.Uu_output)
 
             return th.cat((gate_i, gate_o, gate_u), dim=1)
+
+
+class NaryIOUInputDependentCell(GenericTreeLSTMCell):
+
+    def __init__(self, h_size, max_output_degree, pos_stationarity):
+        super(NaryIOUInputDependentCell, self).__init__(h_size, max_output_degree, pos_stationarity)
+        #TODO: use parameter instead of module
+        if not self.pos_stationarity:
+            #NARY aggregation
+            # define parameters for the computation of iou
+            raise NotImplementedError('Nary version not implemented yet')
+        else:
+            #SUMCHILD aggrefation
+            #self.U = nn.Linear(h_size, 3 * h_size, bias=False)
+            self.U_i = nn.Parameter(th.randn(h_size, h_size, h_size))
+            self.U_o = nn.Parameter(th.randn(h_size, h_size, h_size))
+            self.U_u = nn.Parameter(th.randn(h_size, h_size, h_size))
+
+
+    def reduce_func(self, nodes):
+        # check missin child
+        neighbour_h, neighbour_c = self.check_missing_children(nodes.mailbox['h'], nodes.mailbox['c'])
+
+        # add the input contribution
+        f_aggr = self.compute_forget_gate(neighbour_h) + (nodes.data['f_input']).repeat((1, self.max_output_degree))
+
+        x_i, x_o, x_u = th.chunk(nodes.data['iou_input'], 3, dim=1)
+        h_sum = th.sum(neighbour_h, 1)
+        gate_i = th.bmm(th.matmul(x_i, self.U_i.view(self.h_size, -1)).view(-1, self.h_size, self.h_size), h_sum.view(-1, self.h_size, 1)).squeeze(2)
+        gate_o = th.bmm(th.matmul(x_o, self.U_o.view(self.h_size, -1)).view(-1, self.h_size, self.h_size), h_sum.view(-1, self.h_size, 1)).squeeze(2)
+        gate_u = th.bmm(th.matmul(x_u, self.U_u.view(self.h_size, -1)).view(-1, self.h_size, self.h_size), h_sum.view(-1, self.h_size, 1)).squeeze(2)
+        iou_aggr = th.cat((gate_i, gate_o, gate_u), dim=1)
+
+        f = th.sigmoid(f_aggr).view(*neighbour_c.size())
+        c = th.sum(f * neighbour_c, 1)
+        return {'iou_aggr': iou_aggr, 'c_aggr': c}
+
+    def apply_node_func(self, nodes):
+        iou = nodes.data['iou_input']
+        if 'iou_aggr' in nodes.data:
+            # internal nodes
+            iou = nodes.data['iou_aggr']
+
+        i, o, u = th.chunk(iou, 3, 1)
+        i, o, u = th.sigmoid(i), th.sigmoid(o), th.tanh(u)
+        c = i * u
+
+        if 'c_aggr' in nodes.data:
+            # internal nodes
+            c += nodes.data['c_aggr']
+
+        h = o * th.tanh(c)
+        return {'h': h, 'c': c}
+
+
+# IGNORE NEXT CLASS
+class NaryFInputDependentCell(NaryCell):
+
+    def __init__(self, h_size, max_output_degree, pos_stationarity):
+        super(NaryFInputDependentCell, self).__init__(h_size, max_output_degree, pos_stationarity)
+        #TODO: use parameter instead of module
+        if not self.pos_stationarity:
+            #NARY aggregation
+            # define parameters for the computation of iou
+            raise NotImplementedError('Nary version not implemented yet')
+        else:
+            #SUMCHILD aggrefation
+            #self.U_f = nn.Bilinear(h_size, h_size, h_size)
+            self.U_f = nn.Parameter(th.randn(h_size, h_size, h_size))
+
+    def compute_forget_gate(self, neighbour_h):
+        raise NotImplementedError('users must define compute_iou to use this base class')
+
+    def message_func(self, edges):
+        return {'h': edges.src['h'], 'c': edges.src['c']}
+
+    def reduce_func(self, nodes):
+        #check missin child
+        neighbour_h, neighbour_c = self.check_missing_children(nodes.mailbox['h'], nodes.mailbox['c'])
+
+        # add the input contribution
+        #f_aggr = self.compute_forget_gate(neighbour_h) + (nodes.data['f_input']).repeat((1, self.max_output_degree))
+        x_in = nodes.data['f_input']
+        Uf_inDep = th.matmul(x_in, self.U_f.view(self.h_size, -1)).view(-1, self.h_size, self.h_size)
+        f_aggr = th.bmm(neighbour_h, Uf_inDep).view(-1, self.max_output_degree, self.h_size)
+
+        iou_aggr = self.compute_iou_gate(neighbour_h)
+
+        f = th.sigmoid(f_aggr).view(*neighbour_c.size())
+        c = th.sum(f * neighbour_c, 1)
+        return {'iou_aggr': iou_aggr, 'c_aggr': c}
+
+    def apply_node_func(self, nodes):
+        iou = nodes.data['iou_input']
+        if 'iou_aggr' in nodes.data:
+            # internal nodes
+            iou += nodes.data['iou_aggr']
+
+        i, o, u = th.chunk(iou, 3, 1)
+        i, o, u = th.sigmoid(i), th.sigmoid(o), th.tanh(u)
+        c = i * u
+
+        if 'c_aggr' in nodes.data:
+            # internal nodes
+            c += nodes.data['c_aggr']
+
+        h = o * th.tanh(c)
+        return {'h': h, 'c': c}
+
+class NaryALLInputDependentCell(GenericTreeLSTMCell):
+
+    def __init__(self, h_size, max_output_degree, pos_stationarity):
+        super(NaryALLInputDependentCell, self).__init__(h_size, max_output_degree, pos_stationarity)
+        #TODO: use parameter instead of module
+        if not self.pos_stationarity:
+            #NARY aggregation
+            # define parameters for the computation of iou
+            raise NotImplementedError('Nary version not implemented yet')
+        else:
+            #SUMCHILD aggrefation
+            self.U_i = nn.Parameter(th.randn(h_size, h_size, h_size))
+            self.U_o = nn.Parameter(th.randn(h_size, h_size, h_size))
+            self.U_u = nn.Parameter(th.randn(h_size, h_size, h_size))
+
+            self.U_f = nn.Parameter(th.randn(h_size, h_size, h_size))
+
+    def compute_forget_gate(self, neighbour_h):
+        raise NotImplementedError('users must define compute_iou to use this base class')
+
+    def reduce_func(self, nodes):
+        # check missin child
+        neighbour_h, neighbour_c = self.check_missing_children(nodes.mailbox['h'], nodes.mailbox['c'])
+
+        # add the input contribution
+        #f_aggr = self.compute_forget_gate(neighbour_h) + (nodes.data['f_input']).repeat((1, self.max_output_degree))
+        x_in = nodes.data['f_input']
+        Uf_inDep = th.matmul(x_in, self.U_f.view(self.h_size, -1)).view(-1, self.h_size, self.h_size)
+        f_aggr = th.bmm(neighbour_h, Uf_inDep).view(-1, self.max_output_degree * self.h_size)
+
+        x_i, x_o, x_u = th.chunk(nodes.data['iou_input'], 3, dim=1)
+        h_sum = th.sum(neighbour_h, 1)
+        gate_i = th.bmm(th.matmul(x_i, self.U_i.view(self.h_size, -1)).view(-1, self.h_size, self.h_size), h_sum.view(-1, self.h_size, 1)).squeeze(2)
+        gate_o = th.bmm(th.matmul(x_o, self.U_o.view(self.h_size, -1)).view(-1, self.h_size, self.h_size), h_sum.view(-1, self.h_size, 1)).squeeze(2)
+        gate_u = th.bmm(th.matmul(x_u, self.U_u.view(self.h_size, -1)).view(-1, self.h_size, self.h_size), h_sum.view(-1, self.h_size, 1)).squeeze(2)
+        iou_aggr = th.cat((gate_i, gate_o, gate_u), dim=1)
+
+        f = th.sigmoid(f_aggr).view(*neighbour_c.size())
+        c = th.sum(f * neighbour_c, 1)
+        return {'iou_aggr': iou_aggr, 'c_aggr': c}
+
+    def apply_node_func(self, nodes):
+        iou = nodes.data['iou_input']
+        if 'iou_aggr' in nodes.data:
+            # internal nodes
+            iou = nodes.data['iou_aggr']
+
+        i, o, u = th.chunk(iou, 3, 1)
+        i, o, u = th.sigmoid(i), th.sigmoid(o), th.tanh(u)
+        c = i * u
+
+        if 'c_aggr' in nodes.data:
+            # internal nodes
+            c += nodes.data['c_aggr']
+
+        h = o * th.tanh(c)
+        return {'h': h, 'c': c}

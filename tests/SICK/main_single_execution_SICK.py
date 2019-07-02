@@ -35,7 +35,7 @@ def main(args):
     if cuda:
         th.cuda.set_device(args.gpu)
     else:
-        th.set_num_threads(10)
+        th.set_num_threads(20)
 
     vocab = load_vocabulary('data/sick/', logger=logger)
     pretrained_embs = load_embeddings('data/sick/', pretrained_emb_file='data/glove.840B.300d.txt', vocab=vocab, logger=logger)
@@ -48,13 +48,14 @@ def main(args):
                               pretrained_emb=pretrained_embs,
                               cell_type=args.cell_type, max_output_degree=trainset.max_out_degree, rank=args.rank, pos_stationarity=args.pos_stationarity).to(device)
 
-    # load model weight
-    # with open('checkpoints/SICK_cancomp_stat_ms/k_132/best.pkl','rb') as ff:
+    #load model weight
+    # with open('checkpoints/SICK_nary_stat_ms/k_7/best.pkl','rb') as ff:
     #     m_w = th.load(ff, map_location=device)
     #
     # for (k, v) in model.named_parameters():
     #     v.data = m_w[k].data
     #
+    # best_model = model
     # logger.info(str(model))
 
     params_ex_emb = [x for x in list(model.parameters()) if x.requires_grad]
@@ -72,6 +73,13 @@ def main(args):
                                                       batch_size=args.batch_size,
                                                       n_epochs=args.epochs, early_stopping_patience=args.early_stopping)
 
+    # test(best_model, sick_extract_batch_data,  trainset, device,
+    #      metrics_class=[MSE_sick, Pearson_sick],
+    #      batch_size=args.batch_size)
+    #
+    # test(best_model, sick_extract_batch_data,  devset, device,
+    #      metrics_class=[MSE_sick, Pearson_sick],
+    #      batch_size=args.batch_size)
 
     test(best_model, sick_extract_batch_data,  testset, device,
          metrics_class=[MSE_sick, Pearson_sick],

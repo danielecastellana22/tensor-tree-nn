@@ -63,7 +63,7 @@ def main(args):
         {'params':params_emb, 'lr':0.1*args.lr}])
 
     # train and validate
-    best_model, best_dev_metrics = train_and_validate(model, sst_extract_batch_data, sst_loss_function, optimizer, trainset, devset, device,
+    best_model, best_dev_metrics, *others = train_and_validate(model, sst_extract_batch_data, sst_loss_function, optimizer, trainset, devset, device,
                                                       metrics_class=[Accuracy, RootAccuracy, LeavesAccuracy],
                                                       batch_size=args.batch_size,
                                                       n_epochs=args.epochs, early_stopping_patience=args.early_stopping)
