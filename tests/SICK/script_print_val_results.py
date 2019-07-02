@@ -16,9 +16,6 @@ with open('checkpoints/SICK_hosvd_stat_ms/checkpoint.json', 'r') as f:
 hosvd_results = full_hosvd['results']
 
 
-with open('checkpoints/SICK_cancomp_stat_ms/checkpoint.json', 'r') as f:
-    d = json.load(f)
-
 MSE_val_cc = np.array([float(x['MSE_val'][7:13]) for x in d['results']]).reshape((3,3,3,5))
 Pearson_val_cc = np.array([float(x['Pearson_val'][7:13]) for x in d['results']]).reshape((3,3,3,5))
 
@@ -50,3 +47,10 @@ best_Pearson_wrt_rank_hs = Pearson_val_hs.mean(3).max(2).max(0)
 
 #plt.plot(wd, vl_best_wd_f)
 #plt.plot(wd, tr_best_wd_f)
+
+with open('checkpoints/SICK_nary_stat_ms/checkpoint.json', 'r') as f:
+    nary_d = json.load(f)
+nary_results = nary_d['results']
+
+nary_mse = np.array([x['MSE_val'] for x in nary_results]).reshape((2, 5))
+nary_pearson = np.array([x['Pearson_val'] for x in nary_results]).reshape((2, 5))

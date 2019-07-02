@@ -9,10 +9,6 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 
 
-# TODO: modfy the dataset class according to TreeDataset
-# TODO: embeddigns anf vocabulray must be loaded outside the class and sahred amogn test/train/dev
-# TODO: check out to load embeddings (remove lower on emdeggings key)
-
 class SSTDataset(TreeDataset):
 
     PAD_WORD = -1  # special pad word id
@@ -85,17 +81,17 @@ class SSTOutputModule(nn.Module):
         return self.linear(self.dropout(h))
 
 
-def create_sst_model(x_size, h_size, num_classes, max_output_degree=2, dropout=0.5, pretrained_emb=None, num_vocabs=None, cell_type='nary', rank=None, pos_stationarity=False):
+def create_sst_model(x_size, h_size, num_classes, max_output_degree, dropout, cell_type, rank, pos_stationarity, pretrained_emb=None, num_vocabs=None):
     if cell_type == 'nary':
         cell = NaryCell(h_size, max_output_degree, pos_stationarity=pos_stationarity)
     elif cell_type == 'hosvd':
         cell = HOSVDCell(h_size, max_output_degree, rank=rank, pos_stationarity=pos_stationarity)
     elif cell_type == 'tt':
-        cell = TTCell(h_size, max_output_degree, rank=rank)
+        cell = TTCell(h_size, max_output_degree, rank=rank, pos_stationarity=pos_stationarity)
     elif cell_type == 'cancomp':
         cell = CANCOMPCell(h_size, max_output_degree, rank=rank, pos_stationarity=pos_stationarity)
     elif cell_type == 'full':
-        raise ValueError('The Full Tensora agrregation cannot be used')
+        cell = BinaryFullTensorCell(h_size, max_output_degree, pos_stationarity=pos_stationarity)
     else:
         raise ValueError('Cell type not known')
     if pretrained_emb is None:
