@@ -97,7 +97,7 @@ def create_sst_model(x_size, h_size, num_classes, max_output_degree, dropout, ce
     if pretrained_emb is None:
         input_module = nn.Embedding(num_vocabs, x_size)
     else:
-        input_module = nn.Embedding.from_pretrained(pretrained_emb, freeze=True)
+        input_module = nn.Embedding.from_pretrained(pretrained_emb, freeze=False)
 
     output_module = SSTOutputModule(h_size, num_classes, dropout)
 
@@ -112,8 +112,7 @@ def load_sst_dataset(vocab):
 
 
 def sst_loss_function(output_model, true_label):
-    logp = F.log_softmax(output_model, 1)
-    return F.nll_loss(logp, true_label, reduction='sum')
+    return F.cross_entropy(output_model, true_label, reduction='sum')
 
 
 def sst_extract_batch_data(batch):
@@ -121,5 +120,4 @@ def sst_extract_batch_data(batch):
     x = batch.x
     mask = batch.mask
     y = batch.y
-    n_batch = batch.graph.batch_size
-    return [g, x, mask], y, n_batch, g
+    return [g, x, mask], y, g

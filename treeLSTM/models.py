@@ -39,7 +39,7 @@ class TreeLSTM(nn.Module):
         g.register_reduce_func(self.cell.reduce_func)
         g.register_apply_node_func(self.cell.apply_node_func)
         # feed embedding
-        # TODO: x * mask does not make sense. use x[mask]
+        # TODO: x * mask assume zero neutral element. THIS NO TRUE IF THE INPUT CONTRIBUTION IS NOT SUMMED
         embeds = self.input_module(x * mask)
         g.ndata['iou_input'] = self.W_iou(embeds) * mask.float().unsqueeze(-1)
         g.ndata['f_input'] = self.W_f(embeds) * mask.float().unsqueeze(-1)

@@ -226,7 +226,7 @@ def sick_extract_batch_data(batch):
 
     n_batch = sym.size(0)
 
-    return [[g_a, x_a, mask_a], [g_b, x_b, mask_b]], [target_distr, sym], n_batch, None
+    return [[g_a, x_a, mask_a], [g_b, x_b, mask_b]], [target_distr, sym], None
 
 
 class MSE_sick(MSE):

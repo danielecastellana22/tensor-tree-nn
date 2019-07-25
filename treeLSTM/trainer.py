@@ -36,12 +36,12 @@ def train_and_validate(model, extract_batch_data, loss_function, optimizer, trai
         tr_forw_time = 0
         tr_backw_time = 0
         val_time = 0
-        # TODO: check if tqdm remains filled if > len
+
         with tqdm(total=len(trainset), desc='Training epoch ' + str(epoch) + ': ') as pbar:
             for step, batch in enumerate(trainloader):
 
                 t = time.time()
-                in_data, out_data, n_samples,  _ = extract_batch_data(batch)
+                in_data, out_data,  _ = extract_batch_data(batch)
                 model_output = model(*in_data)
                 loss = loss_function(model_output, out_data)
                 tr_forw_time += (time.time() - t)
@@ -52,7 +52,7 @@ def train_and_validate(model, extract_batch_data, loss_function, optimizer, trai
                 optimizer.step()
                 tr_backw_time += (time.time() - t)
 
-                pbar.update(n_samples)
+                pbar.update(min(batch_size, pbar.total-pbar.n))
 
         # eval on dev set
         model.eval()
@@ -60,7 +60,7 @@ def train_and_validate(model, extract_batch_data, loss_function, optimizer, trai
             for step, batch in enumerate(devloader):
 
                 t = time.time()
-                in_data, out_data, n_samples, graph = extract_batch_data(batch)
+                in_data, out_data, graph = extract_batch_data(batch)
                 with th.no_grad():
                     out = model(*in_data)
 
@@ -73,7 +73,7 @@ def train_and_validate(model, extract_batch_data, loss_function, optimizer, trai
                         v.update_metric(out, out_data, graph)
                 val_time += (time.time() - t)
 
-                pbar.update(n_samples)
+                pbar.update(min(batch_size, pbar.total - pbar.n))
 
         # print metrics
         s = "Dev Test: Epoch {:03d} | ".format(epoch)
@@ -123,7 +123,7 @@ def test(model, extract_batch_data, testset, device, metrics_class, batch_size=2
     model.eval()
     with tqdm(total=len(testset), desc='Testing on test set: ') as pbar:
         for step, batch in enumerate(testloader):
-            in_data, out_data, n_samples, graph = extract_batch_data(batch)
+            in_data, out_data, graph = extract_batch_data(batch)
             with th.no_grad():
                 out_model = model(*in_data)
 
@@ -135,7 +135,7 @@ def test(model, extract_batch_data, testset, device, metrics_class, batch_size=2
                 if isinstance(v, TreeMetric):
                     v.update_metric(out_model, out_data, graph)
 
-            pbar.update(n_samples)
+            pbar.update(min(batch_size, pbar.total-pbar.n))
 
     # print metrics
     s = "Test: "

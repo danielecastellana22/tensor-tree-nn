@@ -60,6 +60,7 @@ def load_vocabulary(data_dir, logger):
 
 def load_embeddings(data_dir, pretrained_emb_file, vocab, logger):
     object_file = os.path.join(data_dir, 'pretrained_emb.pkl')
+    embeding_dim = 300
     if os.path.exists(object_file):
         pretrained_emb = th.load(object_file)
     else:
@@ -70,18 +71,19 @@ def load_embeddings(data_dir, pretrained_emb_file, vocab, logger):
             for line in tqdm(pf.readlines(), desc='Loading pretrained embeddings:'):
                 sp = line.split(' ')
                 if sp[0] in vocab:
-                    glove_emb[sp[0].lower()] = np.array([float(x) for x in sp[1:]])
+                    glove_emb[sp[0]] = np.array([float(x) for x in sp[1:]])
 
         # initialize with glove
-        pretrained_emb = []
+        pretrained_emb = np.random.uniform(-0.05, 0.05, (len(vocab), embeding_dim))
         fail_cnt = 0
         for line in vocab.keys():
-            if not line.lower() in glove_emb:
+            if line in glove_emb:
+                pretrained_emb[vocab[line], :] = glove_emb[line]
+            else:
                 fail_cnt += 1
-            pretrained_emb.append(glove_emb.get(line.lower(), np.random.uniform(-0.05, 0.05, 300)))
 
         logger.info('Miss word in GloVe {0:.4f}'.format(1.0 * fail_cnt / len(pretrained_emb)))
-        pretrained_emb = th.tensor(np.stack(pretrained_emb, 0)).float()
+        pretrained_emb = th.tensor(pretrained_emb).float()
         th.save(pretrained_emb, object_file)
 
     logger.info('Pretrained embeddings loaded.')
