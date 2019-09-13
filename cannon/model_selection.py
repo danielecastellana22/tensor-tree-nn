@@ -52,7 +52,8 @@ class ParamListTrainer(Experiment):
         for pl in self.param_list[start_i:]:
             self.experiment_log.info("{}".format(f'\t{pl}'))
 
-        for i, params in enumerate(self.param_list[start_i:]):
+        for i in range(start_i, len(self.param_list)):#enumerate(self.param_list[start_i:]):
+            params = self.param_list[i]
             self.experiment_log.info("Configuration: {}".format(params))
             train_log_dir = os.path.join(self.log_dir, 'k_{}/'.format(i))
             os.makedirs(train_log_dir, exist_ok=True)
