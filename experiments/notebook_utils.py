@@ -26,6 +26,9 @@ def __plot_matrix__(ax, cm, x_label, x_tick_label, y_label, y_tick_label, title=
            ylabel=y_label,
            xlabel=x_label)
 
+    ax.set_xticks(np.arange(cm.shape[1]+1)-.5, minor=True)
+    ax.set_yticks(np.arange(cm.shape[0]+1)-.5, minor=True)
+
     # Rotate the tick labels and set their alignment.
     plt.setp(ax.get_xticklabels(), rotation=45, ha="right",
              rotation_mode="anchor")

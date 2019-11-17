@@ -5,6 +5,33 @@ from tqdm import tqdm
 import numpy as np
 from datetime import datetime
 
+from treeLSTM.aggregators import SumChild, FullTensor, Hosvd, Canonical, TensorTrain
+from treeLSTM.models import TreeRNN, TreeLSTM
+
+
+def get_tree_model_class(tree_model_name):
+    if tree_model_name == 'treeLSTM':
+        return TreeLSTM
+    if tree_model_name == 'treeRNN':
+        return TreeRNN
+    else:
+        raise ValueError('Model name is not known')
+
+
+def get_aggregator_class(cell_type):
+    if cell_type == 'sumchild':
+        return SumChild
+    elif cell_type == 'full':
+        return FullTensor
+    elif cell_type == 'hosvd':
+        return Hosvd
+    elif cell_type == 'canonical':
+        return Canonical
+    elif cell_type == 'tt':
+        return TensorTrain
+    else:
+        raise ValueError('Aggregator name is not known')
+
 
 def import_dataset_utils(dataset_name):
     if dataset_name == 'sst_nary_const' or dataset_name == 'sst_nary_dep':
@@ -16,6 +43,12 @@ def import_dataset_utils(dataset_name):
     elif dataset_name == 'lrt':
         from experiments.LRT.utils import LRT_single_run_fun, get_LRT_model_selection_fun
         return LRT_single_run_fun, get_LRT_model_selection_fun
+    elif dataset_name.startswith('list_ops'):
+        from experiments.ListOps.utils import ListOps_single_run_fun, get_ListOps_model_selection_fun
+        return ListOps_single_run_fun, get_ListOps_model_selection_fun
+    elif dataset_name.startswith('toy'):
+        from experiments.TOY.utils import toy_single_run_fun, get_toy_model_selection_fun
+        return toy_single_run_fun, get_toy_model_selection_fun
     else:
         raise ValueError('Dataset {} is not known.'.format(dataset_name))
 

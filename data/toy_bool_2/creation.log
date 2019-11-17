@@ -1,0 +1,16 @@
+[2019-11-13 11:34:32,177] INFO:creation: Namespace(N=10000, h_size=3, label='2', max_height=8, max_output_degree=2, min_height=4, save_dir='data', type='bool')
+[2019-11-13 11:34:33,220] INFO:creation: 131677 nodes have been generated.
+[2019-11-13 11:34:33,220] INFO:creation: 4181 trees of type 0
+[2019-11-13 11:34:33,220] INFO:creation: 5819 trees of type 1
+[2019-11-13 11:41:23,180] INFO:creation: Namespace(N=10000, h_size=3, label='2', max_height=8, max_output_degree=2, min_height=4, save_dir='data', type='bool')
+[2019-11-13 11:41:24,318] INFO:creation: 131305 nodes have been generated.
+[2019-11-13 11:41:24,318] INFO:creation: 4229 trees of type 0
+[2019-11-13 11:41:24,318] INFO:creation: 5771 trees of type 1
+[2019-11-13 17:37:53,296] INFO:creation: Namespace(N=10000, h_size=3, label='2', max_height=8, max_output_degree=2, min_height=4, save_dir='data', type='bool')
+[2019-11-13 17:37:54,706] INFO:creation: 131876 nodes have been generated.
+[2019-11-13 17:37:54,707] INFO:creation: 4237 trees of type 0
+[2019-11-13 17:37:54,707] INFO:creation: 5763 trees of type 1
+[2019-11-17 11:39:26,697] INFO:creation: Namespace(N=10000, h_size=3, label='2', max_height=8, max_output_degree=2, min_height=4, save_dir='data', type='bool')
+[2019-11-17 11:39:27,830] INFO:creation: 132954 nodes have been generated.
+[2019-11-17 11:39:27,830] INFO:creation: 4199 trees of type 0
+[2019-11-17 11:39:27,830] INFO:creation: 5801 trees of type 1

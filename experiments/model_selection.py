@@ -31,6 +31,7 @@ if __name__ == '__main__':
     parser.add_argument('--save-dir', default='checkpoints/')
     parser.add_argument('--dataset')
 
+    parser.add_argument('--tree-model')
     parser.add_argument('--cell-type')
     parser.add_argument('--batch-size', type=int, default=25)
     parser.add_argument('--epochs', type=int, default=100)

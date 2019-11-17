@@ -99,7 +99,7 @@ def to_value(t, binary=True):
         else:
             op = t[0]
             arg_list = []
-            for ch in t[1:len(t)-1]:
+            for ch in t[1:len(t)]:
                 arg_list.append(to_value(ch, binary))
 
             if op == MIN:
@@ -120,13 +120,13 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     # experiment params
     parser.add_argument('--data-dir', default='data/ListOps')
-    parser.add_argument('--max-depth', default=MAX_DEPTH)
-    parser.add_argument('--max-args', default=MAX_ARGS)
-    parser.add_argument('--n-examples', default=DATA_POINTS)
-    parser.add_argument('--binary', default=False)
-    parser.add_argument('--tr-split', default=0.7)
-    parser.add_argument('--dev-split', default=0.2)
-    parser.add_argument('--test-split', default=0.1)
+    parser.add_argument('--max-depth', default=MAX_DEPTH, type=int)
+    parser.add_argument('--max-args', default=MAX_ARGS, type=int)
+    parser.add_argument('--n-examples', default=DATA_POINTS, type=int)
+    parser.add_argument('--binary', default=False, type=bool)
+    parser.add_argument('--tr-split', default=0.7, type=float)
+    parser.add_argument('--dev-split', default=0.1, type=float)
+    parser.add_argument('--test-split', default=0.2, type=float)
 
     args = parser.parse_args()
 

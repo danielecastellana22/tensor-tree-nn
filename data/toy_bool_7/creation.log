@@ -1,0 +1,4 @@
+[2019-11-13 17:36:49,011] INFO:creation: Namespace(N=10000, h_size=3, label='7', max_height=8, max_output_degree=7, min_height=4, save_dir='data', type='bool')
+[2019-11-13 17:38:40,704] INFO:creation: 13272519 nodes have been generated.
+[2019-11-13 17:38:40,704] INFO:creation: 4304 trees of type 0
+[2019-11-13 17:38:40,704] INFO:creation: 5696 trees of type 1

@@ -137,8 +137,8 @@ def train_and_validate(model, extract_batch_data, loss_function, optimizer, trai
                     break
 
         # lr decay
-        for param_group in optimizer.param_groups:
-            param_group['lr'] = max(1e-5, param_group['lr'] * 0.99)  # 10
+        # for param_group in optimizer.param_groups:
+        #     param_group['lr'] = max(1e-5, param_group['lr'] * 0.99)  # 10
 
         tr_forw_time_list.append(tr_forw_time)
         tr_backw_time_list.append(tr_backw_time)

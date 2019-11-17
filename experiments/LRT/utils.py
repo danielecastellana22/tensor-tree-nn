@@ -1,13 +1,12 @@
 import torch.nn.functional as F
 import pickle
 
-from treeLSTM.models import TreeLSTM, TreeRNN
-from treeLSTM.aggregators import SumChild, BinaryFullTensor, BaseAggregator
+from treeLSTM.aggregators import BaseAggregator
 from treeLSTM.dataset import TreeDataset
 from treeLSTM.metrics import Accuracy
 from treeLSTM.trainer import *
 
-from experiments.execution_utils import init_base_logger, get_base_logger
+from experiments.execution_utils import init_base_logger, get_base_logger, get_aggregator_class, get_tree_model_class
 import networkx as nx
 import dgl
 from collections import namedtuple
@@ -465,9 +464,6 @@ class LRTDatasetInfix(TreeDataset):
 class TypedAggregator(BaseAggregator):
 
     def __init__(self, h_size, max_output_degree, pos_stationarity, n_aggr, **kwargs):
-        if max_output_degree > 2:
-            raise ValueError('Full cel type can be use only with a maximum output degree of 2')
-
         super(TypedAggregator, self).__init__(h_size, max_output_degree, pos_stationarity, n_aggr)
 
         self.n_type = kwargs['n_type']
@@ -478,7 +474,7 @@ class TypedAggregator(BaseAggregator):
     def forward(self, neighbour_h, nodes):
 
         # get type
-        ris = th.zeros((neighbour_h.size(0), self.n_aggr*neighbour_h.size(2)))
+        ris = th.zeros((neighbour_h.size(0), self.n_aggr*neighbour_h.size(2)), device=neighbour_h.device)
         for i in range(self.n_type):
             mask = nodes.data['type'] == i
             if th.sum(mask) > 0:
@@ -512,7 +508,7 @@ def load_LRT_dataset(max_n_operator, load_test=True):
         get_sub_logger('validation').info('Validation set has already parsed.')
     else:
         devset_list = []
-        for x in range(12):
+        for x in range(12+1):
             dev_ds = LRTDataset(data_dir, ['dev' + str(x)], name='dev_set' + str(x))
             devset_list.append(dev_ds)
 
@@ -528,7 +524,7 @@ def load_LRT_dataset(max_n_operator, load_test=True):
             get_sub_logger('test').info('Test set has already parsed.')
         else:
             testset_list = []
-            for x in range(12):
+            for x in range(12+1):
                 test_ds = LRTDataset(data_dir, ['test'+str(x)], name='test_set'+str(x))
                 testset_list.append(test_ds)
 
@@ -562,7 +558,7 @@ def load_LRT_dataset_infix(max_n_operator, load_test=True):
         get_sub_logger('validation').info('Validation set has already parsed.')
     else:
         devset_list = []
-        for x in range(12):
+        for x in range(12+1):
             dev_ds = LRTDatasetInfix(data_dir, ['dev' + str(x)], name='dev_set' + str(x))
             devset_list.append(dev_ds)
 
@@ -578,7 +574,7 @@ def load_LRT_dataset_infix(max_n_operator, load_test=True):
             get_sub_logger('test').info('Test set has already parsed.')
         else:
             testset_list = []
-            for x in range(12):
+            for x in range(12+1):
                 test_ds = LRTDatasetInfix(data_dir, ['test'+str(x)], name='test_set'+str(x))
                 testset_list.append(test_ds)
 
@@ -612,7 +608,7 @@ def load_LRT_dataset_typed(max_n_operator, load_test=True):
         get_sub_logger('validation').info('Validation set has already parsed.')
     else:
         devset_list = []
-        for x in range(12):
+        for x in range(12+1):
             dev_ds = LRTDatasetTyped(data_dir, ['dev' + str(x)], name='dev_set' + str(x))
             devset_list.append(dev_ds)
 
@@ -628,7 +624,7 @@ def load_LRT_dataset_typed(max_n_operator, load_test=True):
             get_sub_logger('test').info('Test set has already parsed.')
         else:
             testset_list = []
-            for x in range(12):
+            for x in range(12+1):
                 test_ds = LRTDatasetTyped(data_dir, ['test'+str(x)], name='test_set'+str(x))
                 testset_list.append(test_ds)
 
@@ -714,17 +710,8 @@ def create_LRT_model(use_one_hot_encoding, typed,
                      tree_model_type, x_size, h_size, pos_stationarity,
                      cell_type, rank):
 
-    if tree_model_type == 'treeLSTM':
-        tree_model_class = TreeLSTM
-    else:
-        tree_model_class = TreeRNN
-
-    if cell_type == 'sumchild':
-            agg_class = SumChild
-    elif cell_type == 'full':
-            agg_class = BinaryFullTensor
-    else:
-        raise ValueError('Cell type not known')
+    tree_model_class = get_tree_model_class(tree_model_type)
+    agg_class = get_aggregator_class(cell_type)
 
     if typed:
         return LRTModel(use_one_hot_encoding,
@@ -843,15 +830,14 @@ def get_LRT_model_selection_fun(args, device):
             conc_devset.merge_LRTdataset(devset_list[i])
 
         # create the model
-        model = create_LRT_model(params['x_size'], params['h_size'], trainset.NUM_CLASSES,
-                                 use_one_hot_encoding=args.use_one_hot,
-                                 max_output_degree=trainset.MAX_OUT_DEGREE,
-                                 cell_type=args.cell_type,
-                                 rank=params['rank'],
-                                 pos_stationarity=args.pos_stationarity,
-                                 scale_factor=args.scale_factor,
-                                 typed=args.typed_data).to(device)
-
+        if args.use_one_hot:
+            model = create_LRT_model(args.use_one_hot, args.typed_data,
+                                     args.tree_model, args.x_size, params['h_size'], args.pos_stationarity,
+                                     args.cell_type, rank=params['rank']).to(device)
+        else:
+            model = create_LRT_model(args.use_one_hot, args.typed_data,
+                                     args.tree_model, params['x_size'], params['h_size'], args.pos_stationarity,
+                                     args.cell_type, rank=params['rank']).to(device)
 
         # create the optimizser
         params_no_cell = [x[1] for x in list(model.named_parameters()) if
@@ -868,9 +854,9 @@ def get_LRT_model_selection_fun(args, device):
                 INIT.kaiming_normal_(p)
 
         # create the optimizer
-        optimizer = optim.Adagrad([
-            {'params': params_no_cell, 'lr': params['lr'], 'weight_decay': params['weight_decay']},
-            {'params': params_cell, 'lr': params['lr'], 'weight_decay': params['weight_decay']}])
+        optimizer = optim.Adadelta([
+            {'params': params_no_cell, 'weight_decay': params['weight_decay']},
+            {'params': params_cell, 'weight_decay': params['weight_decay']}])
 
         # train and validate
         best_model, info_training = train_and_validate(model, extract_LRT_batch_data, LRT_loss_function, optimizer,
