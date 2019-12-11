@@ -3,11 +3,10 @@ import pickle
 
 from nltk import Tree
 
-from treeLSTM.models import TreeLSTM, TreeRNN
-from treeLSTM.aggregators import SumChild, BaseAggregator, FullTensor, Hosvd
-from treeLSTM.dataset import TreeDataset
-from treeLSTM.metrics import Accuracy
-from treeLSTM.trainer import *
+from treeRNN.aggregators import BaseAggregator
+from treeRNN.dataset import TreeDataset
+from treeRNN.metrics import Accuracy
+from treeRNN.trainer import *
 
 from experiments.execution_utils import init_base_logger, get_base_logger, get_tree_model_class, get_aggregator_class
 import networkx as nx
@@ -243,7 +242,7 @@ class ToyOutputModule(nn.Module):
 
 class ToyModel(nn.Module):
 
-    def __init__(self,use_one_hot_encoding, max_out_degree, num_vocabs, num_classes,
+    def __init__(self, use_one_hot_encoding, max_out_degree, num_vocabs, num_classes,
                  tree_model_class, x_size, h_size, pos_stationarity,
                  aggregator_class, **kwargs):
         super(ToyModel, self).__init__()

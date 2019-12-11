@@ -5,8 +5,8 @@ from tqdm import tqdm
 import numpy as np
 from datetime import datetime
 
-from treeLSTM.aggregators import SumChild, FullTensor, Hosvd, Canonical, TensorTrain
-from treeLSTM.models import TreeRNN, TreeLSTM
+from treeRNN.aggregators import SumChild, FullTensor, Hosvd, Canonical, TensorTrain
+from treeRNN.models import TreeRNN, TreeLSTM
 
 
 def get_tree_model_class(tree_model_name):
@@ -43,7 +43,7 @@ def import_dataset_utils(dataset_name):
     elif dataset_name == 'lrt':
         from experiments.LRT.utils import LRT_single_run_fun, get_LRT_model_selection_fun
         return LRT_single_run_fun, get_LRT_model_selection_fun
-    elif dataset_name.startswith('list_ops'):
+    elif dataset_name == 'list_ops':
         from experiments.ListOps.utils import ListOps_single_run_fun, get_ListOps_model_selection_fun
         return ListOps_single_run_fun, get_ListOps_model_selection_fun
     elif dataset_name.startswith('toy'):

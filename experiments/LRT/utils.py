@@ -1,10 +1,10 @@
 import torch.nn.functional as F
 import pickle
 
-from treeLSTM.aggregators import BaseAggregator
-from treeLSTM.dataset import TreeDataset
-from treeLSTM.metrics import Accuracy
-from treeLSTM.trainer import *
+from treeRNN.aggregators import BaseAggregator
+from treeRNN.dataset import TreeDataset
+from treeRNN.metrics import Accuracy
+from treeRNN.trainer import *
 
 from experiments.execution_utils import init_base_logger, get_base_logger, get_aggregator_class, get_tree_model_class
 import networkx as nx

@@ -3,11 +3,11 @@ import pickle
 
 from nltk import Tree
 
-from treeLSTM.models import TreeLSTM, TreeRNN
-from treeLSTM.aggregators import SumChild, BaseAggregator, FullTensor, Hosvd
-from treeLSTM.dataset import TreeDataset
-from treeLSTM.metrics import Accuracy
-from treeLSTM.trainer import *
+from treeRNN.models import TreeLSTM, TreeRNN
+from treeRNN.aggregators import SumChild, BaseAggregator, FullTensor, Hosvd
+from treeRNN.dataset import TreeDataset
+from treeRNN.metrics import Accuracy
+from treeRNN.trainer import *
 
 from experiments.execution_utils import init_base_logger, get_base_logger, get_tree_model_class, get_aggregator_class
 import networkx as nx

@@ -1,9 +1,9 @@
 import torch.nn.functional as F
 
-from treeLSTM.dataset import TreeDataset
-from treeLSTM.metrics import Accuracy, RootAccuracy, LeavesAccuracy
-from treeLSTM.trainer import *
-from treeLSTM.aggregators import BaseAggregator
+from treeRNN.dataset import TreeDataset
+from treeRNN.metrics import Accuracy, RootAccuracy, LeavesAccuracy
+from treeRNN.trainer import *
+from treeRNN.aggregators import BaseAggregator
 
 from experiments.execution_utils import init_base_logger, get_base_logger, get_aggregator_class, get_tree_model_class
 import networkx as nx

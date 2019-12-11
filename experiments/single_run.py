@@ -17,15 +17,12 @@ def parse_arguments():
     parser.add_argument('--seed', type=int, default=41)
     parser.add_argument('--batch-size', type=int, default=25)
     parser.add_argument('--early-stopping', type=int, default=10)
-    parser.add_argument('--lr', type=float, default=0.05)
     # tree-LSTM params
     parser.add_argument('--x-size', type=int, default=300)
     parser.add_argument('--h-size', type=int, default=160)
     parser.add_argument('--epochs', type=int, default=100)
-    parser.add_argument('--rank', type=int, default=None)
     parser.add_argument('--pos-stationarity', dest='pos_stationarity', action='store_true')
     parser.add_argument('--weight-decay', type=float, default=1e-4)
-    #parser.add_argument('--cell-weight-decay', type=float, default=1e-4)
     # other params in JSON format that depend on the experiment
     parser.add_argument('--others', default=None)
 
