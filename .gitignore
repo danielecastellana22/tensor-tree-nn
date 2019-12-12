@@ -9,7 +9,7 @@ debug/
 data/sick
 data/sst
 data/lrt_bkp
-treeLSTM/__old__
+treeRNN/__old__
 experiments/SICK
 experiments/SST
 experiments/SST_nary

@@ -1,12 +1,12 @@
-#Tensor Tree-RNN
-We provide an extension of Tree Recursive Nerual Network which is based on tensor theory.  
+# Tensor Tree-RNN
+We provide an extension of Tree Recursive Neural Network which is based on tensor theory.  
 
-##Code Structure
+## Code Structure
 The code structure is the following:
-* `cannon` folder contains auxilary file for the hyper-parameter model selection;
+* `cannon` folder contains auxiliary file for the hyper-parameter model selection;
 * `data` folder contains data for the experiments; 
 * `experiments` folder contains the code to run experiments;
-* `treeRNN` folder contains the code of the Tenrsor Tree Recursive Model.
+* `treeRNN` folder contains the code of the Tensor Tree Recursive Model.
 
 ## How to run an experiment
 The folder `experiments` contains two files to run an experiment:
@@ -36,5 +36,5 @@ For example, the command:
 
 `python single_run.py --gpu -2 --tree-model treeLSTM --cell-type canonical --dataset toy_bool_5 --h-size 50 --weight-decay 0.001 --others "{'rank': 3,'use_one_hot': 1}" --early-stopping 5`
     
-train a Tree-LSTM model with the canonical decomposition as aggregation function on the boolean syntetic dataset with outdegree 5.
+train a Tree-LSTM model with the canonical decomposition as aggregation function on the boolean synthetic dataset with out-degree 5.
 
