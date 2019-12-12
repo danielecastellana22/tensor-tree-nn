@@ -1,7 +1,7 @@
 .gitignore
-*/__pycache__
+**/__pycache__
 *.pkl
-*/.ipynb_checkpoints
+**/.ipynb_checkpoints
 .idea/
 notebooks
 checkpoints/
