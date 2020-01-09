@@ -3,8 +3,7 @@ import pickle
 
 from nltk import Tree
 
-from treeRNN.models import TreeLSTM, TreeRNN
-from treeRNN.aggregators import SumChild, BaseAggregator, FullTensor, Hosvd
+from treeRNN.aggregators import TypedAggregator
 from treeRNN.dataset import TreeDataset
 from treeRNN.metrics import Accuracy
 from treeRNN.trainer import *
@@ -165,28 +164,6 @@ class ListOpsDatasetTyped(TreeDataset):
 
     def get_num_vocabs(self):
         return len(self.input_vocabulary)
-
-
-class TypedAggregator(BaseAggregator):
-
-    def __init__(self, h_size, max_output_degree, pos_stationarity, n_aggr, **kwargs):
-        super(TypedAggregator, self).__init__(h_size, max_output_degree, pos_stationarity, n_aggr)
-
-        self.n_type = kwargs['n_type']
-        self.cell_list = nn.ModuleList()
-        for i in range(self.n_type):
-            self.cell_list.append(kwargs['agg_class'](h_size, max_output_degree, pos_stationarity, n_aggr, **kwargs))
-
-    def forward(self, neighbour_h, nodes):
-
-        # get type
-        ris = th.zeros((neighbour_h.size(0), self.n_aggr*neighbour_h.size(2)), device=neighbour_h.device)
-        for i in range(self.n_type):
-            mask = nodes.data['type'] == i
-            if th.sum(mask) > 0:
-                ris[mask, :] = self.cell_list[i](neighbour_h[mask, :, :], nodes)
-
-        return ris
 
 
 def load_ListOps_dataset_typed(data_dir, binary=False, load_test=True):

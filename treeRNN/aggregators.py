@@ -2,8 +2,6 @@ import torch.nn as nn
 import torch as th
 import numpy as np
 
-# TODO: implement all the others aggregator from cell_old
-
 
 class BaseAggregator(nn.Module):
 
@@ -74,39 +72,13 @@ class FullTensor(BaseAggregator):
 
         super(FullTensor, self).__init__(h_size, max_output_degree, pos_stationarity, n_aggr)
 
-        # if self.pos_stationarity:
-        #     #TODO: does not work. Output must be 3*h_size
-        #     raise NotImplementedError('Full with stationarity not implemented yet')
-        # else:
-        #     # +1 for the bias
-        #     d = [self.h_size+1 for i in range(max_output_degree)]
-        #     d.insert(1, self.n_aggr*self.h_size)
-        #     self.A = nn.Parameter(th.randn(*d))
-
         in_size_list = [h_size for i in range(max_output_degree)]
         out_size = n_aggr*h_size
         self.T = AugmentedTensor(in_size_list, out_size, pos_stationarity)
 
     # neighbour_states has shape batch_size x n_neighbours x insize
     def forward(self, neighbour_h, nodes):
-        # if self.pos_stationarity:
-        #     raise NotImplementedError('Full with stationarity not implemented yet')
-        # else:
-        #     A = self.A
-        #
-        # ris = None
-        # n_batch = neighbour_h.size(0)
-        # for i in range(0, self.max_output_degree):
-        #     if ris is None:
-        #         # add bias. h has size N_BATCH x H_SIZE+1
-        #         h = th.cat((neighbour_h[:, i, :].view(n_batch, -1), th.ones((neighbour_h.size(0), 1), device=neighbour_h.device)), dim=1)
-        #         ris = th.matmul(h, A.view((self.h_size+1, -1)))
-        #     else:
-        #         # add bias. h has size N_BATCH x H_SIZE+1 x 1
-        #         h = th.cat((neighbour_h[:, i, :].view(n_batch, -1, 1), th.ones((neighbour_h.size(0), 1, 1), device=neighbour_h.device)), dim=1)
-        #         ris = th.bmm(ris.view((n_batch, -1, self.h_size+1)), h)
-        #
-        # return ris.squeeze(dim=2)
+
         n_batch = neighbour_h.size(0)
         return self.T(n_batch, *th.chunk(neighbour_h, self.max_output_degree, 1))
 
@@ -118,24 +90,15 @@ class SumChild(BaseAggregator):
         super(SumChild, self).__init__(h_size, max_output_degree, pos_stationarity, n_aggr)
 
         if not self.pos_stationarity:
-            #NARY aggregation
-            # define parameters for the computation of iou
-            #self.U = nn.Parameter(th.randn(self.max_output_degree * self.h_size, self.n_aggr*self.h_size))
-            #self.b = nn.Parameter(th.randn(self.n_aggr*self.h_size))
             self.U = nn.Linear(self.max_output_degree * self.h_size, self.n_aggr*self.h_size, bias=True)
         else:
-            #SUMCHILD aggregation
-            #self.U = nn.Parameter(th.randn(self.h_size, self.n_aggr * self.h_size))
-            #self.b = nn.Parameter(th.randn(self.n_aggr * self.h_size))
             self.U = nn.Linear(self.h_size, self.n_aggr * self.h_size, bias=True)
 
     # neighbour_states has shape batch_size x n_neighbours x insize
     def forward(self, neighbour_h, nodes):
         if not self.pos_stationarity:
-            #return th.addmm(self.b, neighbour_h.view(neighbour_h.size(0), -1), self.U)
             return self.U(neighbour_h.view(neighbour_h.size(0), -1))
         else:
-            #return th.addmm(self.b, th.sum(neighbour_h, 1), self.U)
             return self.U(th.sum(neighbour_h, 1))
 
 
@@ -153,7 +116,6 @@ class Hosvd(BaseAggregator):
         in_size_list = [rank for i in range(max_output_degree)]
         out_size = rank
         for i in range(n_aggr):
-            #self.G_list.append(FullTensor(rank, max_output_degree, pos_stationarity, n_aggr=1))
             self.G_list.append(AugmentedTensor(in_size_list, out_size, pos_stationarity))
 
         if self.pos_stationarity:
@@ -176,10 +138,8 @@ class Hosvd(BaseAggregator):
             raise NotImplementedError("pos stationariy is not implemented yet!")
         else:
             # obtain a tensor n_batch x n_neighbours x rank x n_aggr to pass to the full aggregator
-            #neighbour_r = th.zeros((neighbour_h.size(0), self.max_output_degree, self.rank, self.n_aggr), device=neighbour_h.device)
             for i in range(self.max_output_degree):
                 h_i = th.squeeze(neighbour_h[:, i, :], 1)
-                #neighbour_r[:, i, :, :] = self.U_list[i](h_i).reshape(-1, self.rank, self.n_aggr)
                 rank_list.append(th.chunk(self.U_list[i](h_i).reshape(-1, self.rank, self.n_aggr), self.n_aggr, dim=2))
 
             n_batch = neighbour_h.size(0)
@@ -187,10 +147,8 @@ class Hosvd(BaseAggregator):
             for i in range(self.n_aggr):
                 in_el_list = [x[i] for x in rank_list]
                 if ris is None:
-                    # ris = self.U_output_list[i](self.G_list[i](neighbour_r[:, :, :, i], nodes))
                     ris = self.U_output_list[i](self.G_list[i](n_batch, *in_el_list))
                 else:
-                    # aux = self.U_output_list[i](self.G_list[i](neighbour_r[:, :, :, i], nodes))
                     aux = self.U_output_list[i](self.G_list[i](n_batch, *in_el_list))
                     ris = th.cat((ris, aux), dim=1)
 
@@ -322,3 +280,24 @@ class TensorTrain(BaseAggregator):
 
         return out_tens
 
+# use different parameter for each type node
+class TypedAggregator(BaseAggregator):
+
+    def __init__(self, h_size, max_output_degree, pos_stationarity, n_aggr, **kwargs):
+        super(TypedAggregator, self).__init__(h_size, max_output_degree, pos_stationarity, n_aggr)
+
+        self.n_type = kwargs['n_type']
+        self.cell_list = nn.ModuleList()
+        for i in range(self.n_type):
+            self.cell_list.append(kwargs['agg_class'](h_size, max_output_degree, pos_stationarity, n_aggr, **kwargs))
+
+    def forward(self, neighbour_h, nodes):
+
+        # get type
+        ris = th.zeros((neighbour_h.size(0), self.n_aggr*neighbour_h.size(2)), device=neighbour_h.device)
+        for i in range(self.n_type):
+            mask = nodes.data['type'] == i
+            if th.sum(mask) > 0:
+                ris[mask, :] = self.cell_list[i](neighbour_h[mask, :, :], nodes)
+
+        return ris

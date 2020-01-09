@@ -121,7 +121,7 @@ class TreeRNNCell(BaseCell):
         return {'h': edges.src['h']}
 
     def reduce_func(self, nodes):
-        #check missin child
+        #check missing child
         neighbour_h = self.check_missing_children(nodes.mailbox['h'], self.bottom_h)
 
         h_aggr = self.aggregator_module(neighbour_h, nodes)
@@ -134,5 +134,5 @@ class TreeRNNCell(BaseCell):
             # internal nodes
             h += nodes.data['h_aggr']
 
-        h=th.tanh(h)
+        h = th.tanh(h)
         return {'h': h}

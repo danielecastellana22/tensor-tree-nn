@@ -34,8 +34,8 @@ def get_aggregator_class(cell_type):
 
 
 def import_dataset_utils(dataset_name):
-    if dataset_name == 'sst_nary_const' or dataset_name == 'sst_nary_dep':
-        from experiments.SST_nary.utils import SST_single_run_fun, get_SST_model_selection_fun
+    if dataset_name == 'sst' or dataset_name == 'sst':
+        from experiments.SST.utils import SST_single_run_fun, get_SST_model_selection_fun
         return SST_single_run_fun, get_SST_model_selection_fun
     elif dataset_name == 'sick':
         from experiments.SICK.utils import SICK_single_run_fun, get_SICK_model_selection_fun

@@ -6,8 +6,8 @@
 notebooks
 checkpoints/
 debug/
-data/sick
-data/sst
+data/sick/*
+data/sst/*
 data/lrt_bkp
 treeRNN/__old__
 experiments/SICK
