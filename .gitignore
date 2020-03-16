@@ -1,0 +1,7 @@
+.gitignore
+**/__pycache__
+*.pkl
+**/.ipynb_checkpoints
+.idea/
+**data
+**results
