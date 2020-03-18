@@ -1,4 +1,4 @@
-from utils.config import Config
+from utils.config import ExpConfig
 import argparse
 from utils.experiment import ExperimentRunner
 from utils.utils import create_datatime_dir
@@ -15,7 +15,7 @@ if __name__ == '__main__':
     args = parse_arguments()
 
     # load the config file
-    exp_config, config_list = Config.from_file(args.config_file)
+    exp_config, config_list = ExpConfig.from_file(args.config_file)
 
     # create output dir
     exp_runner = ExperimentRunner(**exp_config, config_list=config_list)

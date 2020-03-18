@@ -1,10 +1,14 @@
+import sys
+import os
 from pydoc import locate
 import numpy as np
 import torch as th
-import os
 import logging
 from datetime import datetime
-from tqdm import tqdm
+
+
+def eprint(*args, **kwargs):
+    print(*args, file=sys.stderr, **kwargs)
 
 
 def set_initial_seed(seed):
@@ -49,38 +53,3 @@ def get_logger(name, log_dir, write_on_console):
         logger.addHandler(ch)
 
     return logger
-
-
-def load_embeddings(data_dir, pretrained_embs_file, vocab, logger, unk_id=0):
-
-    object_file = os.path.join(data_dir, 'pretrained_emb.pkl')
-
-    embedding_dim = 300
-    if os.path.exists(object_file):
-        pretrained_emb = th.load(object_file)
-    else:
-        # filter glove
-        glove_emb = {}
-        logger.debug('Loading pretrained embeddings.')
-        with open(pretrained_embs_file, 'r', encoding='utf-8') as pf:
-            for line in tqdm(pf.readlines(), desc='Loading pretrained embeddings:'):
-                sp = line.split(' ')
-                if sp[0] in vocab:
-                    glove_emb[sp[0]] = np.array([float(x) for x in sp[1:]])
-
-        # initialize with glove
-        pretrained_emb = np.random.uniform(-0.05, 0.05, (len(vocab), embedding_dim))
-        fail_cnt = 0
-        for line, v in vocab.items():
-            if v != unk_id and line in glove_emb:
-                pretrained_emb[v, :] = glove_emb[line]
-            else:
-                fail_cnt += 1
-
-        logger.info('Miss word in GloVe {0:.4f}'.format(1.0 * fail_cnt / len(pretrained_emb)))
-        pretrained_emb = th.tensor(pretrained_emb).float()
-        th.save(pretrained_emb, object_file)
-
-    logger.info('Pretrained embeddings loaded.')
-    assert pretrained_emb.size(0) == len(vocab)
-    return pretrained_emb

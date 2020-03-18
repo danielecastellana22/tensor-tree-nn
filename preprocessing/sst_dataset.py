@@ -186,23 +186,6 @@ class SSTBinaryDataset(TreeDataset):
                           num_workers=0)
 
 
-if __name__ == '__main__':
-    # create the sst dataset
-
-    data_dir = 'data/sst/bin_tree'
-    output_dir = 'data/sst/dgl_bin_tree'
-
-    # create word_vocab
-    words_vocab = {'unk': 0}
-    with open(os.path.join(data_dir, 'vocab.txt')) as f:
-        for l in f.readlines():
-            l = l.strip()
-            words_vocab[l] = len(words_vocab)
-
-    # create type
-    for f in ['train.pkl', 'test.pkl']
-
-
 
 #
 #

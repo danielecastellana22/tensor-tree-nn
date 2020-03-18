@@ -2,16 +2,6 @@ from nltk.parse.corenlp import CoreNLPDependencyParser, CoreNLPParser
 from nltk import Tree
 import networkx as nx
 
-import re
-
-from notebooks.notebook_utils import plot_netwrokx_tree
-import matplotlib.pyplot as plt
-
-
-def string_to_nltk_tree(s):
-    NODE_PATTERN = '[^%s\t\n\r\f\v%s%s]+' % (re.escape(' '), re.escape('('), re.escape(')'))
-    return Tree.fromstring(s, brackets='()', node_pattern=NODE_PATTERN, leaf_pattern=NODE_PATTERN)
-
 
 class myParser:
 

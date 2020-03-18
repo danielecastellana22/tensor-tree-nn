@@ -2,11 +2,10 @@ import os
 import networkx as nx
 import pickle as pkl
 from tqdm import tqdm
-from experiments.NLP_parser_utils import myCoreNLPDepParser, myCoreNLPConstParser, string_to_nltk_tree
+from preprocessing.utils import ConstValues, load_embeddings
+from preprocessing.tree_conversions import string_to_nltk_tree, nx_to_dgl
+from utils.utils import eprint
 import copy
-
-from notebooks.notebook_utils import plot_netwrokx_tree
-import matplotlib.pyplot as plt
 
 
 def build_sentiment_map(input_folder, output_folder, parser):
@@ -65,21 +64,6 @@ def build_trees(input_folder, output_folder, file_names, parser):
 
         if os.path.exists(wf_name):
             print('{} already exists.'.format(wf_name))
-            #
-            # with open(wf_name, 'rb') as f:
-            #     d = pkl.load(f)
-            #
-            # for cons_t, dep_t, bin_t in d:
-            #     sup_t, _ = create_super_tree(bin_t, dep_t)
-            #
-            #     plt.figure(figsize=(20,20))
-            #     plot_netwrokx_tree(cons_t, node_attr=['word', 'tag'])
-            #     plt.figure(figsize=(20,20))
-            #     plot_netwrokx_tree(dep_t, node_attr=['word'], edge_attr='type')
-            #     plt.figure(figsize=(20,20))
-            #     plot_netwrokx_tree(sup_t, node_attr=['word', 'type'])
-            #     plt.show()
-            #     s=3
         else:
             ris = []
             id = 1
@@ -133,7 +117,7 @@ def create_super_tree(const_t: nx.DiGraph, dep_t: nx.DiGraph):
     return new_const_t, n_wrong
 
 
-def bin_tree_to_nx(nltk_t):
+def bin_tree_to_nx(nltk_t, words_vocab):
     g = nx.DiGraph()
     token_id = 1
 
@@ -146,11 +130,17 @@ def bin_tree_to_nx(nltk_t):
             # leaf node
             w: str = node[0]
             w = w.replace('\/', '/')
-            g.add_node(my_id, word=w, y=int(node.label()), token_id=token_id)
+            w.lower()
+            if w in words_vocab:
+                id_w = words_vocab[w]
+            else:
+                id_w = ConstValues.UNK
+
+            g.add_node(my_id, x=id_w, mask=1, y=int(node.label()), token_id=token_id, )
             token_id += 1
         else:
             # internal node
-            g.add_node(my_id, y=int(node.label()))
+            g.add_node(my_id, x=ConstValues.NO_ELEMENT, mask=0, y=int(node.label()))
 
             id_edge = 0
             for ch in node:
@@ -164,69 +154,46 @@ def bin_tree_to_nx(nltk_t):
     return g
 
 
-def parse_bin_trees(input_folder, output_folder, file_names):
-    for f_name in file_names:
-        rf_name = os.path.join(input_folder, f_name)
-        wf_name = os.path.join(output_folder, f_name.replace('.txt', '.pkl'))
-
-        if os.path.exists(wf_name):
-            print('{} already exists.'.format(wf_name))
-        else:
-
-            with open(os.path.join(const_folder, f_name.replace('.txt', '.pkl')), 'rb') as f:
-                dep_trees = pkl.load(f)
-
-            i = 0
-            ris = []
-            n_wrong = 0
-            with open(rf_name, 'r', encoding='utf-8') as rf:
-                for l in tqdm(rf.readlines(), desc='Buildiing trees from {}: '.format(f_name)):
-                    t = string_to_nltk_tree(l)
-                    bin_t = bin_tree_to_nx(t)
-                    sup_t, nw = create_super_tree(bin_t, dep_trees[i][1])
-                    ris.append(sup_t)
-                    n_wrong += nw
-                    i += 1
-            print('{} types was not set.'.format(n_wrong))
-            with open(wf_name, 'wb') as wf:
-                pkl.dump(ris, wf)
+def parse_bin_trees(input_file_path, words_vocab):
+    ris = []
+    with open(input_file_path, 'r', encoding='utf-8') as rf:
+        for l in tqdm(rf.readlines(), desc='Reading trees from {}: '.format(os.path.basename(input_file_path))):
+            t = string_to_nltk_tree(l)
+            bin_t = bin_tree_to_nx(t, words_vocab)
+            dgl_t = nx_to_dgl(bin_t, node_attrs=['x', 'y', 'mask'])
+            ris.append(dgl_t)
+    return ris
 
 
-if __name__ == '__main__':
-    string_folder = 'data/sst/string'
-    dep_folder = 'data/sst/dep_tree'
-    const_folder = 'data/sst/const_tree'
-    bin_folder = 'data/sst/bin_tree'
-    file_names = ['train.txt', 'validation.txt', 'test.txt']
+class SstPreprocessor:
 
-    # if not os.path.exists(dep_folder):
-    #     os.mkdir(dep_folder)
-    # dep_parser = myCoreNLPDepParser(url='http://localhost:9000')
-    # parse trees
+    def __init__(self, config):
+        self.config = config
 
-    # build_trees(input_folder, dep_folder, file_names, dep_parser)
-    # build the sentiment map
-    # build_sentiment_map(input_folder, dep_folder, dep_parser)
+    def preprocess(self):
+        config = self.config
+        input_dir = config.input_dir
+        output_dir = config.output_dir
+        file_names = {'train': config.training_file,
+                      'validation': config.validation_file,
+                      'test': config.test_file}
+        words_vocab_file = config.words_vocabulary_file
+        pretrained_embs_file = config.pretrained_embs_file
+        embedding_dim = config.embedding_dim
 
-    # if not os.path.exists(const_folder):
-    #     os.mkdir(const_folder)
-    # const_parser = myCoreNLPConstParser(url='http://localhost:9000')
-    #
-    # # parse trees
-    # build_trees(string_folder, const_folder, file_names, const_parser)
-    #
-    # # build the sentiment map
-    # build_sentiment_map(string_folder, const_folder, const_parser)
+        # load vocabulary
+        words_vocab = {'unk': 0}
+        with open(os.path.join(input_dir, words_vocab_file)) as f:
+            for l in tqdm(f.readlines(), desc='Creating words vocabulary'):
+                l = l.strip()
+                words_vocab[l] = len(words_vocab)
 
-    if not os.path.exists(bin_folder):
-        os.mkdir(bin_folder)
-    const_parser = myCoreNLPConstParser(url='http://localhost:9000')
+        # preprocessing binary trees
+        for tag_name, f in file_names.items():
+            tree_list = parse_bin_trees(os.path.join(input_dir, f), words_vocab)
+            with open(os.path.join(output_dir, '{}.pkl'.format(tag_name)), 'wb') as fw:
+                pkl.dump(tree_list, fw)
 
-    # parse trees
-    build_trees(string_folder, const_folder, file_names, const_parser)
-
-    # build the sentiment map
-    build_sentiment_map(string_folder, const_folder, const_parser)
-
-    # binary dataset
-    parse_bin_trees(bin_folder, bin_folder, file_names)
+        pretrained_embs = load_embeddings(pretrained_embs_file, words_vocab, embedding_dim=embedding_dim)
+        with open(os.path.join(output_dir, 'pretrained_embs.pkl'), 'wb') as fw:
+            pkl.dump(pretrained_embs, fw)

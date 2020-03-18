@@ -3,7 +3,7 @@ import torch as th
 import copy
 from .metrics import ValueMetric, TreeMetric
 import time
-import dgl
+from torch.utils.data import DataLoader
 
 
 def __evaluate_model__(model, dataloader, metric_class_list, pbar, batch_size):
@@ -40,10 +40,11 @@ def __evaluate_model__(model, dataloader, metric_class_list, pbar, batch_size):
     return metrics, eval_time, predictions
 
 
-def train_and_validate(model, loss_function, optimizer, trainset, devset, device, metric_class_list, logger,
-                       batch_size=25, n_epochs=200, early_stopping_patience=20, evaluate_on_training_set=False):
-    trainloader = trainset.get_loader(batch_size, device, shuffle=True)
-    devloader = devset.get_loader(batch_size, device)
+def train_and_validate(model, loss_function, optimizer, trainset, valset, batcher_fun, list_metrics_class, logger,
+                       batch_size, n_epochs, early_stopping_patience, evaluate_on_training_set):
+
+    train_loader = DataLoader(trainset, batch_size=batch_size, collate_fn=batcher_fun, shuffle=True, num_workers=0)
+    val_loader = DataLoader(valset, batch_size=batch_size, collate_fn=batcher_fun, shuffle=True, num_workers=0)
 
     best_dev_metric = None
     best_epoch = -1
@@ -51,7 +52,7 @@ def train_and_validate(model, loss_function, optimizer, trainset, devset, device
 
     dev_metrics = {}
     tr_metrics = {}
-    for c in metric_class_list:
+    for c in list_metrics_class:
         dev_metrics[c.__name__] = []
         tr_metrics[c.__name__] = []
 
@@ -66,7 +67,7 @@ def train_and_validate(model, loss_function, optimizer, trainset, devset, device
         tr_backw_time = 0
 
         with tqdm(total=len(trainset), desc='Training epoch ' + str(epoch) + ': ') as pbar:
-            for step, batch in enumerate(trainloader):
+            for step, batch in enumerate(train_loader):
 
                 t = time.time()
                 in_data = batch[0]
@@ -87,7 +88,7 @@ def train_and_validate(model, loss_function, optimizer, trainset, devset, device
         if evaluate_on_training_set:
             # eval on tr set
             pbar = tqdm(total=len(trainset), desc='Evaluate epoch ' + str(epoch) + ' on training set: ')
-            metrics, _, _ = __evaluate_model__(model, trainloader, metric_class_list, pbar, batch_size)
+            metrics, _, _ = __evaluate_model__(model, train_loader, list_metrics_class, pbar, batch_size)
 
             # print tr metrics
             s = "Evaluation on training set: Epoch {:03d} | ".format(epoch)
@@ -98,8 +99,8 @@ def train_and_validate(model, loss_function, optimizer, trainset, devset, device
             logger.info(s)
 
         # eval on dev set
-        pbar = tqdm(total=len(devset), desc='Evaluate epoch ' + str(epoch) + ' on dev set: ')
-        metrics, eval_dev_time, _ = __evaluate_model__(model, devloader, metric_class_list, pbar, batch_size)
+        pbar = tqdm(total=len(valset), desc='Evaluate epoch ' + str(epoch) + ' on dev set: ')
+        metrics, eval_dev_time, _ = __evaluate_model__(model, val_loader, list_metrics_class, pbar, batch_size)
 
         # print dev metrics
         s = "Evaluation on dev set: Epoch {:03d} | ".format(epoch)
@@ -142,8 +143,9 @@ def train_and_validate(model, loss_function, optimizer, trainset, devset, device
     return best_dev_metric, best_model, info_training
 
 
-def test(model, testset, device, metric_class_list, logger, batch_size=25):
-    testloader = testset.get_loader(batch_size, device)
+def test(model, testset, batcher_fun, metric_class_list, logger, batch_size):
+
+    testloader = DataLoader(testset, batch_size=batch_size, collate_fn=batcher_fun, shuffle=True, num_workers=0)
 
     pbar = tqdm(total=len(testset), desc='Evaluate on test set: ')
     metrics, eval_dev_time, predictions = __evaluate_model__(model, testloader, metric_class_list, pbar, batch_size)

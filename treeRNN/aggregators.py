@@ -24,14 +24,14 @@ class BaseAggregator(nn.Module):
 
 class AugmentedTensor(nn.Module):
 
-    def __init__(self, in_size_list, out_size, n_aggregator, pos_stationarity):
+    def __init__(self, in_size_list, out_size, pos_stationarity):
 
         if np.prod(in_size_list) > 10**9:
             raise ValueError('Too many parameters!')
 
         super(AugmentedTensor, self).__init__()
 
-        self.n_agg = n_aggregator
+        #self.n_agg = n_aggregator
         self.in_size_list = in_size_list
         self.n_input = len(in_size_list)
         self.out_size = out_size
@@ -44,7 +44,7 @@ class AugmentedTensor(nn.Module):
             # +1 for the bias
             d = [x+1 for x in self.in_size_list]
             d.insert(1, out_size)
-            d = [1, n_aggregator] + d
+            #d = [1, n_aggregator] + d
             self.A = nn.Parameter(th.Tensor(*d))
 
     # neighbour_states has shape batch_size x n_neighbours x insize

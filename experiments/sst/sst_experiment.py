@@ -1,12 +1,11 @@
-import os
 from utils.experiment import Experiment
-from utils.utils import load_embeddings
 import torch as th
 import torch.nn as nn
 import torch.optim as optim
 import torch.nn.init as INIT
 import torch.nn.functional as F
-from treeRNN.dataset import TreeDataset
+import dgl
+from preprocessing.utils import ConstValues
 from treeRNN.metrics import TreeMetric
 from treeRNN.models import TreeModel
 
@@ -16,56 +15,20 @@ class SstExperiment(Experiment):
     def __init__(self, id, config, output_dir, logger):
         super(SstExperiment, self).__init__(id, config, output_dir, logger)
 
-    def __load_dataset__(self, load_embs):
-        dataset_config = self.config.dataset_config
-        dataset_class = dataset_config['dataset_class']
-        data_dir = dataset_config['data_dir']
-
-        # load vocabulary
-        words_vocab = {'unk': 0}
-        with open(os.path.join(data_dir, 'vocab.txt')) as f:
-            for l in f.readlines():
-                l = l.strip()
-                words_vocab[l] = len(words_vocab)
-
-        trainset = dataset_class(data_dir, ['train.pkl'], self.logger.getChild('loading_training_set'), words_vocab=words_vocab)
-
-        args = {'words_vocab': trainset.words_vocab}
-
-        if hasattr(trainset, 'tags_vocab'):
-            args['tags_vocab'] = trainset.types_vocab
-
-        if hasattr(trainset, 'types_vocab'):
-            args['types_vocab'] = trainset.types_vocab
-
-        valset = dataset_class(data_dir, ['validation.pkl'], self.logger.getChild('loading_validation_set'), **args)
-        testset = dataset_class(data_dir, ['test.pkl'], self.logger.getChild('loading_test_set'), **args)
-
-        if load_embs:
-            in_pretrained_embs = load_embeddings(data_dir,
-                                                 pretrained_embs_file=self.config.input_model_config['pretrained_embs_file'],
-                                                 vocab=args['words_vocab'],
-                                                 logger=self.logger.getChild('load_embeddings'))
-        else:
-            in_pretrained_embs = None
-
-        return trainset, valset, testset, in_pretrained_embs, None
-
-    def __create_model__(self, trainset, in_pretrained_embs, type_pretrained_embs):
+    def __create_model__(self):
         tree_model_config = self.config.tree_model_config
         output_model_config = self.config.output_model_config
-        x_size = tree_model_config['x_size']
-        h_size = tree_model_config['h_size']
-        max_out_degree = trainset.max_out_degree
-        n_classes = trainset.num_classes
-        n_words = trainset.num_words
-        n_types = trainset.num_types
+        x_size = tree_model_config.x_size
+        h_size = tree_model_config.h_size
+
+        in_pretrained_embs = self.__load_input_embeddings__()
 
         input_module = nn.Embedding.from_pretrained(in_pretrained_embs, freeze=False)
-        output_module = SstOutputModule(h_size, n_classes, output_model_config['dropout'])
+
+        output_module = SstOutputModule(h_size, **output_model_config)
         type_embs_module = None
 
-        cell_module = self.__create_cell_module__(max_out_degree, n_types)
+        cell_module = self.__create_cell_module__()
 
         return TreeModel(x_size, h_size, input_module, output_module, cell_module, type_embs_module)
 
@@ -92,10 +55,20 @@ class SstExperiment(Experiment):
 
     def __get_loss_function__(self):
         def f(output_model, true_label):
-            idxs = (true_label != TreeDataset.NO_ELEMENT)
+            idxs = (true_label != ConstValues.NO_ELEMENT)
             return F.cross_entropy(output_model[idxs], true_label[idxs], reduction='sum')
 
         return f
+
+    def __get_batcher_function__(self):
+        device = self.__get_device__()
+
+        def batcher_dev(batch):
+            batched_trees = dgl.batch(batch)
+            batched_trees.to(device)
+            return tuple([batched_trees]), batched_trees.ndata['y']
+
+        return batcher_dev
 
 
 class SstOutputModule(nn.Module):

@@ -3,27 +3,45 @@ from utils.utils import string2class
 import copy
 import json
 
-class Config:
 
-    # TODO: use yaml schema
-    # MANDATORY_FIELDS = ['experiment_class', 'training_config', 'tree_model_config']
-    # TRAINING_CONFIG_FIELDS = ['device', 'batch_size', 'early_stopping_patience', 'metric_class', 'n_epochs']
-    # TREE_MODEL_CONFIG_FIELDS = ['cell_class', 'aggregator_class', 'x_size', 'h_size',
-    #                             'pos_stationairty', 'weight_decay']
+class Config(dict):
 
-    def __init__(self, config_dict):
-        self.string_repr = json.dumps(config_dict, indent='\t')
-        # convert string to class
-        self.convert_string2class(config_dict)
+    def __init__(self, **config_dict):
+        # store jsno representation
+        super(Config, self).__init__()
+        self.__dict__['__json_repr__'] = json.dumps(config_dict, indent='\t')
+
+        # set attributes
         for k, v in config_dict.items():
-            setattr(self, k, v)
+            if isinstance(v, dict):
+                # if is dict, create a new Config obj
+                v = Config(**v)
+            else:
+                # check if the string should be converted in class
+                if k.endswith('_class'):
+                    if isinstance(v, str):
+                        v = string2class(v)
+                    else:
+                        self.string_list2class_list(v)
+            super(Config, self).__setitem__(k, v)
 
-    def __str__(self):
-        return self.string_repr
+    # the dot works as []
+    def __getattr__(self, item):
+        return self.__getitem__(item)
+
+    # the config is immutable
+    def __setattr__(self, key, value):
+        raise AttributeError('The Config class cannot be modified!')
+
+    def __setitem__(self, key, value):
+        raise AttributeError('The Config class cannot be modified!')
+
+    def __delitem__(self, key):
+        raise AttributeError('The Config class cannot be modified!')
 
     @staticmethod
-    def convert_string2class(conf_dict):
-        # We do not ammit list of dict
+    def string_list2class_list(val_to_convert):
+
         def __rec_apply_list__(l):
             for i in range(len(l)):
                 if isinstance(l[i], str):
@@ -31,18 +49,22 @@ class Config:
                 elif isinstance(l[i], list):
                     __rec_apply_list__(l[i])
 
-        def __rec_visit_dict__(d):
-            for k, v in d.items():
-                if 'class' in k:
-                    if isinstance(v, str):
-                        d[k] = string2class(v)
-                    elif isinstance(v, list):
-                        __rec_apply_list__(v)
-                else:
-                    if isinstance(v, dict):
-                        __rec_visit_dict__(v)
+        __rec_apply_list__(val_to_convert)
 
-        __rec_visit_dict__(conf_dict)
+    def to_json(self):
+        return self.__json_repr__
+
+    @classmethod
+    def from_json(cls, json_string):
+        return cls(**json.loads(json_string))
+
+    @classmethod
+    def from_file(cls, path):
+        config_dict = yaml.load(open(path, 'r'), Loader=yaml.SafeLoader)
+        return cls(**config_dict)
+
+
+class ExpConfig:
 
     @staticmethod
     def __build_grid_search__(config_dict):
@@ -69,19 +91,15 @@ class Config:
 
         return __rec_build__(config_dict, list(config_dict.keys()), {})
 
-    @classmethod
-    def from_file(cls, path):
+    @staticmethod
+    def from_file(path):
         config_dict = yaml.load(open(path, 'r'), Loader=yaml.SafeLoader)
         exp_config = config_dict.pop('experiment_config')
         exp_config['experiment_class'] = string2class(exp_config['experiment_class'])
 
-        config_dict_list = cls.__build_grid_search__(config_dict)
+        config_dict_list = ExpConfig.__build_grid_search__(config_dict)
         ris = []
         for d in config_dict_list:
-            ris.append(cls(d))
+            ris.append(Config(**d))
 
         return exp_config, ris
-
-    @classmethod
-    def from_json(cls, json_string):
-        return cls(json.loads(json_string))
