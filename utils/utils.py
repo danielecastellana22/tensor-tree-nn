@@ -5,6 +5,7 @@ import numpy as np
 import torch as th
 import logging
 from datetime import datetime
+import json
 
 
 def eprint(*args, **kwargs):
@@ -53,3 +54,8 @@ def get_logger(name, log_dir, write_on_console):
         logger.addHandler(ch)
 
     return logger
+
+
+def to_json_file(x, file_path):
+    with open(file_path, 'w') as f:
+        json.dump(x, f)

@@ -94,12 +94,13 @@ class ExpConfig:
     @staticmethod
     def from_file(path):
         config_dict = yaml.load(open(path, 'r'), Loader=yaml.SafeLoader)
-        exp_config = config_dict.pop('experiment_config')
-        exp_config['experiment_class'] = string2class(exp_config['experiment_class'])
+        exp_runner_params = config_dict.pop('experiment_config')
+        exp_runner_params['experiment_class'] = string2class(exp_runner_params['experiment_class'])
+        exp_runner_params['metric_class_list'] = list(map(string2class, exp_runner_params['metric_class_list']))
 
         config_dict_list = ExpConfig.__build_grid_search__(config_dict)
         ris = []
         for d in config_dict_list:
             ris.append(Config(**d))
 
-        return exp_config, ris
+        return exp_runner_params, ris

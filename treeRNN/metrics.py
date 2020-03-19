@@ -1,70 +1,73 @@
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 import torch as th
 import copy
+from preprocessing.utils import ConstValues
 
 
 class BaseMetric:
 
     def __init__(self):
         self.final_value = None
-        self.initialise_metric()
 
     def get_value(self):
         return self.final_value
 
-    @abstractmethod
-    def initialise_metric(self):
-        raise NotImplementedError('users must define update_metrics to use this base class')
+    def is_better_than(self, other_metric):
+        if self.HIGHER_BETTER:
+            return self.final_value > other_metric.final_value
+        else:
+            return self.final_value < other_metric.final_value
+
+    def __str__(self):
+        return "{}: {:4f}".format(type(self).__name__, self.final_value)
 
     @abstractmethod
     def finalise_metric(self):
         raise NotImplementedError('users must define finalise_metric to use this base class')
 
-    @abstractmethod
-    def is_better_than(self, other_metric):
-        raise NotImplementedError('users must define update_metrics to use this base class')
 
-
-class TreeMetric(BaseMetric):
+class TreeMetricUpdate:
 
     @abstractmethod
     def update_metric(self, out, gold_label, graph):
         raise NotImplementedError('users must define update_metrics to use this base class')
 
 
-class ValueMetric(BaseMetric):
+class ValueMetricUpdate:
 
     @abstractmethod
     def update_metric(self, out, gold_label):
         raise NotImplementedError('users must define update_metrics to use this base class')
 
 
-class Accuracy(ValueMetric):
+class BaseAccuracy(BaseMetric):
+    HIGHER_BETTER = True
 
-    def initialise_metric(self):
+    def __init__(self):
+        super(BaseMetric, self).__init__()
         self.n_nodes = 0
         self.n_correct = 0
-
-    def update_metric(self, out, gold_label):
-        pred = th.argmax(out, 1)
-        self.n_correct += th.sum(th.eq(gold_label, pred)).item()
-        self.n_nodes += len(gold_label)
 
     def finalise_metric(self):
         self.final_value = self.n_correct / self.n_nodes
 
-    def __str__(self):
-        return "Accuracy: {:4f}".format(self.final_value)
 
-    def is_better_than(self, other_metric):
-        return self.final_value > other_metric.final_value
+class Accuracy(BaseAccuracy, ValueMetricUpdate):
+
+    def __init__(self):
+        super(Accuracy, self).__init__()
+
+    def update_metric(self, out, gold_label: th.Tensor):
+        pred = th.argmax(out, 1)
+        idxs = (gold_label != ConstValues.NO_ELEMENT)
+        self.n_correct += th.sum(th.eq(gold_label[idxs], pred[idxs])).item()
+        self.n_nodes += th.sum(idxs).item()
 
 
-class RootAccuracy(TreeMetric):
+class RootAccuracy(BaseAccuracy, TreeMetricUpdate):
 
-    def initialise_metric(self):
-        self.n_nodes = 0
-        self.n_correct = 0
+    def __init__(self):
+        super(RootAccuracy, self).__init__()
 
     def update_metric(self, out, gold_label, graph):
         root_ids = [i for i in range(graph.number_of_nodes()) if graph.out_degree(i) == 0]
@@ -72,21 +75,11 @@ class RootAccuracy(TreeMetric):
         self.n_correct += th.sum(th.eq(pred[root_ids], gold_label[root_ids])).item()
         self.n_nodes += len(root_ids)
 
-    def finalise_metric(self):
-        self.final_value = self.n_correct / self.n_nodes
 
-    def __str__(self):
-        return "Root Accuracy: {:4f}".format(self.final_value)
+class LeavesAccuracy(BaseAccuracy, TreeMetricUpdate):
 
-    def is_better_than(self, other_metric):
-        return self.final_value > other_metric.final_value
-
-
-class LeavesAccuracy(TreeMetric):
-
-    def initialise_metric(self):
-        self.n_nodes = 0
-        self.n_correct = 0
+    def __init__(self):
+        super(LeavesAccuracy, self).__init__()
 
     def update_metric(self, out, gold_label, graph):
         leaves_ids = [i for i in range(graph.number_of_nodes()) if graph.in_degree(i) == 0]
@@ -94,19 +87,13 @@ class LeavesAccuracy(TreeMetric):
         self.n_correct += th.sum(th.eq(pred[leaves_ids], gold_label[leaves_ids])).item()
         self.n_nodes += len(leaves_ids)
 
-    def finalise_metric(self):
-        self.final_value = self.n_correct / self.n_nodes
 
-    def __str__(self):
-        return "Leaves Accuracy: {:4f}".format(self.final_value)
+class MSE(BaseMetric, ValueMetricUpdate):
 
-    def is_better_than(self, other_metric):
-        return self.final_value > other_metric.final_value
+    HIGHER_BETTER = False
 
-
-class MSE(ValueMetric):
-
-    def initialise_metric(self):
+    def __init__(self):
+        super(MSE, self).__init__()
         self.val = 0
         self.n_val = 0
 
@@ -117,16 +104,13 @@ class MSE(ValueMetric):
     def finalise_metric(self):
         self.final_value = self.val / self.n_val
 
-    def __str__(self):
-        return "MSE: {:4f}".format(self.final_value)
 
-    def is_better_than(self, other_metric):
-        return self.final_value < other_metric.final_value
+class Pearson(BaseMetric, ValueMetricUpdate):
 
+    HIGHER_BETTER = True
 
-class Pearson(ValueMetric):
-
-    def initialise_metric(self):
+    def __init__(self):
+        super(Pearson, self).__init__()
         self.x = None
         self.y = None
 
@@ -152,18 +136,16 @@ class Pearson(ValueMetric):
         cost = th.sum(vx * vy) / (th.sqrt(th.sum(vx ** 2)) * th.sqrt(th.sum(vy ** 2)))
         self.final_value = cost.item()
 
-    def __str__(self):
-        return "Pearson: {:4f}".format(self.final_value)
 
-    def is_better_than(self, other_metric):
-        return self.final_value > other_metric.final_value
+class RootChildrenAccuracy(BaseAccuracy, TreeMetricUpdate):
 
+    def initialise_metric(self):
+        super(RootChildrenAccuracy, self).__init__()
 
-class MaskedAccuracy(Accuracy):
-    NO_ELEMENT = -1
+    def update_metric(self, out, gold_label, graph):
+        root_ids = [i for i in range(graph.number_of_nodes()) if graph.out_degree(i) == 0]
+        root_ch_id = [i for i in range(graph.number_of_nodes()) if i not in root_ids and graph.successors(i).item() in root_ids]
 
-    def update_metric(self, out, gold_label):
         pred = th.argmax(out, 1)
-        idxs = (gold_label != MaskedAccuracy.NO_ELEMENT)
-        self.n_correct += th.sum(th.eq(gold_label[idxs], pred[idxs])).item()
-        self.n_nodes += th.sum(idxs).item()
+        self.n_correct += th.sum(th.eq(pred[root_ch_id], gold_label[root_ch_id])).item()
+        self.n_nodes += len(root_ch_id)

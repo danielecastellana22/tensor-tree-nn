@@ -15,8 +15,8 @@ if __name__ == '__main__':
     args = parse_arguments()
 
     # load the config file
-    exp_config, config_list = ExpConfig.from_file(args.config_file)
+    exp_runner_params, config_list = ExpConfig.from_file(args.config_file)
 
     # create output dir
-    exp_runner = ExperimentRunner(**exp_config, config_list=config_list)
+    exp_runner = ExperimentRunner(**exp_runner_params, config_list=config_list)
     exp_runner.run()
