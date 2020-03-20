@@ -5,7 +5,6 @@ import numpy as np
 
 class BaseAggregator(nn.Module):
 
-    # TODO: maybe pos_stationarity is not in common
     # n_aggr allows to speed up the computation computing more aggregation in parallel. USEFUL FOR LSTM
     def __init__(self, h_size, max_output_degree, pos_stationarity, n_aggr, type_emb_size):
         super(BaseAggregator, self).__init__()
@@ -313,6 +312,7 @@ class Hosvd(BaseAggregator):
 # h3 =  Canonical decomposition
 class TensorTrain(BaseAggregator):
 
+    # it is weight sharing, rather than pos_stationarity
     def __init__(self, h_size, max_output_degree, pos_stationarity, n_aggr, rank):
         super(TensorTrain, self).__init__(h_size, max_output_degree, pos_stationarity, n_aggr)
 
@@ -325,7 +325,6 @@ class TensorTrain(BaseAggregator):
             for i in range(max_output_degree):
                 self.U_list.append(nn.Linear(h_size, n_aggr * (rank+1) * rank, bias=True))
         else:
-            # TODO: it is weight sharing, rather than pos_stationarity
             self.U = nn.Linear(h_size, n_aggr * (rank+1) * rank, bias=True)
 
         # output matrices

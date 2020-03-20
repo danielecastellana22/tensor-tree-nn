@@ -1,7 +1,7 @@
 import sys
 import os
 import argparse
-from utils.config import Config
+from config.base import Config
 from utils.utils import eprint
 
 
@@ -17,7 +17,7 @@ if __name__ == '__main__':
     args = parse_arguments()
 
     # load the config file
-    c = Config.from_file(args.config_file)
+    c = Config.from_yaml_file(args.config_file)
     output_dir = c.output_dir
 
     if not os.path.exists(output_dir):

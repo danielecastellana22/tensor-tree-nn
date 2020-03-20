@@ -5,7 +5,6 @@ import numpy as np
 import torch as th
 import logging
 from datetime import datetime
-import json
 
 
 def eprint(*args, **kwargs):
@@ -35,16 +34,17 @@ def create_datatime_dir(par_dir):
     return save_dir
 
 
-def get_logger(name, log_dir, write_on_console):
+def get_logger(name, log_dir, file_name, write_on_console):
     logger = logging.getLogger(name)
     logger.setLevel(logging.DEBUG)
     formatter = logging.Formatter("[%(asctime)s] %(levelname)s:%(name)s: %(message)s")
 
-    # file logger
-    fh = logging.FileHandler(os.path.join(log_dir, name) + '.log', mode='w')
-    fh.setLevel(logging.DEBUG)
-    fh.setFormatter(formatter)
-    logger.addHandler(fh)
+    if file_name is not None:
+        # file logger
+        fh = logging.FileHandler(os.path.join(log_dir, file_name), mode='w')
+        fh.setLevel(logging.DEBUG)
+        fh.setFormatter(formatter)
+        logger.addHandler(fh)
 
     if write_on_console:
         # console logger
@@ -54,8 +54,3 @@ def get_logger(name, log_dir, write_on_console):
         logger.addHandler(ch)
 
     return logger
-
-
-def to_json_file(x, file_path):
-    with open(file_path, 'w') as f:
-        json.dump(x, f)

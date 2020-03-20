@@ -1,7 +1,6 @@
-import yaml
 from utils.utils import string2class
+from utils.serialization import from_yaml_file, from_json_file
 import copy
-import json
 
 
 class Config(dict):
@@ -9,59 +8,28 @@ class Config(dict):
     def __init__(self, **config_dict):
         # store jsno representation
         super(Config, self).__init__()
-        self.__dict__['__json_repr__'] = json.dumps(config_dict, indent='\t')
 
         # set attributes
         for k, v in config_dict.items():
             if isinstance(v, dict):
                 # if is dict, create a new Config obj
                 v = Config(**v)
-            else:
-                # check if the string should be converted in class
-                if k.endswith('_class'):
-                    if isinstance(v, str):
-                        v = string2class(v)
-                    else:
-                        self.string_list2class_list(v)
             super(Config, self).__setitem__(k, v)
 
     # the dot works as []
     def __getattr__(self, item):
-        return self.__getitem__(item)
-
-    # the config is immutable
-    def __setattr__(self, key, value):
-        raise AttributeError('The Config class cannot be modified!')
-
-    def __setitem__(self, key, value):
-        raise AttributeError('The Config class cannot be modified!')
-
-    def __delitem__(self, key):
-        raise AttributeError('The Config class cannot be modified!')
-
-    @staticmethod
-    def string_list2class_list(val_to_convert):
-
-        def __rec_apply_list__(l):
-            for i in range(len(l)):
-                if isinstance(l[i], str):
-                    l[i] = string2class(l[i])
-                elif isinstance(l[i], list):
-                    __rec_apply_list__(l[i])
-
-        __rec_apply_list__(val_to_convert)
-
-    def to_json(self):
-        return self.__json_repr__
+        if item in self:
+            return self.__getitem__(item)
+        else:
+            super(Config, self).__getattr__(item)
 
     @classmethod
-    def from_json(cls, json_string):
-        return cls(**json.loads(json_string))
+    def from_json_fle(cls, path):
+        return cls(**from_json_file(path))
 
     @classmethod
-    def from_file(cls, path):
-        config_dict = yaml.load(open(path, 'r'), Loader=yaml.SafeLoader)
-        return cls(**config_dict)
+    def from_yaml_file(cls, path):
+        return cls(**from_yaml_file(path))
 
 
 class ExpConfig:
@@ -93,7 +61,7 @@ class ExpConfig:
 
     @staticmethod
     def from_file(path):
-        config_dict = yaml.load(open(path, 'r'), Loader=yaml.SafeLoader)
+        config_dict = from_yaml_file(path)
         exp_runner_params = config_dict.pop('experiment_config')
         exp_runner_params['experiment_class'] = string2class(exp_runner_params['experiment_class'])
         exp_runner_params['metric_class_list'] = list(map(string2class, exp_runner_params['metric_class_list']))

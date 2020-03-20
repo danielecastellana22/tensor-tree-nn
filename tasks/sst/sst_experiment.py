@@ -1,5 +1,4 @@
-from utils.experiment import Experiment
-import torch as th
+from experiments.base import Experiment
 import torch.nn as nn
 import torch.optim as optim
 import torch.nn.init as INIT
