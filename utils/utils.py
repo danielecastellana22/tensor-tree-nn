@@ -5,6 +5,7 @@ import numpy as np
 import torch as th
 import logging
 from datetime import datetime
+import random
 
 
 def eprint(*args, **kwargs):
@@ -12,9 +13,13 @@ def eprint(*args, **kwargs):
 
 
 def set_initial_seed(seed):
+    if seed == -1:
+        seed = random.randrange(2**32-1)
     np.random.seed(seed)
     th.manual_seed(seed)
     th.cuda.manual_seed(seed)
+
+    return seed
 
 
 def string2class(string):

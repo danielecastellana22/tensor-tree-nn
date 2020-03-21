@@ -3,6 +3,7 @@ from utils.utils import get_logger, create_datatime_dir
 from utils.serialization import to_json_file, from_json_file, from_pkl_file, to_torch_file, from_torch_file
 import numpy as np
 from concurrent.futures import ProcessPoolExecutor
+import concurrent.futures
 
 
 class ExperimentRunner:
@@ -24,92 +25,114 @@ class ExperimentRunner:
         n_config = len(self.config_list)
         self.logger.info('Model selection starts: {} configurations to run {} times.'.format(n_config, self.num_run))
 
+        fs_list=[]
         for i_config, c in enumerate(self.config_list):
             for i_run in range(self.num_run):
-                self.logger.info('Configuration {} Run {} launched.'.format(i_config, i_run))
 
                 exp_id = 'c{}_r{}'.format(i_config, i_run)
-                exp_out_dir = self.__get_conf_run_folder__(i_config, i_run)
+                exp_out_dir = self.__get_conf_run_dir__(i_config, i_run)
                 os.makedirs(exp_out_dir)
+                output_msg = 'Configuration {} Run {} finished:'.format(i_config, i_run)
 
-                exp_logger = get_logger(exp_id, exp_out_dir, file_name='training.log', write_on_console=False)
-                exp = self.experiment_class(c, exp_out_dir, exp_logger)
-                if self.debug_mode:
-                    ris = exp.run_training(self.metric_class_list)
-                    self.logger.info('Configuration {} Run {} finished: {}.'.format(i_config, i_run, ' | '.join(map(str, ris))))
-                else:
-                    f = self.pool.submit(exp.run_training, self.metric_class_list)
-                    f.add_done_callback(self.__get_done_callback__(i_config, i_run))
+                f = self.__start_single_exp__(c, exp_id, exp_out_dir, output_msg, do_test=False)
+                fs_list.append(f)
 
-        self.pool.shutdown()  # this will wai the end of all subprocess
+        if not self.debug_mode:
+            self.logger.info('All configuration sumitted to the pool.')
+            # this will wait the end of all subprocess
+            concurrent.futures.wait(fs_list)
+
         self.logger.info('Model selection finished.')
 
-        ms_dev_results = self.__load_all_dev_results__()
-        to_json_file(ms_dev_results, os.path.join(self.output_dir, 'all_validation_results.json'))
+        ms_validation_results = self.__load_all_validation_results__()
+        to_json_file(ms_validation_results, os.path.join(self.output_dir, 'validation_results.json'))
 
-        ms_dev_mean = np.mean(ms_dev_results[self.metric_class_list[0].__name__], axis=1)
+        ms_validation_avg = np.mean(ms_validation_results[self.metric_class_list[0].__name__], axis=1)
 
         if self.metric_class_list[0].HIGHER_BETTER:
-            best_config_id = np.argmax(ms_dev_mean)
+            best_config_id = np.argmax(ms_validation_avg)
         else:
-            best_config_id = np.argmin(ms_dev_mean)
+            best_config_id = np.argmin(ms_validation_avg)
 
-        self.logger.info('Configuration {} is the best one! Validation Score: {}'.format(best_config_id, ms_dev_mean[best_config_id]))
+        self.logger.info('Configuration {} is the best one! Validation Score: {}'.format(best_config_id, ms_validation_avg[best_config_id]))
 
         # save best config
         self.logger.info('Saving best configuration.')
-        to_json_file(self.config_list[best_config_id], os.path.join(self.output_dir, 'best_config.json'))
+        best_config = self.config_list[best_config_id]
+        to_json_file(best_config, os.path.join(self.output_dir, 'best_config.json'))
 
-        # load best weight from the first run
-        self.logger.info('Load best model weight.')
-        self.logger.info('Testing the best configuration')
-        all_test_results = [None] * self.num_run
+        self.logger.info('Retraining and test the best configuration.')
         for i_run in range(self.num_run):
-            best_model_weight = self.__get_model_weight__(best_config_id, i_run)
-
             self.logger.info('Testing Run {}.'.format(i_run))
-            test_exp = self.experiment_class(self.config_list[best_config_id], self.output_dir,
-                                             self.logger.getChild('best_model_testing'))
+            test_id = 'test{}'.format(i_run)
+            test_out_dir = self.__get_test_run_dir__(i_run)
+            os.makedirs(test_out_dir)
+            output_msg = 'Testing run {} finished:'.format(i_run)
 
-            test_metrics, test_prediction = test_exp.run_test(best_model_weight, self.metric_class_list)
-            all_test_results[i_run] = {type(x).__name__: x.get_value() for x in test_metrics}
-            self.logger.info('Test {} results: {}.'.format(i_run, ' | '.join(map(str, test_metrics))))
+            self.__start_single_exp__(best_config, test_id, test_out_dir, output_msg, do_test=True)
 
-        self.logger.info('Save test results.')
-        to_json_file(self.__metrics_list_to_val_dict__(all_test_results), os.path.join(self.output_dir, 'test_results.json'))
+        self.pool.shutdown()
+        self.logger.info('Test finished.')
 
-    def __get_done_callback__(self, i_config, i_run):
-        def f(fut):
-            self.logger.info('Configuration {} Run {} finished: {}.'.format(i_config, i_run, ' | '.join(map(str, fut.result()))))
+        # load all test results
+        all_test_results = self.__load_all_test_results__()
+        for k, v in all_test_results.items():
+            self.logger.info('Test {}: {:4f} +/- {:4f}'.format(k, np.mean(v, axis=1)[0], np.std(v, axis=1)[0]))
+        to_json_file(all_test_results, os.path.join(self.output_dir, 'test_results.json'))
+        self.logger.info('Test results saved')
 
-        return f
+    @staticmethod
+    def __exp_execution_fun__(exp_class, c, exp_id, exp_out_dir, metric_list, test):
+        exp_logger = get_logger(exp_id, exp_out_dir, file_name='experiment.log', write_on_console=False)
+        exp = exp_class(c, exp_out_dir, exp_logger)
+        return exp.run_training(metric_list, test)
 
-    def __load_all_dev_results__(self):
-        all_dev_metrics = [[None] * self.num_run] * len(self.config_list)
+    def __start_single_exp__(self, config, exp_id, exp_out_dir, output_msg, do_test):
+
+        def done_callback(fut):
+            self.logger.info('{}: {}.'.format(output_msg, ' | '.join(map(str, fut.result()))))
+
+        fun_params = [self.experiment_class, config, exp_id, exp_out_dir, self.metric_class_list]
+        if self.debug_mode:
+            ris = self.__exp_execution_fun__(*fun_params, test=do_test)
+            self.logger.info('{}: {}.'.format(output_msg, ' | '.join(map(str, ris))))
+            return None
+        else:
+            f = self.pool.submit(self.__exp_execution_fun__, *fun_params, test=do_test)
+            f.add_done_callback(done_callback)
+            return f
+
+    def __load_all_validation_results__(self):
+        all_val_metrics = [[None for i in range(self.num_run)] for i in range(len(self.config_list))]
         for i_config in range(len(self.config_list)):
             for i_run in range(self.num_run):
-                sub_dir = self.__get_conf_run_folder__(i_config, i_run)
-                all_dev_metrics[i_config][i_run] = from_json_file(os.path.join(sub_dir, 'best_dev_metrics.json'))
+                sub_dir = self.__get_conf_run_dir__(i_config, i_run)
+                all_val_metrics[i_config][i_run] = from_json_file(os.path.join(sub_dir, 'best_validation_metrics.json'))
 
-        return self.__metrics_list_to_val_dict__(all_dev_metrics)
+        return self.__metrics_list_to_val_dict__(all_val_metrics)
+
+    def __load_all_test_results__(self):
+        all_test_metrics = [[None for i in range(self.num_run)]]
+        for i_run in range(self.num_run):
+            sub_dir = self.__get_test_run_dir__(i_run)
+            all_test_metrics[0][i_run] = from_json_file(os.path.join(sub_dir, 'test_metrics.json'))
+
+        return self.__metrics_list_to_val_dict__(all_test_metrics)
 
     def __metrics_list_to_val_dict__(self, metrics_list):
-
-        def __rec_conv__(l, c):
-            if isinstance(l, list):
-                return [__rec_conv__(x, c) for x in l]
-            else:
-                return l[c]
-
+        # metrics list MUST be a list of list
         val_dict = {}
         for c in self.metric_class_list:
             c_name = c.__name__
-            val_dict[c_name] = __rec_conv__(metrics_list, c_name)
+            val_dict[c_name] = [[y[c_name] for y in x] for x in metrics_list]
         return val_dict
 
-    def __get_model_weight__(self, id_config, n_run):
-        sub_dir = self.__get_conf_run_folder__(id_config, n_run)
-        return from_torch_file(os.path.join(sub_dir, 'model_weight.pth'))
-
-    def __get_conf_run_folder__(self, id_config, n_run):
+    def __get_conf_run_dir__(self, id_config, n_run):
         return os.path.join(self.output_dir, 'conf_{}/run_{}'.format(id_config, n_run))
+
+    def __get_test_run_dir__(self, n_run):
+        return os.path.join(self.output_dir, 'test/run_{}'.format(n_run))
+
+    # def __get_model_weight__(self, id_config, n_run):
+    #     sub_dir = self.__get_conf_run_folder__(id_config, n_run)
+    #     return from_torch_file(os.path.join(sub_dir, 'model_weight.pth'))

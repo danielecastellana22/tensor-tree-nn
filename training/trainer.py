@@ -119,7 +119,7 @@ def test(model, testset, batcher_fun, metric_class_list, logger, batch_size):
 
     testloader = DataLoader(testset, batch_size=batch_size, collate_fn=batcher_fun, shuffle=True, num_workers=0)
 
-    pbar = tqdm(total=len(testset), desc='Evaluate on test set: ', disable=False)
+    pbar = tqdm(total=len(testset), desc='Evaluate on test set: ', disable=True)
     metrics, _, predictions = __evaluate_model__(model, testloader, metric_class_list, pbar, batch_size)
 
     # print metrics

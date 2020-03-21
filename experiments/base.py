@@ -105,12 +105,17 @@ class Experiment:
 
         return device
 
-    def run_training(self, metric_class_list):
+    def run_training(self, metric_class_list, do_test):
         training_config = self.config.training_config
 
         # initialise random seed
         if 'seed' in self.config.others_config:
-            set_initial_seed(self.config.others_config.seed)
+            seed = self.config.others_config.seed
+        else:
+            seed = -1
+        seed = set_initial_seed(seed)
+        self.logger.info('Seed set to {}.'.format(seed))
+
 
         trainset, valset = self.__load_training_data__()
 
@@ -127,12 +132,27 @@ class Experiment:
 
         best_val_metrics_dict = {type(x).__name__: x.get_value() for x in best_val_metrics}
         best_model_weights = best_model.state_dict()
-        to_json_file(best_val_metrics_dict, os.path.join(self.output_dir, 'best_dev_metrics.json'))
+        to_json_file(best_val_metrics_dict, os.path.join(self.output_dir, 'best_validation_metrics.json'))
         to_torch_file(best_model_weights, os.path.join(self.output_dir, 'model_weight.pth'))
         to_json_file(info_training, os.path.join(self.output_dir, 'info_training.json'))
 
-        return best_val_metrics
+        if not do_test:
+            return best_val_metrics
+        else:
+            testset = self.__load_test_data__()
 
+            test_metrics, test_prediction = test(best_model, testset,
+                                                 batcher_fun=self.__get_batcher_function__(),
+                                                 logger=self.logger.getChild('test'),
+                                                 metric_class_list=metric_class_list,
+                                                 batch_size=training_config.batch_size)
+
+            test_metrics_dict = {type(x).__name__: x.get_value() for x in test_metrics}
+            to_json_file(test_metrics_dict, os.path.join(self.output_dir, 'test_metrics.json'))
+            to_torch_file(test_prediction, os.path.join(self.output_dir, 'test_prediction.pth'))
+            return test_metrics
+
+    # TODO: we need this?
     def run_test(self, state_dict, metric_class_list):
         training_config = self.config.training_config
 
@@ -147,5 +167,9 @@ class Experiment:
                                              metric_class_list=metric_class_list,
                                              batch_size=training_config.batch_size)
 
-        return test_metrics, test_prediction
+        test_metrics_dict = {type(x).__name__: x.get_value() for x in test_metrics}
+        to_json_file(test_metrics_dict, os.path.join(self.output_dir, 'test_metrics.json'))
+        to_torch_file(test_prediction, os.path.join(self.output_dir, 'test_prediction.pth'))
+
+        return test_metrics
 
