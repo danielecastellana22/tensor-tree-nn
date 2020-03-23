@@ -23,49 +23,60 @@ class BaseAggregator(nn.Module):
 
 class AugmentedTensor(nn.Module):
 
-    def __init__(self, in_size_list, out_size, pos_stationarity):
+    def __init__(self, n_aggr, in_size_list, out_size, pos_stationarity):
 
-        if np.prod(in_size_list) > 10**9:
+        if n_aggr * np.prod(in_size_list) * out_size > 10**9:
             raise ValueError('Too many parameters!')
 
         super(AugmentedTensor, self).__init__()
 
         #self.n_agg = n_aggregator
-        self.in_size_list = in_size_list
+        self.n_aggr = n_aggr
+        self.in_size_list = [x+1 for x in in_size_list]
         self.n_input = len(in_size_list)
         self.out_size = out_size
         self.pos_stationarity = pos_stationarity
 
         if self.pos_stationarity:
-            #TODO: does not work. Output must be 3*h_size
             raise NotImplementedError('Full with stationarity not implemented yet')
         else:
+            d = [self.n_aggr]
             # +1 for the bias
-            d = [x+1 for x in self.in_size_list]
-            d.insert(1, out_size)
-            #d = [1, n_aggregator] + d
+            d += self.in_size_list
+            d.append(out_size)
             self.A = nn.Parameter(th.Tensor(*d))
 
     # neighbour_states has shape batch_size x n_neighbours x insize
-    def forward(self, n_batch, *in_el_list):
+    def forward(self, *in_el_list):
         if self.pos_stationarity:
             raise NotImplementedError('Full with stationarity not implemented yet')
         else:
             A = self.A
 
-        ris = None
+        # add 1 in first dimension for the bs batching
+        ris = self.A.unsqueeze(0)
+
+        bs = in_el_list[0].size(0)
+        n_aggr = self.n_aggr
         for i in range(self.n_input):
             in_el = in_el_list[i]
-            if ris is None:
-                # add bias. h has size N_BATCH x H_SIZE+1
-                h = th.cat((in_el.view(n_batch, -1), th.ones((n_batch, 1), device=in_el.device)), dim=1)
-                ris = th.matmul(h, A.view((self.in_size_list[i]+1, -1)))
-            else:
-                # add bias. h has size N_BATCH x H_SIZE+1 x 1
-                h = th.cat((in_el.view(n_batch, -1, 1), th.ones((n_batch, 1, 1), device=in_el.device)), dim=1)
-                ris = th.bmm(ris.view((n_batch, -1, self.in_size_list[i]+1)), h)
+            if len(in_el.shape) == 3:
+                in_el = in_el.unsqueeze(1)
+            # in_el must has shape (bs x n_aggr x 1 x h) or (bs x 1 x 1 x h)
+            dim_i = self.in_size_list[i]
 
-        return ris.squeeze(dim=2)
+            h = th.cat((in_el, th.ones((bs, in_el.size(1), 1, 1), device=in_el.device)), dim=3).view(bs, in_el.size(1), 1, -1)
+            if i > 0:
+                ris = ris.view(bs, self.n_aggr, dim_i, -1)
+            else:
+                ris = ris.view(1, self.n_aggr, dim_i, -1)
+
+            # ris has shape (bs x n_aggr x dim_i x -1) or (1 x n_aggr x dim_i x -1) in the first iteration
+            # h has shape (bs x n_aggr x 1 x dim_i)
+            ris = th.matmul(h, ris)
+
+        # ris has shape (bs x n_aggr x 1 x out_size)
+        return ris
 
 
 # h = U1*h1 + U2*h2 + ... + Un*hn
@@ -198,8 +209,7 @@ class FullTensor(BaseAggregator):
         if type_emb_size is not None:
             in_size_list.insert(0, type_emb_size)
 
-        out_size = n_aggr*h_size
-        self.T = AugmentedTensor(in_size_list, out_size, pos_stationarity)
+        self.T = AugmentedTensor(1, in_size_list, n_aggr*h_size, pos_stationarity)
 
     # neighbour_states has shape batch_size x n_neighbours x insize
     def forward(self, neighbour_h, type_embs=None):
@@ -209,7 +219,7 @@ class FullTensor(BaseAggregator):
         if type_embs is not None:
             input_el.insert(0, type_embs)
 
-        return self.T(bs, *input_el)
+        return self.T(*input_el).view(bs, -1)
 
 
 # h = U3*r3, where r3 = G*r1*r2, r1 = U1*h1 and r2 = U2*h2
@@ -222,21 +232,18 @@ class Hosvd(BaseAggregator):
         super(Hosvd, self).__init__(h_size, max_output_degree, pos_stationarity, n_aggr, type_emb_size)
 
         self.rank = rank
-        # core tensor is a fulltensor aggregator wiht r^d size
-        in_size_list = [rank for i in range(max_output_degree)]
-        out_size = rank * n_aggr
-
 
         if self.pos_stationarity:
             raise NotImplementedError("pos stationariy is not implemented yet!")
         else:
             # mode matrices
             if type_emb_size is None:
-                dim_U = [max_output_degree, h_size, n_aggr * rank]
-                dim_b = [max_output_degree, 1, n_aggr * rank]
+                dim_U = [max_output_degree, n_aggr, h_size, rank]
+                dim_b = [max_output_degree, n_aggr, 1,  rank]
                 dim_U_out = [n_aggr, rank, h_size]
                 dim_b_out = [n_aggr, 1, h_size]
             else:
+                raise NotImplementedError('Hosvd aggregator does not support type embeddings yet!')
                 dim_U = [type_emb_size, max_output_degree, h_size + 1, n_aggr * rank]
                 dim_b = [1, max_output_degree, h_size + 1, n_aggr * rank]
                 dim_U_out = [type_emb_size, n_aggr, rank + 1, h_size]
@@ -244,7 +251,10 @@ class Hosvd(BaseAggregator):
                 in_size_list.insert(0, type_emb_size)
 
         # core tensor
-        self.G = AugmentedTensor(in_size_list, out_size, pos_stationarity)
+        # core tensor is a fulltensor aggregator wiht r^d size
+        in_size_list = [rank for i in range(max_output_degree)]
+        # TODO: how to handle type_embsize on core_tensor?
+        self.G = AugmentedTensor(n_aggr, in_size_list, rank, pos_stationarity)
         # mode matrices
         self.U = nn.Parameter(th.Tensor(*dim_U), requires_grad=True)
         self.b = nn.Parameter(th.Tensor(*dim_b), requires_grad=True)
@@ -267,46 +277,23 @@ class Hosvd(BaseAggregator):
             U_out = self.U_output
             b_out = self.b_output
         else:
-            aux = th.matmul(type_embs, self.U.view(emb_s, -1)) + self.b.view(1, -1)
-            aux = aux.view((bs, -1, h + 1, n_aggr * rank))
-            U = aux[:, :, :h, :]
-            b = aux[:, :, -2:-1, :]
+            raise NotImplementedError('Hosvd aggregator does not support type embeddings yet!')
 
-            aux_out = th.matmul(type_embs, self.U_output.view(emb_s, -1)) + self.b_output.view(1, -1)
-            aux_out = aux_out.view(bs, n_aggr, rank+1, h)
-            U_out = aux_out[:, :, :rank, :]
-            b_out = aux_out[:, :, -2:-1, :]
-
-        # neighbour_h has shape (bs x n_ch x 1 x h)
-        # U has shape (1 x h x n_agr*rank)
-        ris = th.matmul(neighbour_h.view((bs, n_ch, 1, h)), U) + b  # ris has shape (bs x n_ch x 1 x n_aggr*rank)
-        ris = th.prod(ris, 1)  # ris has shape (bs x 1 x n_a    ggr*rank)
-        # (bs x n_aggr x 1 x rank) mul (1 x n_aggr x rank x h)
-        ris = th.matmul(ris.view((bs, n_aggr, 1, rank)), U_out) + b_out
-        # ris has shape (bs x n_aggr x 1 x h)
-        return ris.squeeze(2).view(-1, n_aggr*h)
-
-        rank_list = []
         if self.pos_stationarity:
             raise NotImplementedError("pos stationariy is not implemented yet!")
         else:
-            # obtain a tensor n_batch x n_neighbours x rank x n_aggr to pass to the full aggregator
-            #TODO: should be applied only on true childs. Missing children should be considered separately.
+            # TODO: should be applied only on true childs. Missing children should be considered separately.
+            ris = th.matmul(neighbour_h.view((bs, n_ch, 1, 1, h)),
+                            U) + b  # ris has shape (bs x n_ch x n_aggr x 1 x rank)
+            in_el_list = []
             for i in range(self.max_output_degree):
-                h_i = th.squeeze(neighbour_h[:, i, :], 1)
-                rank_list.append(th.chunk(self.U_list[i](h_i).reshape(-1, self.rank, self.n_aggr), self.n_aggr, dim=2))
+                in_el_list.append(ris[:, i, :, :, :])
 
-            n_batch = neighbour_h.size(0)
-            ris = None
-            for i in range(self.n_aggr):
-                in_el_list = [x[i] for x in rank_list]
-                if ris is None:
-                    ris = self.U_output_list[i](self.G_list[i](n_batch, *in_el_list))
-                else:
-                    aux = self.U_output_list[i](self.G_list[i](n_batch, *in_el_list))
-                    ris = th.cat((ris, aux), dim=1)
+            ris = self.G(*in_el_list) # ris has shape (bs x n_aggr x 1 x rank)
+            # TODO: use output matrices
+            ris = th.matmul(ris, U_out) + b_out
 
-        return ris
+        return ris.view(bs, -1)
 
 
 # h3 =  Canonical decomposition
