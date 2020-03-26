@@ -59,3 +59,26 @@ def get_logger(name, log_dir, file_name, write_on_console):
         logger.addHandler(ch)
 
     return logger
+
+
+def prompt_before_overwite(fpath):
+    ans = True
+    if os.path.exists(fpath):
+        eprint('{} already exists! Overwrite? [y/N]'.format(fpath))
+        ans = sys.stdin.readline().strip().lower()
+        if ans == 'y' or ans == 'yes':
+            ans = True
+        elif ans == 'n' or ans == 'no':
+            ans = False
+        else:
+            eprint('Answer not understood. The default is NO.')
+
+    return ans
+
+
+def path_exists_with_message(fpath):
+    if os.path.exists(fpath):
+        eprint('{} alredy exists'.format(fpath))
+        return True
+    else:
+        return False

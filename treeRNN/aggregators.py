@@ -163,7 +163,7 @@ class Canonical(BaseAggregator):
 
         bs = neighbour_h.size(0)
         h = self.h_size
-        n_ch = self.max_output_degree
+        n_ch =  neighbour_h.size(1) # self.max_output_degree
         n_aggr = self.n_aggr
         rank = self.rank
         emb_s = self.type_emb_size

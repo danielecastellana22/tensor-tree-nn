@@ -49,20 +49,20 @@ class TreeLSTMCell(BaseTreeCell):
         # TODO: input matrices  must depends on type_emb_size
         # input matrices
         if self.allow_input_labels:
-            self.W_iou = nn.Linear(x_size, 3 * h_size, bias=True)
-            self.W_f = nn.Linear(x_size, h_size, bias=True)
+            self.iou_input_module = nn.Linear(x_size, 3 * h_size, bias=True)
+            self.forget_input_module = nn.Linear(x_size, h_size, bias=True)
 
         # forget gate matrices
         if pos_stationarity:
             # TODO: can we use aggregator in order to make advantage of type embs?
-            self.U_f = nn.Linear(h_size, h_size, bias=True)
+            self.forget_module = nn.Linear(h_size, h_size, bias=True)
         else:
-            self.U_f = aggregator_class(h_size, max_output_degree, pos_stationarity,
-                                        type_emb_size=type_emb_size, n_aggr=max_output_degree, **kwargs)
+            self.forget_module = aggregator_class(h_size, max_output_degree, pos_stationarity,
+                                                  type_emb_size=type_emb_size, n_aggr=max_output_degree, **kwargs)
 
     def apply_input_matrices(self, x):
         if self.allow_input_labels:
-            return {'iou_input': self.W_iou(x), 'f_input': self.W_f(x)}
+            return {'iou_input': self.iou_input_module(x), 'f_input': self.forget_input_module(x)}
         else:
             raise ValueError('This cell cannot manage input labels!')
 
@@ -72,9 +72,9 @@ class TreeLSTMCell(BaseTreeCell):
 
         if self.pos_stationarity:
             # TODO: what about type embs?
-            return self.U_f(neighbour_h.view((-1, self.h_size))).view(n_batch, n_ch * self.h_size)
+            return self.forget_module(neighbour_h.view((-1, self.h_size))).view(n_batch, n_ch * self.h_size)
         else:
-            return self.U_f(neighbour_h, type_embs)
+            return self.forget_module(neighbour_h, type_embs)
 
     def aggregate_child_messages(self, neighbour_h, neighbour_c, f_input, type_embs):
         n_ch = neighbour_h.size(1)

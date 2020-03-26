@@ -1,5 +1,6 @@
 import torch.nn as nn
 import dgl
+import dgl.init
 
 
 class TreeModel(nn.Module):
@@ -15,6 +16,7 @@ class TreeModel(nn.Module):
 
     def forward(self, g):
 
+        g.set_n_initializer(dgl.init.zero_initializer)
         g.register_message_func(self.cell_module.message_func)
         g.register_reduce_func(self.cell_module.reduce_func)
         g.register_apply_node_func(self.cell_module.apply_node_func)

@@ -131,10 +131,11 @@ class Experiment:
                                                                          **training_config)
 
         best_val_metrics_dict = {type(x).__name__: x.get_value() for x in best_val_metrics}
-        best_model_weights = best_model.state_dict()
+        n_params_dict = {k: v.numel() for k, v in best_model.state_dict().items()}
+
         to_json_file(best_val_metrics_dict, os.path.join(self.output_dir, 'best_validation_metrics.json'))
-        to_torch_file(best_model_weights, os.path.join(self.output_dir, 'model_weight.pth'))
         to_json_file(info_training, os.path.join(self.output_dir, 'info_training.json'))
+        to_json_file(n_params_dict, os.path.join(self.output_dir, 'num_model_parameters.json'))
 
         if not do_test:
             return best_val_metrics
@@ -151,25 +152,3 @@ class Experiment:
             to_json_file(test_metrics_dict, os.path.join(self.output_dir, 'test_metrics.json'))
             to_torch_file(test_prediction, os.path.join(self.output_dir, 'test_prediction.pth'))
             return test_metrics
-
-    # TODO: we need this?
-    def run_test(self, state_dict, metric_class_list):
-        training_config = self.config.training_config
-
-        testset = self.__load_test_data__()
-
-        m = self.__create_model__()
-        m.load_state_dict(state_dict)
-
-        test_metrics, test_prediction = test(m, testset,
-                                             batcher_fun=self.__get_batcher_function__(),
-                                             logger=self.logger.getChild('test'),
-                                             metric_class_list=metric_class_list,
-                                             batch_size=training_config.batch_size)
-
-        test_metrics_dict = {type(x).__name__: x.get_value() for x in test_metrics}
-        to_json_file(test_metrics_dict, os.path.join(self.output_dir, 'test_metrics.json'))
-        to_torch_file(test_prediction, os.path.join(self.output_dir, 'test_prediction.pth'))
-
-        return test_metrics
-

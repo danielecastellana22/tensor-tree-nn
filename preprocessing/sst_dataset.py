@@ -3,9 +3,201 @@ import dgl
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 from collections import namedtuple
-from treeRNN.dataset import DependencyTreeDataset, TreeDataset
 import pickle
 import os
+
+
+class TreeDataset(Dataset):
+
+    NODES_ATTRIBUTE_LIST = ['x', 'y', 'mask', 'type_id']
+    UNK = 0   # out-of-vocabulary element
+    NO_ELEMENT = -1  # flag to indicate missing element
+
+    def __init__(self, path_dir, file_name_list, name, words_vocab=None, types_vocab=None):
+        Dataset.__init__(self)
+        self.data = []
+        self.path_dir = path_dir
+        self.file_name_list = file_name_list
+        self.name = name
+
+        self.logger = get_sub_logger(self.name)
+
+        self.__init_vocab__('words', words_vocab)
+        self.__init_vocab__('types', types_vocab)
+
+        self.max_out_degree_types = {}
+        self.max_out_degree = 0
+
+    def __getitem__(self, idx):
+        return self.data[idx]
+
+    def __len__(self):
+        return len(self.data)
+
+    def __init_vocab__(self, vocab_name, vocab_init):
+        vocab_attr_name = '{}_vocab'.format(vocab_name)
+        flag_attr_name = 'build_{}_vocab'.format(vocab_name)
+        counting_attr_name = '{}_counting'.format(vocab_name)
+
+        if vocab_init is None:
+            # build the vocabulary
+            self.__setattr__(vocab_attr_name, {'unk': SentenceTreeDataset.UNK})
+            self.__setattr__(flag_attr_name, True)
+        else:
+            self.__setattr__(vocab_attr_name, vocab_init)
+            self.__setattr__(flag_attr_name, False)
+
+        self.__setattr__(counting_attr_name, {'unk': 0})
+
+    def __search_and_update_vocab__(self, vocab_name, el):
+        vocab_attr_name = '{}_vocab'.format(vocab_name)
+        flag_attr_name = 'build_{}_vocab'.format(vocab_name)
+        counting_attr_name = '{}_counting'.format(vocab_name)
+
+        vocab = self.__getattribute__(vocab_attr_name)
+        flag = self.__getattribute__(flag_attr_name)
+        counting = self.__getattribute__(counting_attr_name)
+
+        el = el.lower()
+        idx = vocab.get(el, SentenceTreeDataset.UNK)
+
+        if flag and idx == SentenceTreeDataset.UNK:
+            vocab[el] = len(vocab)
+            idx = vocab[el]
+
+        if idx == SentenceTreeDataset.UNK:
+            counting['unk'] += 1
+        else:
+            if el not in counting:
+                counting[el] = 0
+            counting[el] += 1
+
+        return idx
+
+    def __get_word_id__(self, w):
+        return self.__search_and_update_vocab__('words', w)
+
+    def __get_type_id__(self, t):
+        return self.__search_and_update_vocab__('types', t)
+
+    @property
+    def num_words(self):
+        return len(self.__getattribute__('words_vocab'))
+
+    @property
+    def num_types(self):
+        return len(self.__getattribute__('types_vocab'))
+
+    # parse file and poupulate self.data
+    @abstractmethod
+    def __parse_file__(self, f_name):
+        raise NotImplementedError
+
+    def __load_trees__(self):
+
+        for f_name in self.file_name_list:
+            self.logger.info('Loading trees from {}.'.format(f_name))
+            self.__parse_file__(os.path.join(self.path_dir, f_name))
+
+        if self.build_types_vocab and self.num_types > 1:  # only one type means there are no types
+            self.__filter_types__()
+
+        self.__print_stats__()
+
+    def __to_dgl__(self, nx_t):
+        g = dgl.DGLGraph()
+        if 'pos' in list(nx_t.edges(data=True))[0][2]:
+            g.from_networkx(nx_t, node_attrs=self.NODES_ATTRIBUTE_LIST, edge_attrs=['pos'])
+        else:
+            g.from_networkx(nx_t, node_attrs=self.NODES_ATTRIBUTE_LIST)
+
+        # compute max_out_degree
+        for i in range(g.number_of_nodes()):
+            t_id = g.ndata['type_id'][i].item()
+            in_deg = g.in_degree(i)
+            if t_id not in self.max_out_degree_types:
+                self.max_out_degree_types[t_id] = 0
+            self.max_out_degree_types[t_id] = max(self.max_out_degree_types[t_id], in_deg)
+            self.max_out_degree = max(self.max_out_degree, in_deg)
+
+        return g
+
+    def __print_stats__(self):
+        self.logger.info('{} elements loaded.'.format(len(self)))
+        self.logger.info('{} different words.'.format(self.num_words))
+        self.logger.info('{} different types.'.format(self.num_types))
+
+    @staticmethod
+    def __filter_type_single_tree__(t, types_rev_vocab, new_types_vocab, new_types_counting, new_max_out_degree_types):
+        for i in range(t.number_of_nodes()):
+            t_id = t.ndata['type_id'][i].item()
+            t_name = types_rev_vocab[t_id]
+
+            if t_name in new_types_vocab:
+                new_t_id = new_types_vocab[t_name]
+                new_t_name = t_name
+            else:
+                new_t_id = DependencyTreeDataset.UNK
+                new_t_name = 'unk'
+
+            t.ndata['type_id'][i] = new_t_id
+            new_types_counting[new_t_name] += 1
+
+            in_dg = t.in_degree(i)
+            new_max_out_degree_types[new_t_name] = max(new_max_out_degree_types[new_t_name], in_dg)
+
+    def __compute_retained_types__(self):
+        min_occ = 50
+        self.logger.info('Remove types that not occur more than {} times.'.format(min_occ))
+        retained_types = [k for k, v in self.types_counting.items() if v >= min_occ and k != 'unk']
+        retained_types.insert(0, 'unk')
+        return retained_types
+
+    def __filter_types__(self):
+
+        retained_types = self.__compute_retained_types__()
+        # new vocab which preserves order
+        new_types_vocab = {k: v for v, k in enumerate(retained_types)}
+        new_types_counting = {k: 0 for k in retained_types}
+        new_max_out_degree_types = {k: 0 for k in retained_types}
+        # filter types
+        types_rev_vocab = list(self.types_vocab.keys())
+        for el in self.data:
+            if isinstance(el, tuple):
+                for t in el:
+                    if isinstance(t, dgl.DGLGraph):
+                        self.__filter_type_single_tree__(t, types_rev_vocab, new_types_vocab, new_types_counting, new_max_out_degree_types)
+            else:
+                assert isinstance(el, dgl.DGLGraph)
+                self.__filter_type_single_tree__(el, types_rev_vocab, new_types_vocab, new_types_counting, new_max_out_degree_types)
+
+        self.max_out_degree = max(list(new_max_out_degree_types.values()))
+        self.max_out_degree_types = new_max_out_degree_types
+        self.types_vocab = new_types_vocab
+        self.types_counting = new_types_counting
+
+    # TODO: maybe this should be an external function in the utils file. Hence, we can use ConcatDataset
+    @abstractmethod
+    def get_loader(self, batch_size, device, shuffle=False):
+        raise NotImplementedError
+
+
+# this class add tag vocab and assume nx graph are in pkl file
+class SentenceTreeDataset(TreeDataset):
+
+    NODES_ATTRIBUTE_LIST = TreeDataset.NODES_ATTRIBUTE_LIST + ['tag_id']
+
+    def __init__(self, path_dir, file_name_list, name, words_vocab=None, types_vocab=None, tags_vocab=None):
+        TreeDataset.__init__(self, path_dir, file_name_list, name, words_vocab, types_vocab)
+        self.__init_vocab__('tags', tags_vocab)
+
+    @property
+    def num_tags(self):
+        return len(self.__getattribute__('tags_vocab'))
+
+    def __get_tag_id__(self, t):
+        return self.__search_and_update_vocab__('tags', t)
+
 
 
 class SSTDependencyTreeDataset(DependencyTreeDataset):
@@ -184,7 +376,6 @@ class SSTBinaryDataset(TreeDataset):
 
         return DataLoader(dataset=self, batch_size=batch_size, collate_fn=batcher_dev, shuffle=shuffle,
                           num_workers=0)
-
 
 
 #

@@ -1,6 +1,8 @@
 from tqdm import tqdm
 import numpy as np
 from utils.utils import eprint
+import networkx as nx
+
 
 class ConstValues:
     UNK = 0
@@ -31,5 +33,3 @@ def load_embeddings(pretrained_embs_file, vocab, embedding_dim):
 
     assert pretrained_embs.shape[0] == len(vocab)
     return pretrained_embs
-
-

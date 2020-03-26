@@ -8,8 +8,8 @@ import concurrent.futures
 
 class ExperimentRunner:
 
-    # TODO: add recovery strategy
-    def __init__(self, experiment_class, output_dir, num_run, num_workers, metric_class_list, config_list, debug_mode=False):
+    # TODO: add recovery strategy: a flag which indicates train, recover, test
+    def __init__(self, experiment_class, output_dir, num_run, num_workers, metric_class_list, config_list, debug_mode):
         self.experiment_class = experiment_class
         self.config_list = config_list
         self.num_run = num_run

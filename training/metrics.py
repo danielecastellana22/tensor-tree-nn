@@ -5,7 +5,7 @@ from preprocessing.utils import ConstValues
 
 
 class BaseMetric:
-
+    # TODO: get_name to avoide __name__ from outside
     def __init__(self):
         self.final_value = None
 

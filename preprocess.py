@@ -1,13 +1,11 @@
-import sys
 import os
 import argparse
 from config.base import Config
-from utils.utils import eprint
+from utils.utils import eprint, path_exists_with_message, string2class
 
 
 def parse_arguments():
     parser = argparse.ArgumentParser()
-    # experiment params
     parser.add_argument('--config-file', dest='config_file')
     return parser.parse_args()
 
@@ -20,14 +18,10 @@ if __name__ == '__main__':
     c = Config.from_yaml_file(args.config_file)
     output_dir = c.output_dir
 
-    if not os.path.exists(output_dir):
-        eprint('Create otutput dir')
-        os.makedirs(output_dir)
-    else:
-        eprint('Output dir already exists! Content will be overwritten! Continue?')
-        sys.stdin.readline()
+    if not False: # path_exists_with_message(output_dir):
+        os.makedirs(output_dir, exist_ok=True)
+        eprint("Starts preprocessing function!")
 
-    eprint("Starts preprocessing function!")
-
-    p_obj = c.preprocessor_class(c)
-    p_obj.preprocess()
+        prep_class = string2class(c.preprocessor_class)
+        p_obj = prep_class(c)
+        p_obj.preprocess()
