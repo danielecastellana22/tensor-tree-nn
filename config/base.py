@@ -1,6 +1,7 @@
 from utils.utils import string2class
 from utils.serialization import from_yaml_file, from_json_file
 import copy
+from collections import OrderedDict
 
 
 class Config(dict):
@@ -35,7 +36,7 @@ class Config(dict):
 class ExpConfig:
 
     @staticmethod
-    def __build_grid_search__(config_dict):
+    def __build_config_list__(config_dict):
 
         def __rec_build__(d, k_list, d_out):
             if len(k_list) == 0:
@@ -50,7 +51,7 @@ class ExpConfig:
             if isinstance(v, list):
                 for vv in v:
                     d_out[k] = vv
-                    out_list += __rec_build__(d,k_list[1:], d_out)
+                    out_list += __rec_build__(d, k_list[1:], d_out)
             else:
                 d_out[k] = v
                 out_list += __rec_build__(d, k_list[1:], d_out)
@@ -66,9 +67,29 @@ class ExpConfig:
         exp_runner_params['experiment_class'] = string2class(exp_runner_params['experiment_class'])
         exp_runner_params['metric_class_list'] = list(map(string2class, exp_runner_params['metric_class_list']))
 
-        config_dict_list = ExpConfig.__build_grid_search__(config_dict)
+        config_list = ExpConfig.__build_config_list__(config_dict)
         ris = []
-        for d in config_dict_list:
+        for d in config_list:
             ris.append(Config(**d))
 
         return exp_runner_params, ris
+
+    @staticmethod
+    def __build_grid_dict__(config_dict):
+        d_out = OrderedDict()
+
+        def __rec_build__(d):
+            for k, v in d.items():
+                if isinstance(v, list):
+                    d_out[k] = copy.deepcopy(v)
+                elif isinstance(v, dict):
+                    __rec_build__(v)
+
+        __rec_build__(config_dict)
+        return d_out
+
+    @staticmethod
+    def get_grid_dict(path):
+        config_dict = from_yaml_file(path)
+        exp_config = config_dict.pop('experiment_config')
+        return ExpConfig.__build_grid_dict__(config_dict), exp_config['num_run']

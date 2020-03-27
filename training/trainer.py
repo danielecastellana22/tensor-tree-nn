@@ -7,6 +7,8 @@ from torch.utils.data import DataLoader
 
 # TODO: we need a flag to deal with tqdm and multiprocesing
 # TODO: maybe a class instead of single function?
+__DEBUG__ = False
+
 
 def train_and_validate(model, loss_function, optimizer, trainset, valset, batcher_fun, metric_class_list, logger,
                        batch_size, n_epochs, early_stopping_patience, evaluate_on_training_set):
@@ -34,7 +36,7 @@ def train_and_validate(model, loss_function, optimizer, trainset, valset, batche
         tr_forw_time = 0
         tr_backw_time = 0
 
-        with tqdm(total=len(trainset), desc='Training epoch ' + str(epoch) + ': ', disable=True) as pbar:
+        with tqdm(total=len(trainset), desc='Training epoch ' + str(epoch) + ': ', disable=not __DEBUG__) as pbar:
             for step, batch in enumerate(train_loader):
 
                 t = time.time()
@@ -55,7 +57,7 @@ def train_and_validate(model, loss_function, optimizer, trainset, valset, batche
 
         if evaluate_on_training_set:
             # eval on tr set
-            pbar = tqdm(total=len(trainset), desc='Evaluate epoch ' + str(epoch) + ' on training set: ', disable=True)
+            pbar = tqdm(total=len(trainset), desc='Evaluate epoch ' + str(epoch) + ' on training set: ', disable=not __DEBUG__)
             metrics, _, _ = __evaluate_model__(model, train_loader, metric_class_list, pbar, batch_size)
 
             # print tr metrics
@@ -66,7 +68,7 @@ def train_and_validate(model, loss_function, optimizer, trainset, valset, batche
             logger.info(s)
 
         # eval on validation set
-        pbar = tqdm(total=len(valset), desc='Evaluate epoch ' + str(epoch) + ' on validation set: ', disable=True)
+        pbar = tqdm(total=len(valset), desc='Evaluate epoch ' + str(epoch) + ' on validation set: ', disable=not __DEBUG__)
         metrics, eval_val_time, _ = __evaluate_model__(model, val_loader, metric_class_list, pbar, batch_size)
 
         # print validation metrics
@@ -119,7 +121,7 @@ def test(model, testset, batcher_fun, metric_class_list, logger, batch_size):
 
     testloader = DataLoader(testset, batch_size=batch_size, collate_fn=batcher_fun, shuffle=True, num_workers=0)
 
-    pbar = tqdm(total=len(testset), desc='Evaluate on test set: ', disable=True)
+    pbar = tqdm(total=len(testset), desc='Evaluate on test set: ', disable=not __DEBUG__)
     metrics, _, predictions = __evaluate_model__(model, testloader, metric_class_list, pbar, batch_size)
 
     # print metrics

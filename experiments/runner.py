@@ -71,7 +71,8 @@ class ExperimentRunner:
 
             self.__start_single_exp__(best_config, test_id, test_out_dir, output_msg, do_test=True)
 
-        self.pool.shutdown()
+        if not self.debug_mode:
+            self.pool.shutdown()
         self.logger.info('Test finished.')
 
         # load all test results

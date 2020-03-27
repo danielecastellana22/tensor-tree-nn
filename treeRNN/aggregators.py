@@ -3,6 +3,9 @@ import torch as th
 import numpy as np
 
 
+#TODO: matmul with batching IS SLOW!!!
+
+
 class BaseAggregator(nn.Module):
 
     # n_aggr allows to speed up the computation computing more aggregation in parallel. USEFUL FOR LSTM
@@ -30,8 +33,8 @@ class AugmentedTensor(nn.Module):
 
         super(AugmentedTensor, self).__init__()
 
-        #self.n_agg = n_aggregator
         self.n_aggr = n_aggr
+        # +1 for the bias
         self.in_size_list = [x+1 for x in in_size_list]
         self.n_input = len(in_size_list)
         self.out_size = out_size
@@ -40,43 +43,34 @@ class AugmentedTensor(nn.Module):
         if self.pos_stationarity:
             raise NotImplementedError('Full with stationarity not implemented yet')
         else:
-            d = [self.n_aggr]
-            # +1 for the bias
-            d += self.in_size_list
+            d = self.in_size_list
             d.append(out_size)
-            self.A = nn.Parameter(th.Tensor(*d))
+            # the n_aggr for batching slow down everything
+            self.T_list = nn.ParameterList()
+            for i in range(self.n_aggr):
+                self.T_list.append(nn.Parameter(th.Tensor(*d)))
 
     # neighbour_states has shape batch_size x n_neighbours x insize
     def forward(self, *in_el_list):
         if self.pos_stationarity:
             raise NotImplementedError('Full with stationarity not implemented yet')
-        else:
-            A = self.A
-
-        # add 1 in first dimension for the bs batching
-        ris = self.A.unsqueeze(0)
 
         bs = in_el_list[0].size(0)
         n_aggr = self.n_aggr
-        for i in range(self.n_input):
-            in_el = in_el_list[i]
-            if len(in_el.shape) == 3:
-                in_el = in_el.unsqueeze(1)
-            # in_el must has shape (bs x n_aggr x 1 x h) or (bs x 1 x 1 x h)
+
+        ris_list = []
+        h = th.cat((in_el_list[0].view(bs, -1), th.ones((bs, 1), device=in_el_list[0].device)), dim=1)
+        for j in range(n_aggr):
+            ris_list.append(th.matmul(h, self.T_list[j].view(self.in_size_list[0], -1)))
+
+        for i in range(1, self.n_input):
+            in_el = in_el_list[i] # has shape (bs x 1 x h)
             dim_i = self.in_size_list[i]
+            h = th.cat((in_el, th.ones((bs, 1, 1), device=in_el.device)), dim=2)
+            for j in range(n_aggr):
+                ris_list[j] = th.bmm(h, ris_list[j].view(bs,  dim_i, -1))
 
-            h = th.cat((in_el, th.ones((bs, in_el.size(1), 1, 1), device=in_el.device)), dim=3).view(bs, in_el.size(1), 1, -1)
-            if i > 0:
-                ris = ris.view(bs, self.n_aggr, dim_i, -1)
-            else:
-                ris = ris.view(1, self.n_aggr, dim_i, -1)
-
-            # ris has shape (bs x n_aggr x dim_i x -1) or (1 x n_aggr x dim_i x -1) in the first iteration
-            # h has shape (bs x n_aggr x 1 x dim_i)
-            ris = th.matmul(h, ris)
-
-        # ris has shape (bs x n_aggr x 1 x out_size)
-        return ris
+        return th.cat(ris_list, dim=1)
 
 
 # h = U1*h1 + U2*h2 + ... + Un*hn
