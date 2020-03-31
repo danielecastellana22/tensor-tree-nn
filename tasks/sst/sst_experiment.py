@@ -31,14 +31,11 @@ class SstExperiment(Experiment):
         return TreeModel(x_size, h_size, input_module, output_module, cell_module, type_embs_module)
 
     def __get_optimiser__(self, model):
-        params_trees = [x[1] for x in list(model.named_parameters()) if
-                        'input_module' not in x[0]]
-        params_emb = list(model.input_module.parameters())
+        model_params = list(model.cell_module.parameters()) + list(model.output_module.parameters())
+        if model.type_module is not None:
+            model_params += list(model.type_module.parameters())
 
-        # TODO: use set initializer
-        for p in params_trees:
-            if p.dim() > 1:
-                INIT.xavier_uniform_(p)
+        params_emb = list(model.input_module.parameters())
 
         # create the optimizer
         # optimizer = optim.Adagrad([
@@ -46,8 +43,8 @@ class SstExperiment(Experiment):
         #     {'params': params_emb, 'lr': 0.1}])
 
         optimizer = optim.Adadelta([
-            {'params': params_trees, 'weight_decay': self.config.tree_model_config['weight_decay']},
-            {'params': params_emb}])
+            {'params': model_params, 'weight_decay': self.config.tree_model_config['weight_decay']},
+            {'params': params_emb, 'lr': 2}])
 
         return optimizer
 

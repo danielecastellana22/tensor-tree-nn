@@ -25,7 +25,7 @@ class TreeModel(nn.Module):
         embeds = self.input_module(g.ndata['x'] * g.ndata['mask']) #* mask.unsqueeze(-1).float()
         self.cell_module.precompute_input_values(g, embeds)
 
-        if self.type_module:
+        if self.type_module is not None:
             g.ndata['type_emb'] = self.type_module(g.ndata['type_id'])
 
         # propagate

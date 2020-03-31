@@ -1,9 +1,7 @@
 import torch.nn as nn
 import torch as th
 import numpy as np
-
-
-#TODO: matmul with batching IS SLOW!!!
+import torch.nn.init as INIT
 
 
 class BaseAggregator(nn.Module):
@@ -17,6 +15,9 @@ class BaseAggregator(nn.Module):
         self.pos_stationarity = pos_stationarity
         self.n_aggr = n_aggr
         self.type_emb_size = type_emb_size
+
+    def reset_parameters(self):
+        pass
 
     # input is nieghbour_h has shape batch_size x n_neighbours x h_size
     # output has shape batch_size x (n_aggr * h_size)
@@ -49,6 +50,12 @@ class AugmentedTensor(nn.Module):
             self.T_list = nn.ParameterList()
             for i in range(self.n_aggr):
                 self.T_list.append(nn.Parameter(th.Tensor(*d)))
+
+        self.reset_parameters()
+
+    def reset_parameters(self):
+        for p in self.T_list:
+            INIT.xavier_uniform_(p)
 
     # neighbour_states has shape batch_size x n_neighbours x insize
     def forward(self, *in_el_list):
@@ -94,6 +101,12 @@ class SumChild(BaseAggregator):
 
         self.U = nn.Parameter(th.Tensor(*dim_U), requires_grad=True)
         self.b = nn.Parameter(th.Tensor(*dim_b), requires_grad=True)
+
+        self.reset_parameters()
+
+    def reset_parameters(self):
+        INIT.xavier_uniform_(self.U)
+        INIT.xavier_uniform_(self.b)
 
     # neighbour_states has shape bs x n_ch x h
     # type_embs has shape bs x emb_s
@@ -151,6 +164,14 @@ class Canonical(BaseAggregator):
         self.b = nn.Parameter(th.randn(*dim_b), requires_grad=True)
         self.U_output = nn.Parameter(th.randn(*dim_U_out), requires_grad=True)
         self.b_output = nn.Parameter(th.randn(*dim_b_out), requires_grad=True)
+
+        self.reset_parameters()
+
+    def reset_parameters(self):
+        INIT.xavier_uniform_(self.U)
+        INIT.xavier_uniform_(self.b)
+        INIT.xavier_uniform_(self.U_output)
+        INIT.xavier_uniform_(self.b_output)
 
     # neighbour_states has shape batch_size x n_neighbours x insize
     def forward(self, neighbour_h, type_embs=None):
@@ -256,6 +277,14 @@ class Hosvd(BaseAggregator):
         self.U_output = nn.Parameter(th.Tensor(*dim_U_out), requires_grad=True)
         self.b_output = nn.Parameter(th.Tensor(*dim_b_out), requires_grad=True)
 
+        self.reset_parameters()
+
+    def reset_parameters(self):
+        INIT.xavier_uniform_(self.U)
+        INIT.xavier_uniform_(self.b)
+        INIT.xavier_uniform_(self.U_output)
+        INIT.xavier_uniform_(self.b_output)
+
     # neighbour_states has shape batch_size x n_neighbours x insize
     def forward(self, neighbour_h, type_embs=None):
         bs = neighbour_h.size(0)
@@ -290,7 +319,7 @@ class Hosvd(BaseAggregator):
         return ris.view(bs, -1)
 
 
-# h3 =  Canonical decomposition
+# h3 =  tt decomposition
 class TensorTrain(BaseAggregator):
 
     # it is weight sharing, rather than pos_stationarity
