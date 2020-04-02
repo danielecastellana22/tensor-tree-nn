@@ -24,7 +24,12 @@ class SstExperiment(Experiment):
         input_module = nn.Embedding.from_pretrained(in_pretrained_embs, freeze=False)
 
         output_module = SstOutputModule(h_size, **output_model_config)
-        type_embs_module = None
+
+        if 'type_model_config' in self.config:
+            type_model_config = self.config.type_model_config
+            type_embs_module = nn.Embedding(type_model_config.num_types, type_model_config.embedding_dim)
+        else:
+            type_embs_module = None
 
         cell_module = self.__create_cell_module__()
 

@@ -19,7 +19,7 @@ class BaseTreeCell(nn.Module):
     def apply_node_func(self, nodes):
         raise NotImplementedError("This function must be overridden!")
 
-    def precompute_input_values(self, g, x):
+    def precompute_input_values(self, g, x, mask):
         raise NotImplementedError("This function must be overridden!")
 
 
@@ -66,6 +66,12 @@ class TreeLSTMCell(BaseTreeCell):
         else:
             raise ValueError('This cell cannot manage input labels!')
 
+    def precompute_input_values(self, g, x, mask):
+        ris = self.apply_input_matrices(x)
+        # store results in the graph
+        for (k, v) in ris.items():
+            g.ndata[k] = v * mask.view(-1, 1)
+
     def compute_forget_gate(self, neighbour_h, type_embs):
         n_batch = neighbour_h.size(0)
         n_ch = neighbour_h.size(1)
@@ -86,12 +92,6 @@ class TreeLSTMCell(BaseTreeCell):
         f = th.sigmoid(f_aggr).view(*neighbour_c.size())
         c_aggr = th.sum(f * neighbour_c, 1)
         return {'iou_aggr': iou_aggr, 'c_aggr': c_aggr}
-
-    def precompute_input_values(self, g, x):
-        ris = self.apply_input_matrices(x)
-        mask = g.ndata['mask'].unsqueeze(-1).float()
-        for (k, v) in ris.items():
-            g.ndata[k] = v * mask
 
     @classmethod
     def message_func(cls, edges):
@@ -146,11 +146,10 @@ class TypedTreeCell(BaseTreeCell):
             else:
                 self.cell_list.append(cell_class(x_size, h_size, **cells_params_list[i]))
 
-    def precompute_input_values(self, g, x):
+    def precompute_input_values(self, g, x, mask):
         if self.share_input_matrices:
-            self.cell_list[0].precompute_input_values(g, x)
+            self.cell_list[0].precompute_input_values(g, x, mask)
         else:
-            mask = g.ndata['mask'].bool()
             for i in range(self.n_types):
                 type_mask = (g.ndata['type_id'] == i) * mask
                 if th.sum(type_mask) > 0:

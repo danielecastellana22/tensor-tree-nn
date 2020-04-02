@@ -233,17 +233,18 @@ class ConstTreeTransformer(BaseTransfomer):
         return new_t
 
 
-class SuperTreeTransformer(BaseTransfomer):
+class CombinedTreeTransformer(BaseTransfomer):
 
     def __init__(self, type):
-        super(SuperTreeTransformer, self).__init__()
+        super(CombinedTreeTransformer, self).__init__()
         self.type = type
 
     def transform(self, t: nx.DiGraph, *args):
+        new_t = t.copy(as_view=False)
         if self.type == 'const_tag':
-            return self.__const_tag_transform__(t, args[0])
+            return self.__const_tag_transform__(new_t, args[0])
         else:
-            return self.__dep_rel_transform__(t, args[0])
+            return self.__dep_rel_transform__(new_t, args[0])
 
     def __const_tag_transform__(self, bin_t: nx.DiGraph, const_t: nx.DiGraph):
         phrase2tag = self.__get_prhase2tag_dict(const_t)
@@ -263,7 +264,7 @@ class SuperTreeTransformer(BaseTransfomer):
 
             key = tuple(sorted(list(set(phrase_subtree))))
             if key in phrase2tag:
-                bin_t.add_node(node_id, tag=phrase2tag[key])
+                bin_t.add_node(node_id, type=phrase2tag[key])
 
             return phrase_subtree
 
@@ -271,13 +272,13 @@ class SuperTreeTransformer(BaseTransfomer):
         assert len(root_list) == 1
         _rec_assign_(root_list[0])
 
-        from utils.visualisation import plot_netwrokx_tree
-        import  matplotlib.pyplot as plt
-        f, ax = plt.subplots(1, 2, figsize=(20, 10))
-        plot_netwrokx_tree(bin_t, node_attr=['word', 'tag'], ax=ax[0])
-        plot_netwrokx_tree(const_t, node_attr=['word', 'tag'], ax=ax[1])
-        plt.show()
-        asddd=3
+        #from utils.visualisation import plot_netwrokx_tree
+        #import  matplotlib.pyplot as plt
+        #f, ax = plt.subplots(1, 2, figsize=(20, 10))
+        #plot_netwrokx_tree(bin_t, node_attr=['word', 'tag'], ax=ax[0])
+        #plot_netwrokx_tree(const_t, node_attr=['word', 'tag'], ax=ax[1])
+        #plt.show()
+        return bin_t
 
     def __dep_rel_transform__(self, bin_t: nx.DiGraph, dep_t: nx.DiGraph):
         sort_fun = lambda x: x[1]['token_id']

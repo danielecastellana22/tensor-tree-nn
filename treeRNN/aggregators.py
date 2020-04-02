@@ -66,16 +66,16 @@ class AugmentedTensor(nn.Module):
         n_aggr = self.n_aggr
 
         ris_list = []
-        h = th.cat((in_el_list[0].view(bs, -1), th.ones((bs, 1), device=in_el_list[0].device)), dim=1)
+        h = th.cat((in_el_list[0].view(bs, n_aggr, -1), th.ones((bs, n_aggr, 1), device=in_el_list[0].device)), dim=2)
         for j in range(n_aggr):
-            ris_list.append(th.matmul(h, self.T_list[j].view(self.in_size_list[0], -1)))
+            ris_list.append(th.matmul(h[:, j, :], self.T_list[j].view(self.in_size_list[0], -1)))
 
         for i in range(1, self.n_input):
-            in_el = in_el_list[i] # has shape (bs x 1 x h)
+            in_el = in_el_list[i] # has shape (bs x n_aggr x h)
             dim_i = self.in_size_list[i]
-            h = th.cat((in_el, th.ones((bs, 1, 1), device=in_el.device)), dim=2)
+            h = th.cat((in_el, th.ones((bs, n_aggr, 1), device=in_el.device)), dim=2)
             for j in range(n_aggr):
-                ris_list[j] = th.bmm(h, ris_list[j].view(bs,  dim_i, -1))
+                ris_list[j] = th.bmm(h[:, j:j+1, :], ris_list[j].view(bs,  dim_i, -1))
 
         return th.cat(ris_list, dim=1)
 
@@ -270,6 +270,7 @@ class Hosvd(BaseAggregator):
         in_size_list = [rank for i in range(max_output_degree)]
         # TODO: how to handle type_embsize on core_tensor?
         self.G = AugmentedTensor(n_aggr, in_size_list, rank, pos_stationarity)
+
         # mode matrices
         self.U = nn.Parameter(th.Tensor(*dim_U), requires_grad=True)
         self.b = nn.Parameter(th.Tensor(*dim_b), requires_grad=True)
@@ -306,15 +307,15 @@ class Hosvd(BaseAggregator):
             raise NotImplementedError("pos stationariy is not implemented yet!")
         else:
             # TODO: should be applied only on true childs. Missing children should be considered separately.
-            ris = th.matmul(neighbour_h.view((bs, n_ch, 1, 1, h)),
-                            U) + b  # ris has shape (bs x n_ch x n_aggr x 1 x rank)
+            ris = (th.matmul(neighbour_h.view((bs, n_ch, 1, 1, h)), U) + b).squeeze(3)
+            # ris has shape (bs x n_ch x n_aggr x rank)
             in_el_list = []
             for i in range(self.max_output_degree):
-                in_el_list.append(ris[:, i, :, :, :])
+                in_el_list.append(ris[:, i, :, :])
 
-            ris = self.G(*in_el_list) # ris has shape (bs x n_aggr x 1 x rank)
+            ris = self.G(*in_el_list)  # ris has shape (bs x n_aggr x rank)
             # TODO: use output matrices
-            ris = th.matmul(ris, U_out) + b_out
+            ris = th.matmul(ris.unsqueeze(2), U_out) + b_out
 
         return ris.view(bs, -1)
 

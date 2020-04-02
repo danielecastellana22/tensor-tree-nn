@@ -1,7 +1,7 @@
 import torch.nn as nn
 import dgl
 import dgl.init
-
+from preprocessing.utils import ConstValues
 
 class TreeModel(nn.Module):
     def __init__(self, x_size, h_size, input_module, output_module, cell_module, type_module=None):
@@ -22,11 +22,13 @@ class TreeModel(nn.Module):
         g.register_apply_node_func(self.cell_module.apply_node_func)
 
         # apply input module and precompute its contribution
-        embeds = self.input_module(g.ndata['x'] * g.ndata['mask']) #* mask.unsqueeze(-1).float()
-        self.cell_module.precompute_input_values(g, embeds)
+        x_mask = g.ndata['x'] != ConstValues.NO_ELEMENT
+        x_embeds = self.input_module(g.ndata['x'] * x_mask)
+        self.cell_module.precompute_input_values(g, x_embeds, x_mask)
 
         if self.type_module is not None:
-            g.ndata['type_emb'] = self.type_module(g.ndata['type_id'])
+            type_mask = g.ndata['type_id'] != ConstValues.NO_ELEMENT
+            g.ndata['type_emb'] = self.type_module(g.ndata['type_id'] * type_mask)
 
         # propagate
         dgl.prop_nodes_topo(g)
