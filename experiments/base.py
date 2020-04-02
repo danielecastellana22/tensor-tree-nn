@@ -5,7 +5,7 @@ from utils.serialization import to_json_file, from_json_file, from_pkl_file, to_
 import torch as th
 from preprocessing.dataset import ListDataset
 from treeRNN.cells import TypedTreeCell
-from training.trainer import train_and_validate, test
+from training.trainers import BasicTrainer
 
 
 # base class for all experiments
@@ -116,37 +116,37 @@ class Experiment:
         seed = set_initial_seed(seed)
         self.logger.info('Seed set to {}.'.format(seed))
 
-
         trainset, valset = self.__load_training_data__()
 
         m = self.__create_model__()
+        # save number of parameters
+        n_params_dict = {k: v.numel() for k, v in m.state_dict().items()}
+        to_json_file(n_params_dict, os.path.join(self.output_dir, 'num_model_parameters.json'))
 
         opt = self.__get_optimiser__(m)
 
         # train and validate
-        best_val_metrics, best_model, info_training = train_and_validate(m, self.__get_loss_function__(), opt, trainset, valset,
-                                                                         batcher_fun=self.__get_batcher_function__(),
-                                                                         logger=self.logger.getChild('train'),
-                                                                         metric_class_list=metric_class_list,
-                                                                         **training_config)
+        best_val_metrics, best_model, info_training = BasicTrainer.train_and_validate(m, self.__get_loss_function__(), opt, trainset, valset,
+                                                                                      batcher_fun=self.__get_batcher_function__(),
+                                                                                      logger=self.logger.getChild('train'),
+                                                                                      metric_class_list=metric_class_list,
+                                                                                      **training_config)
 
         best_val_metrics_dict = {type(x).__name__: x.get_value() for x in best_val_metrics}
-        n_params_dict = {k: v.numel() for k, v in best_model.state_dict().items()}
 
         to_json_file(best_val_metrics_dict, os.path.join(self.output_dir, 'best_validation_metrics.json'))
         to_json_file(info_training, os.path.join(self.output_dir, 'info_training.json'))
-        to_json_file(n_params_dict, os.path.join(self.output_dir, 'num_model_parameters.json'))
 
         if not do_test:
             return best_val_metrics
         else:
             testset = self.__load_test_data__()
 
-            test_metrics, test_prediction = test(best_model, testset,
-                                                 batcher_fun=self.__get_batcher_function__(),
-                                                 logger=self.logger.getChild('test'),
-                                                 metric_class_list=metric_class_list,
-                                                 batch_size=training_config.batch_size)
+            test_metrics, test_prediction = BasicTrainer.test(best_model, testset,
+                                                              batcher_fun=self.__get_batcher_function__(),
+                                                              logger=self.logger.getChild('test'),
+                                                              metric_class_list=metric_class_list,
+                                                              batch_size=training_config.batch_size)
 
             test_metrics_dict = {type(x).__name__: x.get_value() for x in test_metrics}
             to_json_file(test_metrics_dict, os.path.join(self.output_dir, 'test_metrics.json'))

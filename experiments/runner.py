@@ -4,7 +4,7 @@ from utils.serialization import to_json_file, from_json_file, from_pkl_file, to_
 import numpy as np
 from concurrent.futures import ProcessPoolExecutor
 import concurrent.futures
-
+from training.trainers import BasicTrainer
 
 class ExperimentRunner:
 
@@ -17,6 +17,8 @@ class ExperimentRunner:
         self.logger = get_logger('runner', self.output_dir, file_name='runner.log', write_on_console=True)
         self.metric_class_list = metric_class_list
         self.debug_mode = debug_mode
+        BasicTrainer.set_debug_flag(debug_mode)
+
         if not self.debug_mode:
             self.pool = ProcessPoolExecutor(max_workers=num_workers)
 
