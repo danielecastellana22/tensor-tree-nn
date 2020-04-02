@@ -4,8 +4,8 @@ import matplotlib.pyplot as plt
 from networkx.drawing.nx_agraph import graphviz_layout
 import networkx as nx
 import os
-import pickle
-import torch as th
+from .serialization import from_json_file
+from config.base import ExpConfig
 
 
 def __plot_matrix__(ax, cm, x_label, x_tick_label, y_label, y_tick_label, title=None, cmap='viridis', vmin=None, vmax=None, fmt='.2f'):
@@ -53,6 +53,13 @@ def __plot_matrix__(ax, cm, x_label, x_tick_label, y_label, y_tick_label, title=
                     color=get_text_color(cm[i, j]))
 
     return ax
+
+
+def plot_confusion_matrix(ax, cm, classes_name, title=None):
+    #cm = cm / cm.sum()
+    __plot_matrix__(ax, cm,
+                    x_label='Predicted label', x_tick_label=classes_name, fmt='d',
+                    y_label='True label', y_tick_label=classes_name, title=title, cmap='Blues')
 
 
 def plot_results(results, param_grid, params_to_plot, params_to_change, metrics_to_plot, params_to_maximise=None, figsize=(30,10)):
@@ -113,33 +120,6 @@ def plot_results(results, param_grid, params_to_plot, params_to_change, metrics_
     fig.tight_layout()
 
 
-def plot_confusion_matrix(ax, cm, classes_name, title=None):
-    #cm = cm / cm.sum()
-    __plot_matrix__(ax, cm,
-                    x_label='Predicted label', x_tick_label=classes_name, fmt='d',
-                    y_label='True label', y_tick_label=classes_name, title=title, cmap='Blues')
-
-
-def print_best_configuration(all_results, param_grid, metrics_list):
-    for k in metrics_list:
-        print('{0} {1} {0}'.format('-' * 70, k.upper()))
-        run_axis = list(param_grid.keys()).index('run')
-        mean_results = all_results[k].mean(axis=run_axis)
-        std_results = all_results[k].std(axis=run_axis)
-
-        ravel_idx_best_conf = np.argmax(mean_results)
-        idx_best_conf = np.unravel_index(ravel_idx_best_conf, mean_results.shape)
-
-        print('Best node accuracy: {:0.2f} \xB1 {:0.2f}'.format(100 * mean_results[idx_best_conf],
-                                                                100 * std_results[idx_best_conf]))
-
-        s = 'Best configuration {}: \t'.format(ravel_idx_best_conf)
-        for i, k in enumerate(param_grid):
-            if i != run_axis:
-                s += '{}: {}\t'.format(k, param_grid[k][idx_best_conf[i]])
-        print(s)
-
-
 def plot_tree_sentence(dgl_G, idx2words, input_attr='x', output_attr='y', type_attr='type_id', idx2types=None, ax=None):
     G = dgl_G.to_networkx([input_attr, output_attr, type_attr])
     pos = graphviz_layout(G, prog='dot')
@@ -176,7 +156,9 @@ def plot_tree_sentence(dgl_G, idx2words, input_attr='x', output_attr='y', type_a
 
 def plot_netwrokx_tree(nx_t, node_attr=None, edge_attr=None, ax=None):
     pos = graphviz_layout(nx_t, prog='dot')
-
+    if ax is None:
+        plt.figure(figsize=(10, 15))
+        ax = plt.gca()
     # invert the y-axis
     for n in pos:
         pos[n] = (pos[n][0], -pos[n][1])
@@ -196,41 +178,68 @@ def plot_netwrokx_tree(nx_t, node_attr=None, edge_attr=None, ax=None):
         edge_labels = {(u, v): d[edge_attr] for u, v, d in nx_t.edges(data=True) if edge_attr in d}
         nx.draw_networkx_edge_labels(nx_t, pos=pos, edge_labels=edge_labels, ax=ax)
 
-def read_checkpoint(folder_name, verbose=0):
 
-    with open(os.path.join(folder_name, 'checkpoint.pickle'), mode='rb') as f:
-        ms_checkpoint = pickle.load(f)
+def read_ms_results(results_dir, config_exp_path):
 
-    param_keys = list(ms_checkpoint['param_list'][0].keys())
-    param_grid = {}
-    # get configuration shape
-    new_shape = []
-    for k in param_keys:
-        s = set([x[k] for x in ms_checkpoint['param_list']])
-        new_shape.append(len(s))
-        param_grid[k] = sorted(list(s))
-    n_run = new_shape[-1]
-    n_conf = np.prod(new_shape)
-    if verbose:
-        print('The grid paramters are: {}'.format(param_keys))
-        print('The grid is :')
-        print(param_grid)
-    all_results = {}
-    metric_keys = list(ms_checkpoint['results'][0].keys())
-    for k in metric_keys:
-        all_results[k] = [x[k] for x in ms_checkpoint['results']] + [0 for i in range(np.prod(new_shape) - len(ms_checkpoint['results']))]
-        all_results[k] = np.reshape(all_results[k], new_shape)
-    if verbose:
-        print('The metrics are: {}'.format(metric_keys))
-        print('Each item contains {} results.'.format(all_results[metric_keys[0]].size))
-    return all_results, param_grid, param_keys, metric_keys
+    out = {}
+
+    validation_results = from_json_file(os.path.join(results_dir, 'validation_results.json'))
+    test_results = from_json_file(os.path.join(results_dir, 'test_results.json'))
+    n_params_dict = __read_same_json_from_ms_folders__(results_dir, 'num_model_parameters.json')
+    info_tr_dict = __read_same_json_from_ms_folders__(results_dir, 'info_training.json')
+    best_config = from_json_file(os.path.join(results_dir, 'best_config.json'))
+
+    # get dict grid
+    grid_dict, n_run = ExpConfig.get_grid_dict(config_exp_path)
+    reshape_size = [len(x) for x in grid_dict.values()]
+    reshape_size.append(n_run)
+    out['validation_results'] = {}
+    for k in validation_results:
+        out['validation_results'][k] = np.array(validation_results[k]).reshape(*reshape_size)
+
+    # trannsofrm test results
+    out['test_results'] = {}
+    for k in test_results:
+        out['test_results'][k] = np.array(test_results[k])
+
+    out['id_best_config'] = __find_id_best_config__(grid_dict, best_config)
+    out['params_grid'] = grid_dict
+    out['num_params'] = {k: np.array(v).reshape(*reshape_size) for k, v in n_params_dict.items()}
+    out['info_training'] = {k: np.array(v).reshape(*reshape_size) for k, v in info_tr_dict.items()}
+
+    return out
 
 
-def get_best_models(ms_folder, idx_best_conf):
-    best_m = []
-    for i in idx_best_conf:
-        path = os.path.join(ms_folder, 'k_{}'.format(i))
-        path = os.path.join(path,'best_model.pkl')
-        with open(path, mode='rb') as f:
-            best_m.append(th.load(f, map_location='cpu'))
-    return best_m
+def __read_same_json_from_ms_folders__(result_dir, file_name):
+    out_array = []
+    id_conf = 0
+    conf_dir = os.path.join(result_dir, 'conf_{}'.format(id_conf))
+    while os.path.exists(conf_dir):
+        out_array.append([])
+        id_run = 0
+        run_dir = os.path.join(conf_dir, 'run_{}'.format(id_run))
+        while os.path.exists(run_dir):
+            ris = from_json_file(os.path.join(run_dir, file_name))
+            out_array[id_conf].append(ris)
+            id_run += 1
+            run_dir = os.path.join(conf_dir, 'run_{}'.format(id_run))
+
+        id_conf += 1
+        conf_dir = os.path.join(result_dir, 'conf_{}'.format(id_conf))
+
+    return {k: [[x[k] for x in y] for y in out_array] for k in out_array[0][0]}
+
+
+def __find_id_best_config__(grid_dict, best_config):
+    ris = {}
+
+    def _rec_search(d, k_to_finds):
+        if isinstance(d, dict):
+            for kk, v in d.items():
+                if kk in k_to_finds:
+                    ris[kk] = grid_dict[kk].index(v)
+                else:
+                    _rec_search(v, k_to_finds)
+
+    _rec_search(best_config, list(grid_dict.keys()))
+    return ris
