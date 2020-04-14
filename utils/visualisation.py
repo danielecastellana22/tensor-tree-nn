@@ -154,10 +154,10 @@ def plot_tree_sentence(dgl_G, idx2words, input_attr='x', output_attr='y', type_a
     nx.draw(G, pos=pos, with_labels=True, labels=lbls, node_color=colors, ax=ax)
 
 
-def plot_netwrokx_tree(nx_t, node_attr=None, edge_attr=None, ax=None):
+def plot_netwrokx_tree(nx_t, node_attr_list=None, edge_attr=None, ax=None):
     pos = graphviz_layout(nx_t, prog='dot')
     if ax is None:
-        plt.figure(figsize=(10, 15))
+        plt.figure(figsize=(15, 15))
         ax = plt.gca()
     # invert the y-axis
     for n in pos:
@@ -166,10 +166,10 @@ def plot_netwrokx_tree(nx_t, node_attr=None, edge_attr=None, ax=None):
     node_color = ['#1f78b4' for i in range(nx_t.number_of_nodes())]
 
     node_labels = {}
-    if node_attr is not None:
+    if node_attr_list is not None:
         for id, x in nx_t.nodes(data=True):
             aux= []
-            for att in node_attr:
+            for att in node_attr_list:
                 if att in x:
                     aux.append(str(x[att]))
             node_labels[id] = '|'.join(aux)
