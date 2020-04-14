@@ -72,26 +72,28 @@ class Experiment:
     def __get_batcher_function__(self):
         raise NotImplementedError('This methos must be define in a sublclass!')
 
+    def __save_best_model_params__(self, best_model):
+        pass
+
     def __create_cell_module__(self):
         tree_model_config = self.config.tree_model_config
         cell_config = tree_model_config.cell_config
 
         cell_class = string2class(cell_config.cell_class)
-        is_typed = cell_config.typed if hasattr(cell_config, 'typed') else False
+        num_types = cell_config.num_types if hasattr(cell_config, 'num_types') else None
         cell_params = dict(cell_config.cell_params)
         cell_params['aggregator_class'] = string2class(cell_params['aggregator_class'])
 
-        if not is_typed:
+        if num_types is None:
             cell = cell_class(x_size=tree_model_config.x_size,
                               h_size=tree_model_config.h_size,
                               **cell_params)
         else:
             # the key can be used to assign particular
-            n_types = cell_config.num_types
             cell = TypedTreeCell(x_size=tree_model_config.x_size,
                                  h_size=tree_model_config.h_size,
                                  cell_class=cell_class,
-                                 cells_params_list=[cell_params for i in range(n_types)],
+                                 cells_params_list=[cell_params for i in range(num_types)],
                                  share_input_matrices=cell_config.share_input_matrices)
 
         return cell
@@ -136,6 +138,7 @@ class Experiment:
 
         to_json_file(best_val_metrics_dict, os.path.join(self.output_dir, 'best_validation_metrics.json'))
         to_json_file(info_training, os.path.join(self.output_dir, 'info_training.json'))
+        self.__save_best_model_params__(best_model)
 
         if not do_test:
             return best_val_metrics

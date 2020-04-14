@@ -1,11 +1,12 @@
 from experiments.base import Experiment
 import torch.nn as nn
 import torch.optim as optim
-import torch.nn.init as INIT
 import torch.nn.functional as F
 import dgl
 from preprocessing.utils import ConstValues
 from treeRNN.models import TreeModel
+from utils.serialization import to_pkl_file
+import os
 
 
 class SstExperiment(Experiment):
@@ -27,31 +28,39 @@ class SstExperiment(Experiment):
 
         if 'type_model_config' in self.config:
             type_model_config = self.config.type_model_config
-            type_embs_module = nn.Embedding(type_model_config.num_types, type_model_config.embedding_dim)
+            type_emb_size = self.config.tree_model_config.cell_config.cell_params.type_emb_size
+            type_module = nn.Embedding(type_model_config.num_types, type_emb_size)
         else:
-            type_embs_module = None
+            type_module = None
 
         cell_module = self.__create_cell_module__()
 
-        return TreeModel(x_size, h_size, input_module, output_module, cell_module, type_embs_module)
+        return TreeModel(x_size, h_size, input_module, output_module, cell_module, type_module)
 
     def __get_optimiser__(self, model):
-        model_params = list(model.cell_module.parameters()) + list(model.output_module.parameters())
-        if model.type_module is not None:
-            model_params += list(model.type_module.parameters())
 
-        params_emb = list(model.input_module.parameters())
+        params_to_learn = []
+        tree_model_params = list(model.cell_module.parameters()) + list(model.output_module.parameters())
+        params_to_learn.append({'params': tree_model_params,
+                                'weight_decay': self.config.tree_model_config['weight_decay']})
+
+        if model.type_module is not None:
+            params_to_learn.append({'params': list(model.type_module.parameters())})
+
+        params_to_learn.append({'params': list(model.input_module.parameters())})
 
         # create the optimizer
         # optimizer = optim.Adagrad([
         #     {'params': params_trees, 'lr': 0.05, 'weight_decay': args.weight_decay},#, 'lr_decay': 0.001},
         #     {'params': params_emb, 'lr': 0.1}])
 
-        optimizer = optim.Adadelta([
-            {'params': model_params, 'weight_decay': self.config.tree_model_config['weight_decay']},
-            {'params': params_emb, 'lr': 2}])
+        optimizer = optim.Adadelta(params_to_learn)
 
         return optimizer
+
+    def __save_best_model_params__(self, best_model):
+        if best_model.type_module is not None:
+            to_pkl_file(best_model.type_module.state_dict(), os.path.join(self.output_dir, 'type_embs_learned.pkl'))
 
     def __get_loss_function__(self):
         def f(output_model, true_label):
