@@ -1,7 +1,10 @@
 from abc import abstractmethod
 import networkx as nx
 
-class BaseTransfomer:
+
+# TODO: method transform can be static?
+
+class BaseTransformer:
 
     # indicates if the trandormation creates types information
     CREATE_TYPES = None
@@ -11,7 +14,7 @@ class BaseTransfomer:
         raise NotImplementedError('This method must be implemented in a sub class')
 
 
-class DepTreeTransformer(BaseTransfomer):
+class DepTreeTransformer(BaseTransformer):
 
     CREATE_TYPES = False
 
@@ -46,7 +49,7 @@ class DepTreeTransformer(BaseTransfomer):
         return dep_tree
 
 
-class ConstTreeTransformer(BaseTransfomer):
+class ConstTreeTransformer(BaseTransformer):
 
     CREATE_TYPES = True
 
@@ -97,7 +100,7 @@ class ConstTreeTransformer(BaseTransfomer):
         return new_t
 
 
-class CombinedTreeTransformer(BaseTransfomer):
+class CombinedTreeTransformer(BaseTransformer):
 
     CREATE_TYPES = True
 

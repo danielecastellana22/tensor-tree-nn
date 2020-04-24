@@ -1,4 +1,5 @@
 from experiments.base import Experiment
+import torch as th
 import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
@@ -28,8 +29,15 @@ class SstExperiment(Experiment):
 
         if 'type_model_config' in self.config:
             type_model_config = self.config.type_model_config
-            type_emb_size = self.config.tree_model_config.cell_config.cell_params.type_emb_size
-            type_module = nn.Embedding(type_model_config.num_types, type_emb_size)
+            if 'use_pretrained_embs' in type_model_config:
+                type_pretrained_embs = self.__load_type_embeddings__()
+                type_module = nn.Embedding.from_pretrained(type_pretrained_embs, freeze=False)
+            elif 'use_one_hot' in type_model_config and type_model_config.use_one_hot:
+                    num_types = type_model_config.num_types
+                    type_module = nn.Embedding.from_pretrained(th.eye(num_types, num_types), freeze=True)
+            else:
+                type_emb_size = self.config.tree_model_config.cell_config.cell_params.type_emb_size
+                type_module = nn.Embedding(type_model_config.num_types, type_emb_size)
         else:
             type_module = None
 
@@ -43,17 +51,16 @@ class SstExperiment(Experiment):
         tree_model_params = list(model.cell_module.parameters()) + list(model.output_module.parameters())
         params_to_learn.append({'params': tree_model_params,
                                 'weight_decay': self.config.tree_model_config['weight_decay']})
+                                #'lr': 0.05,
+                                #'lr_decay': 0.05})
 
         if model.type_module is not None:
-            params_to_learn.append({'params': list(model.type_module.parameters())})
+            params_to_learn.append({'params': list(model.type_module.parameters())}) #, 'lr': 0.1})
 
-        params_to_learn.append({'params': list(model.input_module.parameters())})
+        params_to_learn.append({'params': list(model.input_module.parameters())}) #, 'lr': 0.1})
 
-        # create the optimizer
-        # optimizer = optim.Adagrad([
-        #     {'params': params_trees, 'lr': 0.05, 'weight_decay': args.weight_decay},#, 'lr_decay': 0.001},
-        #     {'params': params_emb, 'lr': 0.1}])
-
+        #create the optimizer
+        #optimizer = optim.Adagrad(params_to_learn)
         optimizer = optim.Adadelta(params_to_learn)
 
         return optimizer

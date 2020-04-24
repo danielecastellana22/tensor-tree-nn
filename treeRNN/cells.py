@@ -140,7 +140,7 @@ class TreeLSTMCell(BaseTreeCell):
         c_aggr = nodes.data['c_aggr'] if 'c_aggr' in nodes.data else None
         type_embs = nodes.data['type_embs'] if self.use_type_embs else None
 
-        self.compute_node_states(x, iou_aggr, c_aggr, type_embs)
+        return self.compute_node_states(x, iou_aggr, c_aggr, type_embs)
 
 
 # TODO: this class should work also with RNN cells!

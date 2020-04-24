@@ -12,8 +12,6 @@ class NLPAllParser(CoreNLPParser):
 
     @staticmethod
     def __binarize__(const_t_nltk:Tree):
-        #collapse
-        #Tree.collapse_unary(const_t_nltk, collapsePOS=True, collapseRoot=True)
         # chomsky normal form transformation
         Tree.chomsky_normal_form(const_t_nltk)
 
@@ -27,10 +25,10 @@ class NLPAllParser(CoreNLPParser):
         assert len(const_leaves) == len(dep_nodes)  # +1 to remove root node
         for i in range(len(const_leaves)):
             assert const_leaves[i][1]['token_id'] == dep_nodes[i][1]['token_id']
-            assert const_leaves[i][1]['word'] == dep_nodes[i][1]['word']
+            assert const_leaves[i][1]['word'].lower() == dep_nodes[i][1]['word'].lower()
 
             assert bin_leaves[i][1]['token_id'] == dep_nodes[i][1]['token_id']
-            assert bin_leaves[i][1]['word'] == dep_nodes[i][1]['word']
+            assert bin_leaves[i][1]['word'].lower() == dep_nodes[i][1]['word'].lower()
 
     def __update_words_vocab__(self, token_list):
         for x in token_list:

@@ -4,6 +4,7 @@ import copy
 from .metrics import ValueMetricUpdate, TreeMetricUpdate
 import time
 from torch.utils.data import DataLoader
+from utils.serialization import to_json_file
 
 
 class BasicTrainer:
@@ -34,6 +35,7 @@ class BasicTrainer:
         tr_forw_time_list = []
         tr_backw_time_list = []
         val_time_list = []
+        #gradient_cell_norm_list = []
 
         for epoch in range(1, n_epochs+1):
             model.train()
@@ -54,11 +56,17 @@ class BasicTrainer:
                     t = time.time()
                     optimizer.zero_grad()
                     loss.backward()
+                    th.nn.utils.clip_grad_norm_([p for p in model.parameters() if p.requires_grad], 10)
+                    #gradient_cell_norm_list.append({k:x.grad.abs().norm().item() for k,x in model.cell_module.named_parameters()})
                     optimizer.step()
 
                     tr_backw_time += (time.time() - t)
 
                     pbar.update(min(batch_size, pbar.total-pbar.n))
+
+            # save gradients
+            #to_json_file({k:[x[k] for x in gradient_cell_norm_list] for k in gradient_cell_norm_list[0].keys()}, 'results/sst/debug/hosvd_model_selection/grad/ep{}.json'.format(epoch))
+            #gradient_cell_norm_list = []
 
             if evaluate_on_training_set:
                 # eval on tr set
