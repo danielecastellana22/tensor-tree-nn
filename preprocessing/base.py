@@ -1,8 +1,9 @@
 from abc import abstractmethod
 import networkx as nx
-from utils.utils import eprint
+from utils.utils import eprint, string2class
 from preprocessing.utils import ConstValues
-from utils.serialization import to_json_file
+from preprocessing.tree_conversions import nx_to_dgl
+from utils.serialization import to_json_file, from_pkl_file
 import os
 
 
@@ -67,4 +68,42 @@ class Preprocessor:
         eprint('Saving stats.')
         to_json_file(self.stats, os.path.join(output_dir, 'stats.json'))
 
+    def __get_type_id__(self, t):
+        if t not in self.types_vocab:
+            self.types_vocab[t] = len(self.types_vocab)
 
+        return self.types_vocab[t]
+
+    def __nx_to_dgl__(self, t):
+        if self.typed:
+            return nx_to_dgl(t, node_attrs=['x', 'y', 'type_id'])
+        else:
+            return nx_to_dgl(t, node_attrs=['x', 'y'])
+
+
+class NlpParsedTreesPreprocessor(Preprocessor):
+
+    def __init__(self, config):
+        tree_transformer_class = string2class(config.preprocessor_config.tree_transformer_class)
+        super(NlpParsedTreesPreprocessor, self).__init__(config, tree_transformer_class.CREATE_TYPES)
+
+        # create tree transformer
+        if 'tree_transformer_params' in config.preprocessor_config:
+            self.tree_transformer = tree_transformer_class(**config.preprocessor_config.tree_transformer_params)
+        else:
+            self.tree_transformer = tree_transformer_class()
+
+        tree_type = config.preprocessor_config.tree_type
+        if not isinstance(tree_type, list):
+            config.preprocessor_config.tree_type = [tree_type]
+        else:
+            config.preprocessor_config.tree_type = list(sorted(tree_type))
+
+        # load vocabulary
+        eprint('Loading word vocabulary.')
+        words_vocab_file = 'words_vocab.pkl'
+        self.words_vocab = from_pkl_file(os.path.join(config.input_dir, words_vocab_file))
+
+    @abstractmethod
+    def preprocess(self):
+        raise NotImplementedError('This method must be implmented in a subclass!')

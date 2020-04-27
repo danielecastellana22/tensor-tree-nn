@@ -44,7 +44,7 @@ class NLPAllParser(CoreNLPParser):
         nltk_t.chomsky_normal_form()
         bin_t = self.__const_tree_to_nx__(nltk_t)
         self.__check_same_tokens__(const_t, dep_t, bin_t)
-        return {'const_tree': const_t, 'dep_tree': dep_t, 'bin_const_tree': bin_t}
+        return {'const': const_t, 'dep': dep_t, 'bin_const': bin_t}
 
     @staticmethod
     def __dep_graph_to_nx__(result):

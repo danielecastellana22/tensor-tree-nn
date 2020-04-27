@@ -6,6 +6,7 @@ from preprocessing.NLP.parsers import NLPAllParser
 from collections import OrderedDict
 from tqdm import tqdm
 
+
 def parse_arguments():
     parser = argparse.ArgumentParser()
     # experiment params
@@ -80,7 +81,7 @@ if __name__ == '__main__':
         wf_bin_const_name = os.path.join(output_dir, f_name.replace('.txt', '_bin_const.pkl'))
 
         if not path_exists_with_message(wf_dep_name) or not path_exists_with_message(wf_const_name) or not path_exists_with_message(wf_bin_const_name):
-            ris = {'dep_tree': [], 'const_tree': [], 'bin_const_tree': []}
+            ris = {'dep': [], 'const': [], 'bin_const': []}
             with open(rf_name, 'r', encoding='utf-8') as rf:
                 for l in tqdm(rf.readlines(), desc='Buildiing trees from {}: '.format(f_name)):
                     ris_p, = parser.raw_parse(l)
@@ -88,11 +89,11 @@ if __name__ == '__main__':
                         ris[k].append(ris_p[k])
 
             eprint('Saving parsed trees.')
-            to_pkl_file(ris['dep_tree'], wf_dep_name)
-            to_pkl_file(ris['const_tree'], wf_const_name)
-            to_pkl_file(ris['bin_const_tree'], wf_bin_const_name)
+            to_pkl_file(ris['dep'], wf_dep_name)
+            to_pkl_file(ris['const'], wf_const_name)
+            to_pkl_file(ris['bin_const'], wf_bin_const_name)
 
-    words_vocab_file = os.path.join(output_dir, 'vocab.pkl')
+    words_vocab_file = os.path.join(output_dir, 'words_vocab.pkl')
     if not path_exists_with_message(words_vocab_file):
         eprint('Store word vocabulary.')
         to_pkl_file(parser.words_vocab, words_vocab_file)

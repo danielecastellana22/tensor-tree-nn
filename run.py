@@ -19,7 +19,6 @@ def parse_arguments():
 if __name__ == '__main__':
     args = parse_arguments()
 
-
     # load the config file
     exp_runner_params, config_list = ExpConfig.from_file(args.config_file)
 
