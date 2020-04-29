@@ -1,6 +1,5 @@
 import torch as th
 import torch.nn as nn
-from .utils import LinearWithTypes
 
 
 class BaseTreeCell(nn.Module):
@@ -39,6 +38,7 @@ class TreeLSTMCell(BaseTreeCell):
         self.max_output_degree = max_output_degree
         self.pos_stationarity = pos_stationarity
         self.allow_input_labels = allow_input_labels
+        self.type_emb_size = type_emb_size
 
         if type_emb_size is not None:
             self.use_type_embs = True
@@ -54,33 +54,34 @@ class TreeLSTMCell(BaseTreeCell):
 
         # input matrices
         if self.allow_input_labels:
-            # using a tensor to combine type embs and word embs is TOO SLOW
             # we ALWAYS ignoe type embs for the input
-            self.iou_input_module = LinearWithTypes(x_size, 3 * h_size, None)
-            self.forget_input_module = LinearWithTypes(x_size, h_size, None)
+            self.iou_input_module = nn.Linear(x_size, 3 * h_size, bias=True)
+            self.forget_input_module = nn.Linear(x_size, h_size, bias=True)
 
         # forget gate matrices
         if pos_stationarity:
             #self.forget_module = nn.Linear(h_size, h_size, bias=True)
-            self.forget_module = LinearWithTypes(h_size, h_size, type_emb_size)
+            #self.forget_module = LinearWithTypes(h_size, h_size, type_emb_size)
+            if self.use_type_embs:
+                self.forget_module = aggregator_class(h_size, 1, False,
+                                                      type_emb_size=type_emb_size,
+                                                      n_aggr=1, **kwargs)
+            else:
+                self.forget_module = nn.Linear(h_size, h_size, bias= True)
         else:
             self.forget_module = aggregator_class(h_size, max_output_degree, pos_stationarity,
                                                   type_emb_size=type_emb_size,
                                                   n_aggr=max_output_degree, **kwargs)
 
-    def __compute_iou_input_values__(self, x, type_embs):
-        # we ignore type embs
-        type_embs = None
+    def __compute_iou_input_values__(self, x):
         if self.allow_input_labels:
-            return self.iou_input_module(x, type_embs)
+            return self.iou_input_module(x)
         else:
             raise ValueError('This cell cannot manage input labels!')
 
-    def __compute_forget_input_values__(self, x, type_embs):
-        # we ignore type embs
-        type_embs = None
+    def __compute_forget_input_values__(self, x):
         if self.allow_input_labels:
-            return self.forget_input_module(x, type_embs)
+            return self.forget_input_module(x)
         else:
             raise ValueError('This cell cannot manage input labels!')
 
@@ -88,12 +89,17 @@ class TreeLSTMCell(BaseTreeCell):
         n_batch = neighbour_h.size(0)
         n_ch = neighbour_h.size(1)
         # input computation does not depend on type embs
-        f_input = self.__compute_forget_input_values__(x, type_embs).repeat(1, n_ch)
+        f_input = self.__compute_forget_input_values__(x)
+        f_input = f_input.repeat(1, n_ch)
         if self.pos_stationarity:
-            # TODO: this raise error because we have to expand also type_embs
-            return self.forget_module(neighbour_h.view((-1, self.h_size)), type_embs).view(n_batch, n_ch * self.h_size) + f_input
+            if self.use_type_embs:
+                f_gate = self.forget_module(neighbour_h.view((-1, 1, self.h_size)), type_embs.repeat(1, n_ch).reshape(-1, self.type_emb_size)).view(n_batch,n_ch * self.h_size)
+            else:
+                f_gate = self.forget_module(neighbour_h.view((-1, self.h_size))).view(n_batch, n_ch * self.h_size)
         else:
-            return self.forget_module(neighbour_h, type_embs) + f_input
+            f_gate =  self.forget_module(neighbour_h, type_embs) + f_input
+
+        return f_gate + f_input
 
     def compute_child_aggregation(self, x, n_h, n_c, type_embs):
         # add the input contribution
@@ -105,7 +111,7 @@ class TreeLSTMCell(BaseTreeCell):
         return {'iou_aggr': iou_aggr, 'c_aggr': c_aggr}
 
     def compute_node_states(self, x, iou_aggr, c_aggr, type_embs):
-        iou = self.__compute_iou_input_values__(x, type_embs)
+        iou = self.__compute_iou_input_values__(x)
 
         if iou_aggr is not None:
             # internal nodes

@@ -4,38 +4,6 @@ import torch.nn.init as INIT
 import numpy as np
 
 
-class LinearWithTypes(nn.Module):
-
-    def __init__(self, in_size, out_size, type_embs_size):
-        super(LinearWithTypes, self).__init__()
-
-        self.in_size = in_size
-        self.out_size = out_size
-        self.type_emb_size = type_embs_size
-
-        self.W = nn.Parameter(th.Tensor(in_size, out_size))
-        self.b = nn.Parameter(th.Tensor(1, out_size))
-
-        if type_embs_size is not None:
-            raise NotImplementedError('Using type embs is not allowed yet!')
-
-        self.reset_parameters()
-
-    def reset_parameters(self):
-        INIT.xavier_uniform_(self.W)
-        INIT.xavier_uniform_(self.b)
-
-    def forward(self, in_el, type_embs=None):
-
-        if type_embs is not None:
-            raise NotImplementedError('Using type embs is not allowed yet!')
-
-        bs = in_el.size(0)
-        ris = th.matmul(in_el.view(bs, 1, -1), self.W).squeeze(1) + self.b
-
-        return ris
-
-
 class AugmentedTensor(nn.Module):
 
     def __init__(self, n_aggr, in_size_list, out_size, pos_stationarity):

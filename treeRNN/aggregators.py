@@ -43,7 +43,7 @@ class SumChild(BaseAggregator):
 
         if self.type_emb_size is not None:
             self.U_type = nn.Parameter(th.Tensor(type_emb_size, n_aggr * h_size), requires_grad=True)
-            self.b_type = nn.Parameter(th.Tensor(1, n_aggr * h_size), requires_grad=True)
+            #self.b_type = nn.Parameter(th.Tensor(1, n_aggr * h_size), requires_grad=True)
 
         self.reset_parameters()
 
@@ -52,7 +52,7 @@ class SumChild(BaseAggregator):
         INIT.xavier_uniform_(self.b)
         if self.type_emb_size is not None:
             INIT.xavier_uniform_(self.U_type)
-            INIT.xavier_uniform_(self.b_type)
+            #INIT.xavier_uniform_(self.b_type)
 
     # neighbour_states has shape bs x n_ch x h
     # type_embs has shape bs x emb_s
@@ -71,7 +71,7 @@ class SumChild(BaseAggregator):
             ris = th.matmul(neighbour_h.view((bs, 1, -1)), U).squeeze(1) + b
 
         if self.type_emb_size is not None:
-            ris += (th.matmul(type_embs, self.U_type) + self.b_type)
+            ris += th.matmul(type_embs, self.U_type) #+ self.b_type)
 
         return ris
 

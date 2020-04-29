@@ -39,6 +39,7 @@ class TreeModel(nn.Module):
         # compute output
         # h = g.ndata.pop('h')
         h = g.ndata['h']
-        out = self.output_module(h)
-
-        return out
+        if self.output_module is not None:
+            return self.output_module(h)
+        else:
+            return h

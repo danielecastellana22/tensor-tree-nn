@@ -5,7 +5,7 @@ from utils.serialization import from_json_file
 
 class BaseTransformer:
 
-    # indicates if the trandormation creates types information
+    # indicates if the trandormation creates node types information
     CREATE_TYPES = None
 
     @abstractmethod
