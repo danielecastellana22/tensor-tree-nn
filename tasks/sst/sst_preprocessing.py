@@ -26,7 +26,7 @@ class SstBinaryTreesPreprocessor(Preprocessor):
 
         # load vocabulary
         eprint('Loading word vocabulary.')
-        words_vocab = {'unk': 0}
+        words_vocab = {}
         with open(os.path.join(input_dir, words_vocab_file), encoding='utf-8') as f:
             for l in tqdm(f.readlines(), desc='Creating words vocabulary'):
                 l = l.strip().lower().replace('\/', '/')
@@ -48,7 +48,7 @@ class SstBinaryTreesPreprocessor(Preprocessor):
 
                     n_words_not_in_vocab += self.__assign_node_features__(bin_t, words_vocab)
                     self.__update_stats__(tag_name, bin_t)
-                    dgl_t = nx_to_dgl(bin_t, node_attrs=['x', 'y'])
+                    dgl_t = self.__nx_to_dgl__(bin_t)
 
                     tree_list.append(dgl_t)
 
@@ -83,12 +83,15 @@ class SstBinaryTreesPreprocessor(Preprocessor):
                 else:
                     t.nodes[node_id]['x'] = ConstValues.UNK
                     words_not_in_vocab += 1
+                t.nodes[node_id]['x_mask'] = 1
 
             else:
                 t.nodes[node_id]['x'] = ConstValues.NO_ELEMENT
+                t.nodes[node_id]['x_mask'] = 0
 
         # find the root
         root_list = [x for x in t.nodes if t.out_degree(x) == 0]
+        _rec_assign(root_list[0])
         assert t.nodes[root_list[0]]['y'] != -1
         return words_not_in_vocab
 
@@ -98,11 +101,20 @@ class SstParsedTreesPreprocessor(NlpParsedTreesPreprocessor):
     def __init__(self, config):
         super(SstParsedTreesPreprocessor, self).__init__(config)
 
+    def __get_output_type(self):
+        if self.config.output_type == 'fine-grained':
+            return 0
+        elif self.config.output_type == 'binary':
+            return 1
+        else:
+            raise ValueError('Output type not known!')
+
     def preprocess(self):
         config = self.config
         input_dir = config.input_dir
         output_dir = config.output_dir
         tree_type = config.preprocessor_config.tree_type
+        output_type = self.__get_output_type()
 
         # set file names
         file_names = {'train': ['train_{}.pkl'.format(x) for x in tree_type],
@@ -128,9 +140,10 @@ class SstParsedTreesPreprocessor(NlpParsedTreesPreprocessor):
 
             for x in tqdm(nx_tree_list, desc='Preprocessing {}'.format(tag_name)):
                 t = self.tree_transformer.transform(*x)
-                self.__assign_node_features__(t, sentiment_map)
-                self.__update_stats__(tag_name, t)
-                tree_list.append(self.__nx_to_dgl__(t))
+                if self.__assign_node_features__(t, sentiment_map, output_type):
+                    # assign only if there is a label on the root (missing labe means neutral)
+                    self.__update_stats__(tag_name, t)
+                    tree_list.append(self.__nx_to_dgl__(t))
 
             self.__print_stats__(tag_name)
             to_pkl_file(tree_list, os.path.join(output_dir, '{}.pkl'.format(tag_name)))
@@ -151,7 +164,7 @@ class SstParsedTreesPreprocessor(NlpParsedTreesPreprocessor):
                                                    embedding_dim=config.type_embedding_dim)
             to_pkl_file(type_pretrained_embs, os.path.join(output_dir, 'type_pretrained_embs.pkl'))
 
-    def __assign_node_features__(self, t: nx.DiGraph, sentiment_map):
+    def __assign_node_features__(self, t: nx.DiGraph, sentiment_map, output_type):
 
         def _rec_assign(node_id):
             assert len(list(t.successors(node_id))) <= 1
@@ -166,14 +179,26 @@ class SstParsedTreesPreprocessor(NlpParsedTreesPreprocessor):
                 node_word = t.nodes[node_id]['word'].lower()
                 phrase_subtree += [node_word]
                 t.nodes[node_id]['x'] = self.words_vocab[node_word]
+                t.nodes[node_id]['x_mask'] = 1
             else:
                 t.nodes[node_id]['x'] = ConstValues.NO_ELEMENT
+                t.nodes[node_id]['x_mask'] = 0
 
             phrase_key = tuple(sorted(list(set(phrase_subtree))))
             if phrase_key in sentiment_map:
                 sentiment_label = sentiment_map[phrase_key]
+                if output_type == 1:
+                    # binary classification
+                    if sentiment_label < 2:
+                         sentiment_label = 0
+                    elif sentiment_label == 2:
+                        sentiment_label = ConstValues.NO_ELEMENT
+                    else:
+                        sentiment_label = 1
             else:
                 sentiment_label = ConstValues.NO_ELEMENT
+                if t.in_degree(node_id) == 0:
+                    aa=4
 
             t.nodes[node_id]['y'] = sentiment_label
 
@@ -181,14 +206,20 @@ class SstParsedTreesPreprocessor(NlpParsedTreesPreprocessor):
             if self.typed:
                 if 'type' in t.nodes[node_id]:
                     tag = t.nodes[node_id]['type']
-                    t.nodes[node_id]['type_id'] = self.__get_type_id__(tag)
+                    t.nodes[node_id]['t'] = self.__get_type_id__(tag)
+                    t.nodes[node_id]['t_mask'] = 1
                 else:
-                    t.nodes[node_id]['type_id'] = ConstValues.NO_ELEMENT
+                    t.nodes[node_id]['t'] = ConstValues.NO_ELEMENT
+                    t.nodes[node_id]['t_mask'] = 0
 
-                return phrase_subtree
+            return phrase_subtree
 
         # find the root
         root_list = [x for x in t.nodes if t.out_degree(x) == 0]
         assert len(root_list) == 1
         _rec_assign(root_list[0])
-        assert t.nodes[root_list[0]]['y'] != -1
+
+        if t.nodes[root_list[0]]['y'] != -1:
+            return True
+        else:
+            return False

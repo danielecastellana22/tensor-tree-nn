@@ -22,7 +22,8 @@ class Preprocessor:
         raise NotImplementedError('This method must be implmented in a subclass!')
 
     def __init_stats__(self, tag_name):
-        self.stats[tag_name] = {'tot_nodes': 0,
+        self.stats[tag_name] = {'tot_trees': 0,
+                                'tot_nodes': 0,
                                 'tot_leaves': 0,
                                 'no_labels': 0,
                                 'max_out_degree': 0}
@@ -33,7 +34,7 @@ class Preprocessor:
 
     def __update_stats__(self, tag_name, t: nx.DiGraph):
         in_degree_list = [d for u, d in t.in_degree]
-
+        self.stats[tag_name]['tot_trees'] += 1
         self.stats[tag_name]['tot_nodes'] += t.number_of_nodes()
         self.stats[tag_name]['tot_leaves'] += len([x for x in in_degree_list if x == 0])
         self.stats[tag_name]['no_labels'] += len([i for i, d in t.nodes(data=True) if d['y'] == ConstValues.NO_ELEMENT])
@@ -41,7 +42,7 @@ class Preprocessor:
 
         if self.typed:
             for i, d in t.nodes(data=True):
-                t_id = d['type_id']
+                t_id = d['t']
                 if t_id != ConstValues.NO_ELEMENT:
                     if t_id not in self.types_stats[tag_name]:
                         self.types_stats[tag_name][t_id] = 0
@@ -74,11 +75,17 @@ class Preprocessor:
 
         return self.types_vocab[t]
 
-    def __nx_to_dgl__(self, t):
+    def __nx_to_dgl__(self, t, other_attrs=None):
+
+        if other_attrs is None:
+            other_attrs = []
+
+        all_attrs = ['x', 'y', 'x_mask'] + other_attrs
+
         if self.typed:
-            return nx_to_dgl(t, node_attrs=['x', 'y', 'type_id'])
-        else:
-            return nx_to_dgl(t, node_attrs=['x', 'y'])
+            all_attrs += ['t', 't_mask']
+
+        return nx_to_dgl(t, node_attrs=all_attrs)
 
 
 class NlpParsedTreesPreprocessor(Preprocessor):

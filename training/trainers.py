@@ -4,7 +4,6 @@ import copy
 from .metrics import ValueMetricUpdate, TreeMetricUpdate
 import time
 from torch.utils.data import DataLoader
-from utils.serialization import to_json_file
 
 
 class BasicTrainer:
@@ -29,8 +28,8 @@ class BasicTrainer:
         val_metrics = {}
         tr_metrics = {}
         for c in metric_class_list:
-            val_metrics[c.__name__] = []
-            tr_metrics[c.__name__] = []
+            val_metrics[c.get_name()] = []
+            tr_metrics[c.get_name()] = []
 
         tr_forw_time_list = []
         tr_backw_time_list = []
@@ -78,7 +77,7 @@ class BasicTrainer:
                 s = "Evaluation on training set: Epoch {:03d} | ".format(epoch)
                 for v in metrics:
                     s += str(v) + " | "
-                    tr_metrics[type(v).__name__].append(v.get_value())
+                    tr_metrics[v.get_name()].append(v.get_value())
                 logger.info(s)
 
             # eval on validation set
@@ -90,7 +89,7 @@ class BasicTrainer:
             s = "Evaluation on validation set: Epoch {:03d} | ".format(epoch)
             for v in metrics:
                 s += str(v) + " | "
-                val_metrics[type(v).__name__].append(v.get_value())
+                val_metrics[v.get_name()].append(v.get_value())
             logger.info(s)
 
             # early stopping

@@ -50,7 +50,7 @@ class ExperimentRunner:
         ms_validation_results = self.__load_all_validation_results__()
         to_json_file(ms_validation_results, os.path.join(self.output_dir, 'validation_results.json'))
 
-        ms_validation_avg = np.mean(ms_validation_results[self.metric_class_list[0].__name__], axis=1)
+        ms_validation_avg = np.mean(ms_validation_results[self.metric_class_list[0].get_name()], axis=1)
 
         if self.metric_class_list[0].HIGHER_BETTER:
             best_config_id = np.argmax(ms_validation_avg)

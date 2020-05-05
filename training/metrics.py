@@ -5,7 +5,7 @@ from preprocessing.utils import ConstValues
 
 
 class BaseMetric:
-    # TODO: get_name to avoide __name__ from outside
+
     def __init__(self):
         self.final_value = None
 
@@ -20,6 +20,10 @@ class BaseMetric:
 
     def __str__(self):
         return "{}: {:4f}".format(type(self).__name__, self.final_value)
+
+    @classmethod
+    def get_name(cls):
+        return cls.__name__
 
     @abstractmethod
     def finalise_metric(self):
@@ -59,9 +63,9 @@ class Accuracy(BaseAccuracy, ValueMetricUpdate):
 
     def update_metric(self, out, gold_label: th.Tensor):
         pred = th.argmax(out, 1)
-        idxs = (gold_label != ConstValues.NO_ELEMENT)
-        self.n_correct += th.sum(th.eq(gold_label[idxs], pred[idxs])).item()
-        self.n_nodes += th.sum(idxs).item()
+        mask = (gold_label != ConstValues.NO_ELEMENT)
+        self.n_correct += th.sum(th.eq(gold_label[mask], pred[mask])).item()
+        self.n_nodes += th.sum(mask).item()
 
 
 class RootAccuracy(BaseAccuracy, TreeMetricUpdate):
@@ -72,8 +76,11 @@ class RootAccuracy(BaseAccuracy, TreeMetricUpdate):
     def update_metric(self, out, gold_label, graph):
         root_ids = [i for i in range(graph.number_of_nodes()) if graph.out_degree(i) == 0]
         pred = th.argmax(out, 1)
-        self.n_correct += th.sum(th.eq(pred[root_ids], gold_label[root_ids])).item()
-        self.n_nodes += len(root_ids)
+        a = pred[root_ids]
+        b = gold_label[root_ids]
+        mask = b != ConstValues.NO_ELEMENT
+        self.n_correct += th.sum(th.eq(a[mask], b[mask])).item()
+        self.n_nodes += th.sum(mask).item()
 
 
 class LeavesAccuracy(BaseAccuracy, TreeMetricUpdate):
@@ -84,8 +91,11 @@ class LeavesAccuracy(BaseAccuracy, TreeMetricUpdate):
     def update_metric(self, out, gold_label, graph):
         leaves_ids = [i for i in range(graph.number_of_nodes()) if graph.in_degree(i) == 0]
         pred = th.argmax(out, 1)
-        self.n_correct += th.sum(th.eq(pred[leaves_ids], gold_label[leaves_ids])).item()
-        self.n_nodes += len(leaves_ids)
+        a = pred[leaves_ids]
+        b = gold_label[leaves_ids]
+        mask = b != ConstValues.NO_ELEMENT
+        self.n_correct += th.sum(th.eq(a[mask], b[mask])).item()
+        self.n_nodes += th.sum(mask).item()
 
 
 class MSE(BaseMetric, ValueMetricUpdate):

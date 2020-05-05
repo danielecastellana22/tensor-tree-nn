@@ -23,7 +23,10 @@ class SstExperiment(Experiment):
 
         in_pretrained_embs = self.__load_input_embeddings__()
 
-        input_module = nn.Embedding.from_pretrained(in_pretrained_embs, freeze=False)
+        if in_pretrained_embs is not None:
+            input_module = nn.Embedding.from_pretrained(in_pretrained_embs, freeze=False)
+        else:
+            input_module = nn.Embedding(self.config.input_model_config.num_vocabs, x_size)
 
         output_module = SstOutputModule(h_size, **output_model_config)
 
@@ -67,12 +70,13 @@ class SstExperiment(Experiment):
 
     def __save_best_model_params__(self, best_model):
         if best_model.type_module is not None:
-            to_pkl_file(best_model.type_module.state_dict(), os.path.join(self.output_dir, 'type_embs_learned.pkl'))
+            #to_pkl_file(best_model.type_module.state_dict(), os.path.join(self.output_dir, 'type_embs_learned.pkl'))
+            to_pkl_file(best_model.state_dict(), os.path.join(self.output_dir, 'params_learned.pkl'))
 
     def __get_loss_function__(self):
         def f(output_model, true_label):
             idxs = (true_label != ConstValues.NO_ELEMENT)
-            return F.cross_entropy(output_model[idxs], true_label[idxs], reduction='sum')
+            return F.cross_entropy(output_model[idxs], true_label[idxs], reduction='mean')
 
         return f
 

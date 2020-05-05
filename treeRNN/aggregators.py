@@ -4,6 +4,8 @@ import torch.nn.init as INIT
 from .utils import AugmentedTensor
 
 
+# TODO: deal with n_ch < max_output_degree when pos_stationarity is False
+
 class BaseAggregator(nn.Module):
 
     # n_aggr allows to speed up the computation computing more aggregation in parallel. USEFUL FOR LSTM

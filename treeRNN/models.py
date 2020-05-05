@@ -22,22 +22,20 @@ class TreeModel(nn.Module):
         g.register_reduce_func(self.cell_module.reduce_func)
         g.register_apply_node_func(self.cell_module.apply_node_func)
 
+        # apply type module
         if self.type_module is not None:
-            # TODO: the output should be saved in the same attribute. Maybe type_id is not the best name.
-            type_mask = g.ndata['type_id'] != ConstValues.NO_ELEMENT
-            g.ndata['type_embs'] = self.type_module(g.ndata['type_id'] * type_mask)
+            type_mask = g.ndata['t_mask']
+            g.ndata['t'] = self.type_module(g.ndata['t'] * type_mask) * type_mask.view(-1, 1)
 
-        # apply input module and precompute its contribution
+        # apply input module
         if self.input_module is not None:
-            x_mask = g.ndata['x'] != ConstValues.NO_ELEMENT
-            g.ndata['x'] = self.input_module(g.ndata['x'] * x_mask)
-        # x_embeds = self.input_module(g.ndata['x'] * x_mask)
-        # self.cell_module.precompute_input_values(g, x_embeds, x_mask)
+            x_mask = g.ndata['x_mask']
+            g.ndata['x'] = self.input_module(g.ndata['x'] * x_mask) * x_mask.view(-1, 1)
 
         # propagate
         dgl.prop_nodes_topo(g)
+
         # compute output
-        # h = g.ndata.pop('h')
         h = g.ndata['h']
         if self.output_module is not None:
             return self.output_module(h)

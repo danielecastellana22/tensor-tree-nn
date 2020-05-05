@@ -205,7 +205,7 @@ class CombinedTreeTransformer(BaseTransformer):
         if self.split_on_semicolon:
             # if a type has :, split it and take the last part
             for u, d in new_bin_t.nodes(data=True):
-                if ':' in d['type']:
+                if 'type' in d and ':' in d['type']:
                     d['type'] = d['type'].split(':')[1]
 
         return new_bin_t

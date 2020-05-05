@@ -134,7 +134,7 @@ class Experiment:
                                                                                       metric_class_list=metric_class_list,
                                                                                       **training_config)
 
-        best_val_metrics_dict = {type(x).__name__: x.get_value() for x in best_val_metrics}
+        best_val_metrics_dict = {x.get_name(): x.get_value() for x in best_val_metrics}
 
         to_json_file(best_val_metrics_dict, os.path.join(self.output_dir, 'best_validation_metrics.json'))
         to_json_file(info_training, os.path.join(self.output_dir, 'info_training.json'))
@@ -151,7 +151,7 @@ class Experiment:
                                                               metric_class_list=metric_class_list,
                                                               batch_size=training_config.batch_size)
 
-            test_metrics_dict = {type(x).__name__: x.get_value() for x in test_metrics}
+            test_metrics_dict = {x.get_name(): x.get_value() for x in test_metrics}
             to_json_file(test_metrics_dict, os.path.join(self.output_dir, 'test_metrics.json'))
             to_torch_file(test_prediction, os.path.join(self.output_dir, 'test_prediction.pth'))
             return test_metrics
