@@ -1,7 +1,6 @@
 from experiments.base import Experiment
 import torch as th
 import torch.nn as nn
-import torch.optim as optim
 import torch.nn.functional as F
 import dgl
 from preprocessing.utils import ConstValues
@@ -48,32 +47,11 @@ class SstExperiment(Experiment):
 
         return TreeModel(x_size, h_size, input_module, output_module, cell_module, type_module)
 
-    def __get_optimiser__(self, model):
-
-        params_to_learn = []
-        tree_model_params = list(model.cell_module.parameters()) + list(model.output_module.parameters())
-        params_to_learn.append({'params': tree_model_params,
-                                'weight_decay': self.config.tree_model_config['weight_decay']})
-                                #'lr': 0.05,
-                                #'lr_decay': 0.05})
-
-        if model.type_module is not None:
-            params_to_learn.append({'params': list(model.type_module.parameters())}) #, 'lr': 0.1})
-
-        params_to_learn.append({'params': list(model.input_module.parameters())}) #, 'lr': 0.1})
-
-        #create the optimizer
-        #optimizer = optim.Adagrad(params_to_learn)
-        optimizer = optim.Adadelta(params_to_learn)
-
-        return optimizer
-
-    def __save_best_model_params__(self, best_model):
-        if best_model.type_module is not None:
-            #to_pkl_file(best_model.type_module.state_dict(), os.path.join(self.output_dir, 'type_embs_learned.pkl'))
-            to_pkl_file(best_model.state_dict(), os.path.join(self.output_dir, 'params_learned.pkl'))
+    def __save_test_model_params__(self, best_model):
+        to_pkl_file(best_model.state_dict(), os.path.join(self.output_dir, 'params_learned.pkl'))
 
     def __get_loss_function__(self):
+
         def f(output_model, true_label):
             idxs = (true_label != ConstValues.NO_ELEMENT)
             return F.cross_entropy(output_model[idxs], true_label[idxs], reduction='mean')
@@ -82,21 +60,34 @@ class SstExperiment(Experiment):
 
     def __get_batcher_function__(self):
         device = self.__get_device__()
+        hide_leaf_labels = self.config.dataset_config.hide_leaf_labels
 
-        def batcher_dev(batch):
-            batched_trees = dgl.batch(batch)
-            batched_trees.to(device)
-            return tuple([batched_trees]), batched_trees.ndata['y']
+        if hide_leaf_labels:
+            def batcher_dev(batch):
+                batched_trees = dgl.batch(batch)
+                leaves_ids = th.BoolTensor([batched_trees.in_degree(i) == 0 for i in range(batched_trees.number_of_nodes())])
+                batch.ndata['y'][leaves_ids] = -1
+                batched_trees.to(device)
+                return tuple([batched_trees]), batched_trees.ndata['y']
+        else:
+            def batcher_dev(batch):
+                batched_trees = dgl.batch(batch)
+                batched_trees.to(device)
+                return tuple([batched_trees]), batched_trees.ndata['y']
 
         return batcher_dev
 
 
 class SstOutputModule(nn.Module):
 
-    def __init__(self, h_size, num_classes, dropout):
+    def __init__(self, in_size, num_classes, dropout, h_size=0):
         super(SstOutputModule, self).__init__()
-        self.dropout = nn.Dropout(dropout)
-        self.linear = nn.Linear(h_size, num_classes)
+        if h_size == 0:
+            self.MLP = nn.Sequential(nn.Dropout(dropout), nn.Linear(in_size, num_classes))
+        else:
+            self.MLP = nn.Sequential(nn.Dropout(dropout),
+                                     nn.Linear(in_size, h_size), nn.ReLU(), nn.Dropout(dropout),
+                                     nn.Linear(h_size, num_classes))
 
     def forward(self, h):
-        return self.linear(self.dropout(h))
+        return self.MLP(h)

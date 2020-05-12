@@ -32,6 +32,7 @@ if __name__ == '__main__':
 
     eprint('Start the parsing!')
     parser = NLPAllParser()
+    tokenizer_prop = {'tokenize.options': 'splitAssimilations=false'}
 
     # build sentiment map
     sentiment_map_out_file = os.path.join(output_dir, 'sentiment_map.pkl')
@@ -66,9 +67,18 @@ if __name__ == '__main__':
                 v = l.split('|')
                 txt = v[0]
                 id = int(v[1])
-                tok_list = [x.lower() for x in parser.tokenize(txt, properties={'tokenize.options': 'normalizeParentheses=True'})]
-                tok_set = tuple(sorted(list(set(tok_list))))
-                sentiment_map[tok_set] = id2sentiment[id]
+                if ' ' in txt:
+                    tok_list = [x.lower() for x in parser.tokenize(txt, tokenizer_prop)]
+                else:
+                    tok_list = [txt.lower()]
+
+                tok_set = tuple(tok_list)
+
+                if tok_set not in sentiment_map:
+                    sentiment_map[tok_set] = id2sentiment[id]
+                else:
+                    if sentiment_map[tok_set] == 2:  # neutral
+                        sentiment_map[tok_set] = id2sentiment[id]
 
         # store sentiment map
         eprint('Saving sentiment map.')
@@ -84,7 +94,7 @@ if __name__ == '__main__':
             ris = {'dep': [], 'const': [], 'bin_const': []}
             with open(rf_name, 'r', encoding='utf-8') as rf:
                 for l in tqdm(rf.readlines(), desc='Buildiing trees from {}: '.format(f_name)):
-                    ris_p, = parser.raw_parse(l)
+                    ris_p, = parser.raw_parse(l, tokenizer_prop)
                     for k in ris_p:
                         ris[k].append(ris_p[k])
 

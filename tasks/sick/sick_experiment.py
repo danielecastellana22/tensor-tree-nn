@@ -16,8 +16,18 @@ class SickExperiment(Experiment):
     def __init__(self, config, output_dir, logger):
         super(SickExperiment, self).__init__(config, output_dir, logger)
 
+    def __get_output_type__(self):
+        out_type = self.config.dataset_config.output_type
+        if out_type == 'relatedness':
+            return 0
+        elif out_type == 'entailment':
+            return 1
+        else:
+            raise ValueError('Output type not known!')
+
     def __create_model__(self):
         tree_model_config = self.config.tree_model_config
+        output_type = self.__get_output_type__()
         output_model_config = self.config.output_model_config
         x_size = tree_model_config.x_size
         h_size = tree_model_config.h_size
@@ -43,7 +53,11 @@ class SickExperiment(Experiment):
 
         t = TreeModel(x_size, h_size, input_module, None, cell_module, type_module)
 
-        output_module = RelatednessOutputModule(h_size, **output_model_config)
+        if output_type == 0:
+            output_module = RelatednessOutputModule(h_size, **output_model_config)
+        else:
+            output_module = EntailmentOutputModule(h_size, **output_model_config)
+
         return SickModel(tree_module=t, output_module=output_module)
 
     def __get_optimiser__(self, model):
@@ -68,32 +82,45 @@ class SickExperiment(Experiment):
 
         return optimizer
 
-    def __save_best_model_params__(self, best_model):
-        if best_model.tree_module.type_module is not None:
-            to_pkl_file(best_model.type_module.state_dict(), os.path.join(self.output_dir, 'type_embs_learned.pkl'))
+    def __save_test_model_params__(self, best_model):
+        type_module = best_model.tree_module.type_module
+        if type_module is not None:
+            to_pkl_file(type_module.state_dict(), os.path.join(self.output_dir, 'type_embs_learned.pkl'))
 
     def __get_loss_function__(self):
-        def f(output_model, true_label):
-            return F.kl_div(output_model[0], true_label[0], reduction='batchmean')
+        output_type = self.__get_output_type__()
+        if output_type == 0:
+            def f(output_model, true_label):
+                return F.kl_div(output_model[0], true_label[0], reduction='batchmean')
+        else:
+            def f(output_model, true_label):
+                return F.cross_entropy(output_model, true_label, reduction='mean')
         return f
 
     def __get_batcher_function__(self):
         device = self.__get_device__()
         num_classes = self.config.output_model_config.num_classes
+        out_type = self.__get_output_type__()
 
         def batcher_dev(tuple_data):
             a_tree_list, b_tree_list, relatedness_list, entailment_list = zip(*tuple_data)
             batched_a_trees = dgl.batch(a_tree_list)
             batched_b_trees = dgl.batch(b_tree_list)
-            score_list_th = th.FloatTensor(relatedness_list)
-            target_distr = th.FloatTensor(self.get_target_distribution(relatedness_list, num_classes))
 
             batched_a_trees.to(device)
             batched_b_trees.to(device)
-            target_distr.to(device)
-            score_list_th.to(device)
 
-            return (batched_a_trees, batched_b_trees), (target_distr, score_list_th)
+            if out_type == 0:
+                score_list_th = th.FloatTensor(relatedness_list)
+                target_distr = th.FloatTensor(self.get_target_distribution(relatedness_list, num_classes))
+                target_distr.to(device)
+                score_list_th.to(device)
+                out = (target_distr, score_list_th)
+            else:
+                out = th.LongTensor(entailment_list)
+                out.to(device)
+
+            return (batched_a_trees, batched_b_trees), out
 
         return batcher_dev
 
@@ -131,6 +158,27 @@ class SickModel(nn.Module):
         h_root_b = h_b_tree[root_id_b]
 
         return self.output_module(h_root_a, h_root_b)
+
+
+class EntailmentOutputModule(nn.Module):
+
+    def __init__(self, input_dim, hidden_dim, num_classes):
+        super(EntailmentOutputModule, self).__init__()
+        self.input_dim = input_dim
+        self.hidden_dim = hidden_dim
+        self.num_classes = num_classes
+        self.wh = nn.Linear(2 * self.input_dim, self.hidden_dim)
+        self.wp = nn.Linear(self.hidden_dim, self.num_classes)
+
+    def forward(self, lvec, rvec):
+        mult_dist = th.mul(lvec, rvec)
+        abs_dist = th.abs(th.add(lvec, -rvec))
+        vec_dist = th.cat((mult_dist, abs_dist), 1)
+
+        distr = th.tanh(self.wh(vec_dist))
+        distr = self.wp(distr)
+
+        return distr
 
 
 class RelatednessOutputModule(nn.Module):

@@ -90,16 +90,20 @@ class SickParsedTreesPreprocessor(NlpParsedTreesPreprocessor):
                 node_word = t.nodes[node_id]['word'].lower()
                 phrase_subtree += [node_word]
                 t.nodes[node_id]['x'] = self.words_vocab[node_word]
+                t.nodes[node_id]['x_mask'] = 1
             else:
                 t.nodes[node_id]['x'] = ConstValues.NO_ELEMENT
+                t.nodes[node_id]['x_mask'] = 0
 
             # set type
             if self.typed:
                 if 'type' in t.nodes[node_id]:
                     tag = t.nodes[node_id]['type']
-                    t.nodes[node_id]['type_id'] = self.__get_type_id__(tag)
+                    t.nodes[node_id]['t'] = self.__get_type_id__(tag)
+                    t.nodes[node_id]['t_mask'] = 1
                 else:
-                    t.nodes[node_id]['type_id'] = ConstValues.NO_ELEMENT
+                    t.nodes[node_id]['t'] = ConstValues.NO_ELEMENT
+                    t.nodes[node_id]['t_mask'] = 0
 
         # find the root
         root_list = [x for x in t.nodes if t.out_degree(x) == 0]

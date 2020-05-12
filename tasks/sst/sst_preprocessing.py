@@ -170,21 +170,21 @@ class SstParsedTreesPreprocessor(NlpParsedTreesPreprocessor):
             assert len(list(t.successors(node_id))) <= 1
             all_ch = list(t.predecessors(node_id))
 
-            phrase_subtree = []
+            tokenid_word_list = []
             for ch_id in all_ch:
                 s = _rec_assign(ch_id)
-                phrase_subtree += s
+                tokenid_word_list += s
 
             if 'word' in t.nodes[node_id]:
                 node_word = t.nodes[node_id]['word'].lower()
-                phrase_subtree += [node_word]
+                tokenid_word_list += [(t.nodes[node_id]['token_id'], node_word)]
                 t.nodes[node_id]['x'] = self.words_vocab[node_word]
                 t.nodes[node_id]['x_mask'] = 1
             else:
                 t.nodes[node_id]['x'] = ConstValues.NO_ELEMENT
                 t.nodes[node_id]['x_mask'] = 0
 
-            phrase_key = tuple(sorted(list(set(phrase_subtree))))
+            phrase_key = tuple([x[1] for x in sorted(tokenid_word_list)])
             if phrase_key in sentiment_map:
                 sentiment_label = sentiment_map[phrase_key]
                 if output_type == 1:
@@ -197,8 +197,6 @@ class SstParsedTreesPreprocessor(NlpParsedTreesPreprocessor):
                         sentiment_label = 1
             else:
                 sentiment_label = ConstValues.NO_ELEMENT
-                if t.in_degree(node_id) == 0:
-                    aa=4
 
             t.nodes[node_id]['y'] = sentiment_label
 
@@ -212,7 +210,7 @@ class SstParsedTreesPreprocessor(NlpParsedTreesPreprocessor):
                     t.nodes[node_id]['t'] = ConstValues.NO_ELEMENT
                     t.nodes[node_id]['t_mask'] = 0
 
-            return phrase_subtree
+            return tokenid_word_list
 
         # find the root
         root_list = [x for x in t.nodes if t.out_degree(x) == 0]
