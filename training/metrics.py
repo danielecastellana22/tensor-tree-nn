@@ -53,7 +53,10 @@ class BaseAccuracy(BaseMetric):
         self.n_correct = 0
 
     def finalise_metric(self):
-        self.final_value = self.n_correct / self.n_nodes
+        if self.n_nodes != 0:
+            self.final_value = self.n_correct / self.n_nodes
+        else:
+            self.final_value = 0
 
 
 class Accuracy(BaseAccuracy, ValueMetricUpdate):

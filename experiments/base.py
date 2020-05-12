@@ -60,9 +60,13 @@ class Experiment:
     def __create_model__(self):
         raise NotImplementedError('This methos must be define in a sublclass!')
 
-    @abstractmethod
     def __get_optimiser__(self, model):
-        raise NotImplementedError('This methos must be define in a sublclass!')
+        optim_config = self.config.optimiser_config
+        optim_class = string2class(optim_config.optimiser_class)
+        params_groups = dict(optim_config.optimiser_params) if 'optimiser_params' in optim_config else {}
+        params_groups.update({'params': list(model.parameters())})
+
+        return optim_class([params_groups])
 
     @abstractmethod
     def __get_loss_function__(self):
@@ -72,7 +76,7 @@ class Experiment:
     def __get_batcher_function__(self):
         raise NotImplementedError('This methos must be define in a sublclass!')
 
-    def __save_best_model_params__(self, best_model):
+    def __save_test_model_params__(self, best_model):
         pass
 
     def __create_cell_module__(self):
@@ -138,11 +142,13 @@ class Experiment:
 
         to_json_file(best_val_metrics_dict, os.path.join(self.output_dir, 'best_validation_metrics.json'))
         to_json_file(info_training, os.path.join(self.output_dir, 'info_training.json'))
-        self.__save_best_model_params__(best_model)
 
         if not do_test:
             return best_val_metrics
         else:
+
+            self.__save_test_model_params__(best_model)
+
             testset = self.__load_test_data__()
 
             test_metrics, test_prediction = BasicTrainer.test(best_model, testset,

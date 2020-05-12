@@ -55,8 +55,10 @@ def __plot_matrix__(ax, cm, x_label, x_tick_label, y_label, y_tick_label, title=
     return ax
 
 
-def plot_confusion_matrix(ax, cm, classes_name, title=None):
+def plot_confusion_matrix(ax, cm, classes_name=None, title=None):
     #cm = cm / cm.sum()
+    if classes_name == None:
+        classes_name = list(range(cm.shape[0]))
     __plot_matrix__(ax, cm,
                     x_label='Predicted label', x_tick_label=classes_name, fmt='d',
                     y_label='True label', y_tick_label=classes_name, title=title, cmap='Blues')

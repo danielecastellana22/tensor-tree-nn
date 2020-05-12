@@ -19,7 +19,7 @@ class BasicTrainer:
                            batch_size, n_epochs, early_stopping_patience, evaluate_on_training_set):
 
         train_loader = DataLoader(trainset, batch_size=batch_size, collate_fn=batcher_fun, shuffle=True, num_workers=0)
-        val_loader = DataLoader(valset, batch_size=batch_size, collate_fn=batcher_fun, shuffle=True, num_workers=0)
+        val_loader = DataLoader(valset, batch_size=batch_size, collate_fn=batcher_fun, shuffle=False, num_workers=0)
 
         best_val_metrics = None
         best_epoch = -1
@@ -133,7 +133,7 @@ class BasicTrainer:
     @staticmethod
     def test(model, testset, batcher_fun, metric_class_list, logger, batch_size):
 
-        testloader = DataLoader(testset, batch_size=batch_size, collate_fn=batcher_fun, shuffle=True, num_workers=0)
+        testloader = DataLoader(testset, batch_size=batch_size, collate_fn=batcher_fun, shuffle=False, num_workers=0)
 
         pbar = tqdm(total=len(testset), desc='Evaluate on test set: ', disable=not BasicTrainer.__DEBUG__)
         metrics, _, predictions = BasicTrainer.__evaluate_model__(model, testloader, metric_class_list, pbar, batch_size)
