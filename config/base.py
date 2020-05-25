@@ -22,7 +22,7 @@ class Config(dict):
         if item in self:
             return self.__getitem__(item)
         else:
-            super(Config, self).__getattr__(item)
+            raise AttributeError('The key {} must be specified!'.format(item))
 
     @classmethod
     def from_json_fle(cls, path):

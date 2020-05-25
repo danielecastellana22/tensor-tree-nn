@@ -8,6 +8,7 @@ from utils.utils import eprint
 from utils.serialization import to_pkl_file, from_pkl_file
 
 
+# TODO: update this
 class SstBinaryTreesPreprocessor(Preprocessor):
 
     def __init__(self, config):
@@ -178,7 +179,7 @@ class SstParsedTreesPreprocessor(NlpParsedTreesPreprocessor):
             if 'word' in t.nodes[node_id]:
                 node_word = t.nodes[node_id]['word'].lower()
                 tokenid_word_list += [(t.nodes[node_id]['token_id'], node_word)]
-                t.nodes[node_id]['x'] = self.words_vocab[node_word]
+                t.nodes[node_id]['x'] = self.__get_word_id__(node_word)
                 t.nodes[node_id]['x_mask'] = 1
             else:
                 t.nodes[node_id]['x'] = ConstValues.NO_ELEMENT

@@ -1,13 +1,10 @@
 from experiments.base import Experiment
 import torch as th
 import torch.nn as nn
-import torch.optim as optim
 import torch.nn.functional as F
 import dgl
 import numpy as np
 from treeRNN.models import TreeModel
-from utils.serialization import to_pkl_file
-import os
 from training.metrics import MSE, Pearson
 
 
@@ -29,29 +26,14 @@ class SickExperiment(Experiment):
         tree_model_config = self.config.tree_model_config
         output_type = self.__get_output_type__()
         output_model_config = self.config.output_model_config
-        x_size = tree_model_config.x_size
+
         h_size = tree_model_config.h_size
 
-        in_pretrained_embs = self.__load_input_embeddings__()
-        input_module = nn.Embedding.from_pretrained(in_pretrained_embs, freeze=True)
-
-        if 'type_model_config' in self.config:
-            type_model_config = self.config.type_model_config
-            if 'use_pretrained_embs' in type_model_config:
-                type_pretrained_embs = self.__load_type_embeddings__()
-                type_module = nn.Embedding.from_pretrained(type_pretrained_embs, freeze=False)
-            elif 'use_one_hot' in type_model_config and type_model_config.use_one_hot:
-                    num_types = type_model_config.num_types
-                    type_module = nn.Embedding.from_pretrained(th.eye(num_types, num_types), freeze=True)
-            else:
-                type_emb_size = self.config.tree_model_config.cell_config.cell_params.type_emb_size
-                type_module = nn.Embedding(type_model_config.num_types, type_emb_size)
-        else:
-            type_module = None
-
+        input_module = self.__create_input_embedding_module__()
+        type_module = self.__create_type_embedding_module__()
         cell_module = self.__create_cell_module__()
 
-        t = TreeModel(x_size, h_size, input_module, None, cell_module, type_module)
+        t = TreeModel(input_module, None, cell_module, type_module)
 
         if output_type == 0:
             output_module = RelatednessOutputModule(h_size, **output_model_config)
@@ -59,33 +41,6 @@ class SickExperiment(Experiment):
             output_module = EntailmentOutputModule(h_size, **output_model_config)
 
         return SickModel(tree_module=t, output_module=output_module)
-
-    def __get_optimiser__(self, model):
-
-        params_to_learn = []
-        tree_module = model.tree_module
-        output_module = model.output_module
-        tree_model_params = list(tree_module.cell_module.parameters()) + list(output_module.parameters())
-        params_to_learn.append({'params': tree_model_params,
-                                'weight_decay': self.config.tree_model_config['weight_decay']})
-                                #'lr': 0.05
-                                #'lr_decay': 0.05})
-
-        if tree_module.type_module is not None:
-            params_to_learn.append({'params': list(tree_module.type_module.parameters())}) #, 'lr': 0.1})
-
-        #params_to_learn.append({'params': list(tree_module.input_module.parameters())}) #, 'lr': 0.1})
-
-        #create the optimizer
-        #optimizer = optim.Adagrad(params_to_learn)
-        optimizer = optim.Adadelta(params_to_learn)
-
-        return optimizer
-
-    def __save_test_model_params__(self, best_model):
-        type_module = best_model.tree_module.type_module
-        if type_module is not None:
-            to_pkl_file(type_module.state_dict(), os.path.join(self.output_dir, 'type_embs_learned.pkl'))
 
     def __get_loss_function__(self):
         output_type = self.__get_output_type__()

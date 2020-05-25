@@ -122,7 +122,7 @@ def plot_results(results, param_grid, params_to_plot, params_to_change, metrics_
     fig.tight_layout()
 
 
-def plot_tree_sentence(dgl_G, idx2words, input_attr='x', output_attr='y', type_attr='type_id', idx2types=None, ax=None):
+def plot_tree_sentence(dgl_G, idx2words, input_attr='x', output_attr='y', type_attr='t', idx2types=None, ax=None):
     G = dgl_G.to_networkx([input_attr, output_attr, type_attr])
     pos = graphviz_layout(G, prog='dot')
     # invert the y-axis
@@ -157,7 +157,7 @@ def plot_tree_sentence(dgl_G, idx2words, input_attr='x', output_attr='y', type_a
 
 
 def plot_netwrokx_tree(nx_t, node_attr_list=None, edge_attr=None, ax=None):
-    pos = graphviz_layout(nx_t, prog='dot')
+    pos = graphviz_layout(nx_t, prog='dot', args='-Granksep=2 -Gnodesep=2')
     if ax is None:
         plt.figure(figsize=(15, 15))
         ax = plt.gca()

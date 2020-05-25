@@ -151,8 +151,8 @@ class CombinedTreeTransformer(BaseTransformer):
             assert id_token_u == bin_t.nodes[u_in_const]['token_id']
             assert id_token_v == bin_t.nodes[v_in_const]['token_id']
 
-            assert dep_t.nodes[u]['word'] == bin_t.nodes[u_in_const]['word']
-            assert dep_t.nodes[v]['word'] == bin_t.nodes[v_in_const]['word']
+            assert dep_t.nodes[u]['word'].lower() == bin_t.nodes[u_in_const]['word'].lower()
+            assert dep_t.nodes[v]['word'].lower() == bin_t.nodes[v_in_const]['word'].lower()
 
             if dep_t.in_degree(u) == 0:
                 # u is a leaf

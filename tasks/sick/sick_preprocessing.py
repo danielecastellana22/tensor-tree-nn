@@ -3,9 +3,8 @@ import networkx as nx
 from tqdm import tqdm
 from preprocessing.base import NlpParsedTreesPreprocessor
 from preprocessing.utils import ConstValues, load_embeddings
-from preprocessing.tree_conversions import nx_to_dgl
-from utils.utils import eprint, string2class
-from utils.serialization import to_pkl_file, from_pkl_file, from_json_file
+from utils.utils import eprint
+from utils.serialization import to_pkl_file, from_pkl_file
 
 
 class SickParsedTreesPreprocessor(NlpParsedTreesPreprocessor):
@@ -89,7 +88,7 @@ class SickParsedTreesPreprocessor(NlpParsedTreesPreprocessor):
             if 'word' in t.nodes[node_id]:
                 node_word = t.nodes[node_id]['word'].lower()
                 phrase_subtree += [node_word]
-                t.nodes[node_id]['x'] = self.words_vocab[node_word]
+                t.nodes[node_id]['x'] = self.__get_word_id__(node_word)
                 t.nodes[node_id]['x_mask'] = 1
             else:
                 t.nodes[node_id]['x'] = ConstValues.NO_ELEMENT

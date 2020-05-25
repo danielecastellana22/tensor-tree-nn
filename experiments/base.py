@@ -6,7 +6,7 @@ import torch as th
 from preprocessing.dataset import ListDataset
 from treeRNN.cells import TypedTreeCell
 from training.trainers import BasicTrainer
-
+import torch.nn as nn
 
 # base class for all experiments
 class Experiment:
@@ -39,22 +39,33 @@ class Experiment:
 
         return testset
 
-    def __load_input_embeddings__(self):
+    @staticmethod
+    def __create_embedding_module__(emb_module_config):
+        embedding_type =  emb_module_config.embedding_type
+        if embedding_type == 'pretrained':
+            np_array = from_pkl_file(emb_module_config.pretrained_embs)
+            return nn.Embedding.from_pretrained(th.tensor(np_array, dtype=th.float), freeze=emb_module_config.freeze)
+        elif embedding_type == 'one_hot':
+            num_embs = emb_module_config.num_embs
+            return nn.Embedding.from_pretrained(th.eye(num_embs, num_embs), freeze=emb_module_config.freeze)
+        elif embedding_type == 'random':
+            num_embs = emb_module_config.num_embs
+            emb_size = emb_module_config.emb_size
+            return nn.Embedding(num_embs, emb_size)
+        else:
+            raise ValueError('Embedding type is unkown!')
+
+    def __create_input_embedding_module__(self):
         if 'input_model_config' in self.config:
-            input_model_config = self.config.input_model_config
-            if 'pretrained_embs' in input_model_config:
-                np_array = from_pkl_file(input_model_config.pretrained_embs)
-                return th.tensor(np_array, dtype=th.float32)
+            return self.__create_embedding_module__(self.config.input_model_config)
+        else:
+            return None
 
-        return None
-
-    def __load_type_embeddings__(self):
+    def __create_type_embedding_module__(self):
         if 'type_model_config' in self.config:
-            type_model_config = self.config.type_model_config
-            if 'pretrained_embs' in type_model_config:
-                np_array = from_pkl_file(type_model_config.pretrained_embs, 'rb')
-                return th.tensor(np_array, dtype=th.float32)
-        return None
+            return self.__create_embedding_module__(self.config.type_model_config)
+        else:
+            return None
 
     @abstractmethod
     def __create_model__(self):
@@ -77,25 +88,32 @@ class Experiment:
         raise NotImplementedError('This methos must be define in a sublclass!')
 
     def __save_test_model_params__(self, best_model):
-        pass
+        to_torch_file(best_model.state_dict(), os.path.join(self.output_dir, 'params_learned.pth'))
 
     def __create_cell_module__(self):
-        tree_model_config = self.config.tree_model_config
-        cell_config = tree_model_config.cell_config
+        cell_config = self.config.tree_model_config.cell_config
+        h_size = self.config.tree_model_config.h_size
+        if 'input_model_config' in self.config:
+            x_size = self.config.input_model_config.emb_size
+        else:
+            x_size = self.config.tree_model_config.x_size
 
         cell_class = string2class(cell_config.cell_class)
         num_types = cell_config.num_types if hasattr(cell_config, 'num_types') else None
         cell_params = dict(cell_config.cell_params)
         cell_params['aggregator_class'] = string2class(cell_params['aggregator_class'])
 
+        if 'type_model_config' in self.config:
+            cell_params['type_emb_size'] = self.config.type_model_config.emb_size
+
         if num_types is None:
-            cell = cell_class(x_size=tree_model_config.x_size,
-                              h_size=tree_model_config.h_size,
+            cell = cell_class(x_size=x_size,
+                              h_size=h_size,
                               **cell_params)
         else:
             # the key can be used to assign particular
-            cell = TypedTreeCell(x_size=tree_model_config.x_size,
-                                 h_size=tree_model_config.h_size,
+            cell = TypedTreeCell(x_size=x_size,
+                                 h_size=h_size,
                                  cell_class=cell_class,
                                  cells_params_list=[cell_params for i in range(num_types)],
                                  share_input_matrices=cell_config.share_input_matrices)
