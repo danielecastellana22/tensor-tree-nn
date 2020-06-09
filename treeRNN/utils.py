@@ -6,7 +6,7 @@ import numpy as np
 
 class AugmentedTensor(nn.Module):
 
-    def __init__(self, n_aggr, in_size_list, out_size, pos_stationarity):
+    def __init__(self, in_size_list, out_size, pos_stationarity, n_aggr):
 
         if n_aggr * np.prod(in_size_list) * out_size > 10**9:
             raise ValueError('Too many parameters!')
@@ -28,19 +28,17 @@ class AugmentedTensor(nn.Module):
             # the n_aggr for batching slow down everything
             self.T_list = nn.ParameterList()
             for i in range(self.n_aggr):
-                self.T_list.append(nn.Parameter(th.Tensor(*d)))
+                self.T_list.append(nn.Parameter(th.empty(*d), requires_grad=True))
 
         self.reset_parameters()
 
     def reset_parameters(self):
-        for p in self.T_list:
-            INIT.xavier_uniform_(p)
+        for t in self.T_list:
+            INIT.xavier_uniform_(t)
+            #INIT.orthogonal_(t)
 
     # neighbour_states has shape batch_size x n_neighbours x insize
     def forward(self, *in_el_list):
-        if self.pos_stationarity:
-            raise NotImplementedError('Full with stationarity not implemented yet')
-
         bs = in_el_list[0].size(0)
         n_aggr = self.n_aggr
 

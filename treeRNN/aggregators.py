@@ -9,7 +9,7 @@ from .utils import AugmentedTensor
 class BaseAggregator(nn.Module):
 
     # n_aggr allows to speed up the computation computing more aggregation in parallel. USEFUL FOR LSTM
-    def __init__(self, h_size, max_output_degree, pos_stationarity, n_aggr, type_emb_size):
+    def __init__(self, h_size, pos_stationarity, max_output_degree, type_emb_size, n_aggr):
         super(BaseAggregator, self).__init__()
 
         self.h_size = h_size
@@ -30,22 +30,18 @@ class BaseAggregator(nn.Module):
 # h = U1*h1 + U2*h2 + ... + Un*hn
 class SumChild(BaseAggregator):
 
-    def __init__(self, h_size, max_output_degree, pos_stationarity, n_aggr, type_emb_size=None):
-        super(SumChild, self).__init__(h_size, max_output_degree, pos_stationarity, n_aggr, type_emb_size)
+    def __init__(self, h_size, pos_stationarity=False, max_output_degree=0, type_emb_size=None, n_aggr=1):
+        super(SumChild, self).__init__(h_size, pos_stationarity, max_output_degree, type_emb_size, n_aggr)
 
         if self.pos_stationarity:
-            dim_U = [h_size, n_aggr*h_size]
-            dim_b = [1, n_aggr*h_size]
+            self.U = nn.Parameter(th.empty(h_size, n_aggr*h_size), requires_grad=True)
+            self.b = nn.Parameter(th.empty(1, n_aggr*h_size), requires_grad=True)
         else:
-            dim_U = [max_output_degree*h_size, n_aggr*h_size]
-            dim_b = [1, n_aggr*h_size]
-
-        self.U = nn.Parameter(th.Tensor(*dim_U), requires_grad=True)
-        self.b = nn.Parameter(th.Tensor(*dim_b), requires_grad=True)
+            self.U = nn.Parameter(th.empty(max_output_degree*h_size, n_aggr*h_size), requires_grad=True)
+            self.b = nn.Parameter(th.empty(1, n_aggr*h_size), requires_grad=True)
 
         if self.type_emb_size is not None:
-            self.U_type = nn.Parameter(th.Tensor(type_emb_size, n_aggr * h_size), requires_grad=True)
-            #self.b_type = nn.Parameter(th.Tensor(1, n_aggr * h_size), requires_grad=True)
+            self.U_type = nn.Parameter(th.empty(type_emb_size, n_aggr * h_size), requires_grad=True)
 
         self.reset_parameters()
 
@@ -54,26 +50,18 @@ class SumChild(BaseAggregator):
         INIT.xavier_uniform_(self.b)
         if self.type_emb_size is not None:
             INIT.xavier_uniform_(self.U_type)
-            #INIT.xavier_uniform_(self.b_type)
 
     # neighbour_states has shape bs x n_ch x h
     # type_embs has shape bs x emb_s
     def forward(self, neighbour_h, type_embs=None):
-        n_aggr = self.n_aggr
-        h = self.h_size
-        n_ch = self.max_output_degree
         bs = neighbour_h.size(0)
-        emb_s = self.type_emb_size
-
-        U = self.U
-        b = self.b
         if self.pos_stationarity:
-            ris = th.matmul(th.sum(neighbour_h, 1, keepdim=True), U).squeeze(1) + b
+            ris = th.matmul(th.sum(neighbour_h, 1, keepdim=True), self.U).squeeze(1) + self.b
         else:
-            ris = th.matmul(neighbour_h.view((bs, 1, -1)), U).squeeze(1) + b
+            ris = th.matmul(neighbour_h.view((bs, 1, -1)), self.U).squeeze(1) + self.b
 
         if self.type_emb_size is not None:
-            ris += th.matmul(type_embs, self.U_type) #+ self.b_type)
+            ris += th.matmul(type_embs, self.U_type)
 
         return ris
 
@@ -81,29 +69,24 @@ class SumChild(BaseAggregator):
 # h3 =  Canonical decomposition
 class Canonical(BaseAggregator):
 
-    def __init__(self, h_size, max_output_degree, pos_stationarity, n_aggr, rank, type_emb_size=None):
-        super(Canonical, self).__init__(h_size, max_output_degree, pos_stationarity, n_aggr, type_emb_size)
+    def __init__(self, h_size, pos_stationarity=False, max_output_degree=0, type_emb_size=None, n_aggr=1, rank=None):
+        super(Canonical, self).__init__(h_size, pos_stationarity, max_output_degree, type_emb_size, n_aggr)
+
         self.rank = rank
 
         if self.pos_stationarity:
-            dim_U = [h_size, n_aggr*rank]
-            dim_b = [1, n_aggr*rank]
-            dim_U_out = [n_aggr, rank, h_size]
-            dim_b_out = [n_aggr, 1, h_size]
+            self.U = nn.Parameter(th.empty(h_size, n_aggr*rank), requires_grad=True)
+            self.b = nn.Parameter(th.empty(1, n_aggr*rank), requires_grad=True)
         else:
-            dim_U = [max_output_degree, h_size, n_aggr * rank]
-            dim_b = [max_output_degree, 1, n_aggr * rank]
-            dim_U_out = [n_aggr, rank, h_size]
-            dim_b_out = [n_aggr, 1, h_size]
+            self.U = nn.Parameter(th.empty(max_output_degree, h_size, n_aggr * rank), requires_grad=True)
+            self.b = nn.Parameter(th.empty(max_output_degree, 1, n_aggr * rank), requires_grad=True)
 
-        self.U = nn.Parameter(th.randn(*dim_U), requires_grad=True)
-        self.b = nn.Parameter(th.randn(*dim_b), requires_grad=True)
-        self.U_output = nn.Parameter(th.randn(*dim_U_out), requires_grad=True)
-        self.b_output = nn.Parameter(th.randn(*dim_b_out), requires_grad=True)
+        self.U_output = nn.Parameter(th.empty(n_aggr, rank, h_size), requires_grad=True)
+        self.b_output = nn.Parameter(th.empty(n_aggr, 1, h_size), requires_grad=True)
 
         if self.type_emb_size is not None:
-            self.U_type = nn.Parameter(th.Tensor(type_emb_size, n_aggr * rank), requires_grad=True)
-            self.b_type = nn.Parameter(th.Tensor(1, n_aggr * rank), requires_grad=True)
+            self.U_type = nn.Parameter(th.empty(type_emb_size, n_aggr * rank), requires_grad=True)
+            self.b_type = nn.Parameter(th.empty(1, n_aggr * rank), requires_grad=True)
 
         self.reset_parameters()
 
@@ -119,48 +102,28 @@ class Canonical(BaseAggregator):
 
     # neighbour_states has shape batch_size x n_neighbours x insize
     def forward(self, neighbour_h, type_embs=None):
-
-        bs = neighbour_h.size(0)
-        h = self.h_size
-        n_ch = neighbour_h.size(1)  # self.max_output_degree
-        n_aggr = self.n_aggr
-        rank = self.rank
-        emb_s = self.type_emb_size
-
-        U = self.U
-        b = self.b
-        U_out = self.U_output
-        b_out = self.b_output
-        # neighbour_h has shape (bs x n_ch x 1 x h)
-        # U has shape (1 x h x n_agr*rank)
-        ris = th.matmul(neighbour_h.view((bs, n_ch, 1, h)), U) + b  # ris has shape (bs x n_ch x 1 x n_aggr*rank)
+        ris = th.matmul(neighbour_h.unsqueeze(2), self.U) + self.b  # ris has shape (bs x n_ch x 1 x n_aggr*rank)
         ris = th.prod(ris, 1)  # ris has shape (bs x 1 x n_aggr*rank)
 
         if self.type_emb_size is not None:
-            ris = ris * (th.matmul(type_embs, self.U_type) + self.b_type).view(bs, 1, -1)
+            ris = ris * (th.matmul(type_embs, self.U_type) + self.b_type).unsqueeze(1)
 
         # (bs x n_aggr x 1 x rank) mul (1 x n_aggr x rank x h)
-        ris = th.matmul(ris.view((bs, n_aggr, 1, rank)), U_out) + b_out
+        ris = th.matmul(ris.view((-1, self.n_aggr, 1, self.rank)), self.U_output) + self.b_output
         # ris has shape (bs x n_aggr x 1 x h)
-        return ris.squeeze(2).view(-1, n_aggr*h)
+        return ris.squeeze(2).view(-1, self.n_aggr * self.h_size)
 
 
 class FullTensor(BaseAggregator):
 
-    def __init__(self, h_size, max_output_degree, pos_stationarity, n_aggr, type_emb_size=None):
-        if h_size**max_output_degree > 10**9:
-            raise ValueError('Too many parameters!')
+    def __init__(self, h_size, pos_stationarity=False, max_output_degree=0, type_emb_size=None, n_aggr=1):
+        super(FullTensor, self).__init__(h_size, pos_stationarity, max_output_degree, type_emb_size, n_aggr)
 
-        if pos_stationarity:
-            raise ValueError('Full tensor cannot be pos stationary!')
-
-        super(FullTensor, self).__init__(h_size, max_output_degree, pos_stationarity, n_aggr, type_emb_size)
-
-        in_size_list = [h_size for i in range(max_output_degree)]
+        in_size_list = [h_size] * max_output_degree
         if type_emb_size is not None:
             in_size_list.insert(0, type_emb_size)
 
-        self.T = AugmentedTensor(1, in_size_list, n_aggr*h_size, pos_stationarity)
+        self.T = AugmentedTensor(in_size_list, n_aggr*h_size, pos_stationarity, n_aggr=1)
 
     # neighbour_states has shape batch_size x n_neighbours x insize
     def forward(self, neighbour_h, type_embs=None):
@@ -176,40 +139,31 @@ class FullTensor(BaseAggregator):
 # h = U3*r3, where r3 = G*r1*r2, r1 = U1*h1 and r2 = U2*h2
 class Hosvd(BaseAggregator):
 
-    def __init__(self, h_size, max_output_degree, pos_stationarity, n_aggr, rank, type_emb_size=None, type_emb_rank=None):
+    def __init__(self, h_size, pos_stationarity=False, max_output_degree=0, type_emb_size=None, n_aggr=1,
+                 rank=None, type_emb_rank=None,):
         if pos_stationarity:
             raise NotImplementedError("pos stationariy is not implemented yet!")
-
-        super(Hosvd, self).__init__(h_size, max_output_degree, pos_stationarity, n_aggr, type_emb_size)
+        super(Hosvd, self).__init__(h_size, pos_stationarity, max_output_degree, type_emb_size, n_aggr)
 
         self.rank = rank
-        self.type_embs_rank = type_emb_rank
+        self.type_emb_rank = type_emb_rank
 
-        if self.pos_stationarity:
-            raise NotImplementedError("Pos stationarity is not implemented yet!")
-
-        dim_U = [max_output_degree, n_aggr, h_size, rank]
-        dim_b = [max_output_degree, n_aggr, 1,  rank]
-        dim_U_out = [n_aggr, rank, h_size]
-        dim_b_out = [n_aggr, 1, h_size]
-
-        if self.type_emb_size is not None:
-            self.U_type = nn.Parameter(th.Tensor(type_emb_size, n_aggr * self.type_embs_rank), requires_grad=True)
-            self.b_type = nn.Parameter(th.Tensor(1, n_aggr * self.type_embs_rank), requires_grad=True)
+        # mode matrices
+        self.U = nn.Parameter(th.empty(max_output_degree, n_aggr, h_size, rank), requires_grad=True)
+        self.b = nn.Parameter(th.empty(max_output_degree, n_aggr, 1,  rank), requires_grad=True)
+        if type_emb_size is not None:
+            self.U_type = nn.Parameter(th.empty(type_emb_size, n_aggr * self.type_emb_rank), requires_grad=True)
+            self.b_type = nn.Parameter(th.empty(1, n_aggr * self.type_emb_rank), requires_grad=True)
 
         # core tensor is a fulltensor aggregator wiht r^d size
         in_size_list = [rank for i in range(max_output_degree)]
         if type_emb_size is not None:
-            in_size_list.insert(0, self.type_embs_rank)
-        self.G = AugmentedTensor(n_aggr, in_size_list, rank, pos_stationarity)
-
-        # mode matrices
-        self.U = nn.Parameter(th.Tensor(*dim_U), requires_grad=True)
-        self.b = nn.Parameter(th.Tensor(*dim_b), requires_grad=True)
+            in_size_list.insert(0, self.type_emb_rank)
+        self.G = AugmentedTensor(in_size_list, rank, pos_stationarity, n_aggr)
 
         # output matrices
-        self.U_output = nn.Parameter(th.Tensor(*dim_U_out), requires_grad=True)
-        self.b_output = nn.Parameter(th.Tensor(*dim_b_out), requires_grad=True)
+        self.U_output = nn.Parameter(th.empty(n_aggr, rank, h_size), requires_grad=True)
+        self.b_output = nn.Parameter(th.empty(n_aggr, 1, h_size), requires_grad=True)
 
         self.reset_parameters()
 
@@ -225,22 +179,11 @@ class Hosvd(BaseAggregator):
 
     # neighbour_states has shape batch_size x n_neighbours x insize
     def forward(self, neighbour_h, type_embs=None):
-        bs = neighbour_h.size(0)
-        h = self.h_size
-        n_ch = self.max_output_degree
-        n_aggr = self.n_aggr
-        rank = self.rank
-        emb_s = self.type_emb_size
-
-        if self.pos_stationarity:
-            raise NotImplementedError("Pos stationariy is not implemented yet!")
-            # TODO: should be applied only on true childs. Missing children should be considered separately.
-
-        ris = (th.matmul(neighbour_h.view((bs, n_ch, 1, 1, h)), self.U) + self.b).squeeze(3)
+        ris = (th.matmul(neighbour_h.unsqueeze(2).unsqueeze(3), self.U) + self.b).squeeze(3)
         # ris has shape (bs x n_ch x n_aggr x rank)
         in_el_list = []
         if self.type_emb_size is not None:
-            in_el_list.append((th.matmul(type_embs, self.U_type) + self.b_type).view(-1, n_aggr, self.type_embs_rank))
+            in_el_list.append((th.matmul(type_embs, self.U_type) + self.b_type).view(-1, self.n_aggr, self.type_emb_rank))
 
         for i in range(self.max_output_degree):
             in_el_list.append(ris[:, i, :, :])
@@ -248,72 +191,147 @@ class Hosvd(BaseAggregator):
         ris = self.G(*in_el_list)  # ris has shape (bs x n_aggr x rank)
         ris = th.matmul(ris.unsqueeze(2), self.U_output) + self.b_output
 
-        return ris.view(bs, -1)
+        return ris.view(neighbour_h.size(0), -1)
 
 
 # h3 =  tt decomposition
 class TensorTrain(BaseAggregator):
 
     # it is weight sharing, rather than pos_stationarity
-    def __init__(self, h_size, max_output_degree, pos_stationarity, n_aggr, rank):
-        super(TensorTrain, self).__init__(h_size, max_output_degree, pos_stationarity, n_aggr)
+    def __init__(self, h_size, pos_stationarity=False, max_output_degree=0, type_emb_size=None, n_aggr=1, rank=None):
+        super(TensorTrain, self).__init__(h_size, pos_stationarity, max_output_degree, type_emb_size, n_aggr)
 
-        raise NotImplementedError('TT not implemented yet')
         self.rank = rank
+
+        #TODO: use a type_emb_rank
+        if type_emb_size is not None:
+            self.U_type = nn.Parameter(th.empty(n_aggr, type_emb_size, rank), requires_grad=True)
+            self.b_type = nn.Parameter(th.empty(n_aggr, 1, rank), requires_grad=True)
 
         if not self.pos_stationarity:
             # mode matrices
-            self.U_list = nn.ModuleList()
-
-            for i in range(max_output_degree):
-                self.U_list.append(nn.Linear(h_size, n_aggr * (rank+1) * rank, bias=True))
+            self.U  = nn.Parameter(th.empty(max_output_degree, n_aggr, h_size, (rank+1) * rank), requires_grad=True)
+            self.b = nn.Parameter(th.empty(max_output_degree, n_aggr, 1, (rank + 1) * rank), requires_grad=True)
         else:
-            self.U = nn.Linear(h_size, n_aggr * (rank+1) * rank, bias=True)
+            self.U = nn.Parameter(th.empty(n_aggr, h_size, (rank + 1) * rank), requires_grad=True)
+            self.b = nn.Parameter(th.empty(n_aggr, 1, (rank + 1) * rank), requires_grad=True)
 
         # output matrices
-        self.U_output_list = nn.ModuleList()
-        for i in range(n_aggr):
-            self.U_output_list.append(nn.Linear(rank, h_size, bias=True))
+        self.U_output = nn.Parameter(th.empty(n_aggr, rank, h_size), requires_grad=True)
+        self.b_output = nn.Parameter(th.empty(n_aggr, 1, h_size), requires_grad=True)
+
+        self.reset_parameters()
+
+    def reset_parameters(self):
+        # TODO: orthoganl initialisation?
+        INIT.xavier_uniform_(self.U)
+        INIT.xavier_uniform_(self.b)
+        INIT.xavier_uniform_(self.U_output)
+        INIT.xavier_uniform_(self.b_output)
+
+        if self.type_emb_size is not None:
+            INIT.xavier_uniform_(self.U_type)
+            INIT.xavier_uniform_(self.b_type)
 
     # neighbour_states has shape batch_size x n_neighbours x insize
-    def forward(self, neighbour_h):
-
-        n_batch = neighbour_h.size(0)
+    def forward(self, neighbour_h, type_embs=None):
+        bs = neighbour_h.size(0)
         n_ch = neighbour_h.size(1)
-        rank_mat_list = []
-        # multiply by the hidden state
-        for i in range(n_ch):
-            h = neighbour_h[:, i, :].view(n_batch, -1)
 
-            if not self.pos_stationarity:
-                U = self.U_list[i]
-            else:
-                U = self.U
+        ris = (th.matmul(neighbour_h.unsqueeze(2).unsqueeze(3), self.U) + self.b).squeeze(3)
+        # ris has shape bs x n_ch x n_aggr x (r+1)*r
+        rank_tens_list = th.chunk(ris, n_ch, 1)
 
-            rank_mat_list.append(U(h).reshape((n_batch * self.n_aggr, self.rank, self.rank+1)))
+        if type_embs is not None:
+            rank_ris = th.matmul(type_embs.unsqueeze(1).unsqueeze(2), self.U_type) + self.b_type
+            # has shape bs x n_agg x 1 x rank
+        else:
+            rank_ris = None
 
         # multiply by the rank along the chain
-        rank_ris = th.zeros((n_batch * self.n_aggr, self.rank, 1), device=neighbour_h.device)
-        for i in range(n_ch):
-            rank_ris = th.cat((rank_ris, th.ones((n_batch*self.n_aggr, 1, 1), device=rank_ris.device)), dim=1)
-            aux = rank_mat_list[i]
-            rank_ris = nn.functional.tanh(th.bmm(aux, rank_ris))
-            #rank_ris = th.bmm(aux, rank_ris)
+        for rank_tens in rank_tens_list:
+            aux = rank_tens.view(bs, self.n_aggr, self.rank+1, self.rank)
+            U_rank = aux[:,:, :-1,:]
+            b_rank = aux[:,:, -2:-1,:]
 
-        rank_ris = rank_ris.reshape((n_batch, self.n_aggr, self.rank))
-        in_list = th.chunk(rank_ris, self.n_aggr, 1)
-        out_tens = None
-
-        for i in range(self.n_aggr):
-            r_in = in_list[i]
-            r_out = self.U_output_list[i](r_in).reshape((-1, self.h_size))
-
-            if out_tens is None:
-                out_tens = r_out
+            if rank_ris is None:
+                rank_ris = b_rank
             else:
-                out_tens = th.cat((out_tens, r_out), dim=1)
+                rank_ris = th.matmul(rank_ris, U_rank) + b_rank
 
-        return out_tens
+        out = th.matmul(rank_ris, self.U_output) + self.b_output # has shape bs x n_agg x 1 x h_size
+
+        return out.view(neighbour_h.size(0), -1)
+
+
+# h3 =  tt decomposition
+class TensorTrainLMN(BaseAggregator):
+
+    # it is weight sharing, rather than pos_stationarity
+    def __init__(self, h_size, pos_stationarity=False, max_output_degree=0, type_emb_size=None, n_aggr=1, rank=None):
+        super(TensorTrainLMN, self).__init__(h_size, pos_stationarity, max_output_degree, type_emb_size, n_aggr)
+
+        self.rank = rank
+
+        #TODO: use a type_emb_rank
+        if type_emb_size is not None:
+            self.U_type = nn.Parameter(th.empty(n_aggr, type_emb_size, rank), requires_grad=True)
+            self.b_type = nn.Parameter(th.empty(n_aggr, 1, rank), requires_grad=True)
+
+        if not self.pos_stationarity:
+            # mode matrices
+            self.A = nn.Parameter(th.empty(max_output_degree, n_aggr, h_size, rank), requires_grad=True)
+            self.B = nn.Parameter(th.empty(max_output_degree, n_aggr, rank, rank), requires_grad=True)
+            self.A_b = nn.Parameter(th.empty(max_output_degree, n_aggr, 1, rank), requires_grad=True)
+        else:
+            self.A = nn.Parameter(th.empty(n_aggr, h_size, rank), requires_grad=True)
+            self.B = nn.Parameter(th.empty(n_aggr, rank, rank), requires_grad=True)
+            self.A_b = nn.Parameter(th.empty(n_aggr, 1, rank), requires_grad=True)
+
+        # output matrices
+        self.U_output = nn.Parameter(th.empty(n_aggr, rank, h_size), requires_grad=True)
+        self.b_output = nn.Parameter(th.empty(n_aggr, 1, h_size), requires_grad=True)
+
+        self.reset_parameters()
+
+    def reset_parameters(self):
+        # TODO: orthoganl initialisation?
+        INIT.xavier_uniform_(self.A)
+        INIT.xavier_uniform_(self.B)
+        INIT.xavier_uniform_(self.A_b)
+        INIT.xavier_uniform_(self.U_output)
+        INIT.xavier_uniform_(self.b_output)
+
+        if self.type_emb_size is not None:
+            INIT.xavier_uniform_(self.U_type)
+            INIT.xavier_uniform_(self.b_type)
+
+    # neighbour_states has shape batch_size x n_neighbours x insize
+    def forward(self, neighbour_h, type_embs=None):
+        bs = neighbour_h.size(0)
+        n_ch = neighbour_h.size(1)
+
+        ris = (th.matmul(neighbour_h.unsqueeze(2).unsqueeze(3), self.A) + self.A_b).squeeze(3)
+        # ris has shape bs x n_ch x n_aggr x r
+        ax_list = th.chunk(ris, n_ch, 1)
+
+        if type_embs is not None:
+            rank_ris = th.matmul(type_embs.unsqueeze(1).unsqueeze(2), self.U_type) + self.b_type
+            # has shape bs x n_agg x 1 x rank
+        else:
+            rank_ris = None
+
+        # multiply by the rank along the chain
+        for ax_el in ax_list:
+
+            if rank_ris is None:
+                rank_ris = ax_el.squeeze(1).unsqueeze(2)
+            else:
+                rank_ris = th.matmul(rank_ris, self.B) + ax_el.squeeze(1).unsqueeze(2)
+
+        out = th.matmul(rank_ris, self.U_output) + self.b_output # has shape bs x n_agg x 1 x h_size
+
+        return out.view(neighbour_h.size(0), -1)
 
 
 class GRUAggregator(BaseAggregator):

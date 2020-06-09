@@ -10,14 +10,6 @@ class BaseTreeCell(nn.Module):
     def forward(self, *input):
         pass
 
-    def compute_child_aggregation(self, *args):
-        pass
-        #raise NotImplementedError("This function must be overridden!")
-
-    def compute_node_states(self, *args):
-        pass
-        #raise NotImplementedError("This function must be overridden!")
-
     def message_func(self, edges):
         raise NotImplementedError("This function must be overridden!")
 
@@ -30,14 +22,13 @@ class BaseTreeCell(nn.Module):
 
 class TreeLSTMCell(BaseTreeCell):
 
-    def __init__(self, x_size, h_size, max_output_degree, pos_stationarity, aggregator_class, allow_input_labels=True, type_emb_size=None, **kwargs):
+    def __init__(self, x_size, h_size, aggregator_class, pos_stationarity=False, max_output_degree=0, type_emb_size=None, **kwargs):
         super(TreeLSTMCell, self).__init__()
 
         self.x_size = x_size
         self.h_size = h_size
         self.max_output_degree = max_output_degree
         self.pos_stationarity = pos_stationarity
-        self.allow_input_labels = allow_input_labels
         self.type_emb_size = type_emb_size
 
         if type_emb_size is not None:
@@ -45,71 +36,70 @@ class TreeLSTMCell(BaseTreeCell):
         else:
             self.use_type_embs = False
 
-        if self.max_output_degree > 0:
-            # n_aggr = 3 because we would like to compute i,o,u gate
-            self.aggregator_module = aggregator_class(h_size, self.max_output_degree, self.pos_stationarity,
-                                                      type_emb_size=type_emb_size, n_aggr=3, **kwargs)
-        else:
-            self.aggregator_module = None
+        #h_size, pos_stationarity, max_output_degree, type_emb_size, n_aggr):
+        # n_aggr = 3 because we would like to compute i,o,u gate
+        self.aggregator_module = aggregator_class(h_size, pos_stationarity, max_output_degree, type_emb_size,
+                                                  n_aggr=3, **kwargs)
 
-        # input matrices
-        if self.allow_input_labels:
-            # we ALWAYS ignoe type embs for the input
-            self.iou_input_module = nn.Linear(x_size, 3 * h_size, bias=True)
-            self.forget_input_module = nn.Linear(x_size, h_size, bias=True)
+
+        # we ALWAYS ignoe type embs for the input
+        self.iou_input_module = nn.Linear(x_size, 3 * h_size, bias=True)
+        self.forget_input_module = nn.Linear(x_size, h_size, bias=True)
 
         # forget gate matrices
         if pos_stationarity:
             if self.use_type_embs:
-                self.forget_module = aggregator_class(h_size, 1, False,
+                self.forget_module = aggregator_class(h_size, pos_stationarity=False, max_output_degree=1,
                                                       type_emb_size=type_emb_size,
                                                       n_aggr=1, **kwargs)
             else:
                 self.forget_module = nn.Linear(h_size, h_size, bias= True)
         else:
-            self.forget_module = aggregator_class(h_size, max_output_degree, pos_stationarity,
-                                                  type_emb_size=type_emb_size,
+            self.forget_module = aggregator_class(h_size, pos_stationarity, max_output_degree, type_emb_size,
                                                   n_aggr=max_output_degree, **kwargs)
-
-    def __compute_iou_input_values__(self, x, x_mask):
-        if self.allow_input_labels:
-            return self.iou_input_module(x) * x_mask.view(-1, 1)
-        else:
-            raise ValueError('This cell cannot manage input labels!')
-
-    def __compute_forget_input_values__(self, x, x_mask):
-        if self.allow_input_labels:
-            return self.forget_input_module(x) * x_mask.view(-1, 1)
-        else:
-            raise ValueError('This cell cannot manage input labels!')
 
     def __compute_forget_gates__(self, x, x_mask, neighbour_h, type_embs):
         n_batch = neighbour_h.size(0)
         n_ch = neighbour_h.size(1)
         # input computation does not depend on type embs
-        f_input = self.__compute_forget_input_values__(x, x_mask)
+        f_input = self.forget_input_module(x) * x_mask.view(-1, 1)
         f_input = f_input.repeat(1, n_ch)
         if self.pos_stationarity:
             if self.use_type_embs:
-                f_gate = self.forget_module(neighbour_h.view((-1, 1, self.h_size)), type_embs.repeat(1, n_ch).reshape(-1, self.type_emb_size)).view(n_batch,n_ch * self.h_size)
+                f_gate = self.forget_module(neighbour_h.view((-1, 1, self.h_size)), type_embs.repeat(1, n_ch).reshape(-1, self.type_emb_size)).view(n_batch, n_ch * self.h_size)
             else:
                 f_gate = self.forget_module(neighbour_h.view((-1, self.h_size))).view(n_batch, n_ch * self.h_size)
         else:
-            f_gate =  self.forget_module(neighbour_h, type_embs) + f_input
+            f_gate = self.forget_module(neighbour_h, type_embs) + f_input
 
         return f_gate + f_input
 
-    def compute_child_aggregation(self, x, x_mask, n_h, n_c, type_embs):
-        # add the input contribution
-        f_aggr = self.__compute_forget_gates__(x, x_mask, n_h, type_embs)
-        iou_aggr = self.aggregator_module(n_h, type_embs)
+    @classmethod
+    def message_func(cls, edges):
+        return {'h': edges.src['h'], 'c': edges.src['c']}  # , 'pos': edges.data['pos']}
 
-        f = th.sigmoid(f_aggr).view(*n_c.size())
-        c_aggr = th.sum(f * n_c, 1)
+    def reduce_func(self, nodes):
+        x = nodes.data['x_embs']
+        x_mask = nodes.data['x_mask']
+        neighbour_h = nodes.mailbox['h']
+        neighbour_c = nodes.mailbox['c']
+        type_embs = nodes.data['t_embs'] if self.use_type_embs else None
+
+        # add the input contribution
+        f_aggr = self.__compute_forget_gates__(x, x_mask, neighbour_h, type_embs)
+        iou_aggr = self.aggregator_module(neighbour_h, type_embs)
+
+        f = th.sigmoid(f_aggr).view(*neighbour_c.size())
+        c_aggr = th.sum(f * neighbour_c, 1)
         return {'iou_aggr': iou_aggr, 'c_aggr': c_aggr}
 
-    def compute_node_states(self, x, x_mask, iou_aggr, c_aggr, type_embs):
-        iou = self.__compute_iou_input_values__(x, x_mask)
+    def apply_node_func(self, nodes):
+        x = nodes.data['x_embs']
+        x_mask = nodes.data['x_mask']
+        iou_aggr = nodes.data['iou_aggr'] if 'iou_aggr' in nodes.data else None
+        c_aggr = nodes.data['c_aggr'] if 'c_aggr' in nodes.data else None
+
+        iou = self.iou_input_module(x) * x_mask.view(-1, 1)
 
         if iou_aggr is not None:
             # internal nodes
@@ -126,39 +116,16 @@ class TreeLSTMCell(BaseTreeCell):
         h = o * th.tanh(c)
         return {'h': h, 'c': c}
 
-    @classmethod
-    def message_func(cls, edges):
-        return {'h': edges.src['h'], 'c': edges.src['c']}  # , 'pos': edges.data['pos']}
-
-    def reduce_func(self, nodes):
-        x = nodes.data['x']
-        x_mask = nodes.data['x_mask']
-        neighbour_h = nodes.mailbox['h']
-        neighbour_c = nodes.mailbox['c']
-        type_embs = nodes.data['t'] if self.use_type_embs else None
-
-        return self.compute_child_aggregation(x, x_mask, neighbour_h, neighbour_c, type_embs)
-
-    def apply_node_func(self, nodes):
-        x = nodes.data['x']
-        x_mask = nodes.data['x_mask']
-        iou_aggr = nodes.data['iou_aggr'] if 'iou_aggr' in nodes.data else None
-        c_aggr = nodes.data['c_aggr'] if 'c_aggr' in nodes.data else None
-        type_embs = nodes.data['t'] if self.use_type_embs else None
-
-        return self.compute_node_states(x, x_mask, iou_aggr, c_aggr, type_embs)
-
 
 class TreeRNNCell(BaseTreeCell):
 
-    def __init__(self, x_size, h_size, max_output_degree, pos_stationarity, aggregator_class, allow_input_labels=True, type_emb_size=None, **kwargs):
+    def __init__(self, x_size, h_size, aggregator_class, pos_stationarity=False, max_output_degree=0, type_emb_size=None, **kwargs):
         super(TreeRNNCell, self).__init__()
 
         self.x_size = x_size
         self.h_size = h_size
         self.max_output_degree = max_output_degree
         self.pos_stationarity = pos_stationarity
-        self.allow_input_labels = allow_input_labels
         self.type_emb_size = type_emb_size
 
         if type_emb_size is not None:
@@ -166,31 +133,11 @@ class TreeRNNCell(BaseTreeCell):
         else:
             self.use_type_embs = False
 
-        if self.max_output_degree > 0:
-            self.aggregator_module = aggregator_class(h_size, self.max_output_degree, self.pos_stationarity,
-                                                      type_emb_size=type_emb_size, n_aggr=1, **kwargs)
-        else:
-            self.aggregator_module = None
+        self.aggregator_module = aggregator_class(h_size, self.pos_stationarity, self.max_output_degree,
+                                                  type_emb_size, n_aggr=1, **kwargs)
 
-        # input matrices
-        if self.allow_input_labels:
-            # we ALWAYS ignoe type embs for the input
-            self.input_module = nn.Linear(x_size, h_size, bias=True)
-
-    def compute_child_aggregation(self, n_h, type_embs):
-        # add the input contribution
-        h_aggr = self.aggregator_module(n_h, type_embs)
-        return {'h_aggr': h_aggr}
-
-    def compute_node_states(self, x, x_mask, h_aggr):
-        h = self.input_module(x) * x_mask.view(-1, 1)
-
-        if h_aggr is not None:
-            # internal nodes
-            h += h_aggr
-        h = th.tanh(h)
-
-        return {'h': h}
+        # we ALWAYS ignoe type embs for the input
+        self.input_module = nn.Linear(x_size, h_size, bias=True)
 
     @classmethod
     def message_func(cls, edges):
@@ -198,16 +145,23 @@ class TreeRNNCell(BaseTreeCell):
 
     def reduce_func(self, nodes):
         neighbour_h = nodes.mailbox['h']
-        type_embs = nodes.data['t'] if self.use_type_embs else None
+        type_embs = nodes.data['t_embs'] if self.use_type_embs else None
 
-        return self.compute_child_aggregation(neighbour_h, type_embs)
+        h_aggr = self.aggregator_module(neighbour_h, type_embs)
+        return {'h_aggr': h_aggr}
 
     def apply_node_func(self, nodes):
-        x = nodes.data['x']
+        x = nodes.data['x_embs']
         x_mask = nodes.data['x_mask']
         h_aggr = nodes.data['h_aggr'] if 'h_aggr'  in nodes.data else None
 
-        return self.compute_node_states(x, x_mask, h_aggr)
+        h = self.input_module(x) * x_mask.view(-1, 1)
+        if h_aggr is not None:
+            # internal nodes
+            h += h_aggr
+        h = th.tanh(h)
+
+        return {'h': h}
 
 
 # TODO: this class must ber rewritten! should work also with RNN cells!
@@ -241,7 +195,7 @@ class TypedTreeCell(BaseTreeCell):
 
     def reduce_func(self, nodes):
 
-        x = nodes.data['x']
+        x = nodes.data['x_embs']
         n_h = nodes.mailbox['h']
         n_c = nodes.mailbox['c']
         types = nodes.data['type_id']
@@ -261,7 +215,7 @@ class TypedTreeCell(BaseTreeCell):
         return {'iou_aggr': iou_aggr, 'c_aggr': c_aggr}
 
     def apply_node_func(self, nodes):
-        x = nodes.data['x']
+        x = nodes.data['x_embs']
         iou_aggr = nodes.data['iou_aggr'] if 'iou_aggr' in nodes.data else None
         c_aggr = nodes.data['c_aggr'] if 'c_aggr' in nodes.data else None
         types = nodes.data['type_id']
