@@ -33,14 +33,12 @@ class SickExperiment(Experiment):
         type_module = self.__create_type_embedding_module__()
         cell_module = self.__create_cell_module__()
 
-        t = TreeModel(input_module, None, cell_module, type_module)
-
         if output_type == 0:
             output_module = RelatednessOutputModule(h_size, **output_model_config)
         else:
             output_module = EntailmentOutputModule(h_size, **output_model_config)
 
-        return SickModel(tree_module=t, output_module=output_module)
+        return TreeModel(input_module, output_module, cell_module, type_module, only_root_state=True)
 
     def __get_loss_function__(self):
         output_type = self.__get_output_type__()
@@ -93,26 +91,6 @@ class SickExperiment(Experiment):
         target[not_idx, ceil[not_idx] - 1] = labels[not_idx] - floor[not_idx]
 
         return target
-
-
-class SickModel(nn.Module):
-
-    def __init__(self, tree_module, output_module):
-        super(SickModel, self).__init__()
-        self.tree_module = tree_module
-        self.output_module = output_module
-
-    def forward(self, g_a, g_b):
-        h_a_tree = self.tree_module(g_a)
-        h_b_tree = self.tree_module(g_b)
-
-        root_id_a = [i for i in range(g_a.number_of_nodes()) if g_a.out_degree(i) == 0]
-        root_id_b = [i for i in range(g_b.number_of_nodes()) if g_b.out_degree(i) == 0]
-
-        h_root_a = h_a_tree[root_id_a]
-        h_root_b = h_b_tree[root_id_b]
-
-        return self.output_module(h_root_a, h_root_b)
 
 
 class EntailmentOutputModule(nn.Module):

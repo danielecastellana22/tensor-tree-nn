@@ -5,9 +5,7 @@ import torch.nn.functional as F
 import dgl
 from preprocessing.utils import ConstValues
 from treeRNN.models import TreeModel
-from utils.serialization import to_pkl_file
-from utils.utils import string2class
-import os
+from tasks.utils.classifiers import OneLayerNN
 
 
 class SstExperiment(Experiment):
@@ -29,20 +27,13 @@ class SstExperiment(Experiment):
 
         input_module = self.__create_input_embedding_module__()
         type_module = self.__create_type_embedding_module__()
-        output_module = SstOutputModule(h_size, **output_model_config)
+        output_module = OneLayerNN(h_size, **output_model_config)
 
         cell_module = self.__create_cell_module__()
 
         only_root_labels, hide_leaf_labels = self.__get_labels_options__()
 
-        if only_root_labels:
-            t = TreeModel(input_module, None, cell_module, type_module)
-            return OnlyRootModel(t, output_module)
-        else:
-            return TreeModel(input_module, output_module, cell_module, type_module)
-
-    def __save_test_model_params__(self, best_model):
-        to_pkl_file(best_model.state_dict(), os.path.join(self.output_dir, 'params_learned.pkl'))
+        return TreeModel(input_module, output_module, cell_module, type_module, only_root_state=only_root_labels)
 
     def __get_loss_function__(self):
         def f(output_model, true_label):
@@ -81,35 +72,3 @@ class SstExperiment(Experiment):
                 return [batched_trees], batched_trees.ndata['y']
 
         return batcher_dev
-
-
-class OnlyRootModel(nn.Module):
-
-    def __init__(self, tree_module, output_module):
-        super(OnlyRootModel, self).__init__()
-        self.tree_module = tree_module
-        self.output_module = output_module
-
-    def forward(self, t):
-        h_t = self.tree_module(t)
-
-        root_ids = [i for i in range(t.number_of_nodes()) if t.out_degree(i) == 0]
-
-        h_root = h_t[root_ids]
-
-        return self.output_module(h_root)
-
-class SstOutputModule(nn.Module):
-
-    def __init__(self, in_size, num_classes, dropout, h_size=0, non_linearity='torch.nn.ReLU'):
-        super(SstOutputModule, self).__init__()
-        non_linearity_class = string2class(non_linearity)
-        if h_size == 0:
-            self.MLP = nn.Sequential(nn.Dropout(dropout), nn.Linear(in_size, num_classes))
-        else:
-            self.MLP = nn.Sequential(nn.Dropout(dropout),
-                                     nn.Linear(in_size, h_size), non_linearity_class(), nn.Dropout(dropout),
-                                     nn.Linear(h_size, num_classes))
-
-    def forward(self, h):
-        return self.MLP(h)

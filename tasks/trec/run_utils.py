@@ -1,11 +1,9 @@
 from experiments.base import Experiment
 import torch as th
-import torch.nn as nn
 import torch.nn.functional as F
 import dgl
-import numpy as np
 from treeRNN.models import TreeModel
-from utils.utils import string2class
+from tasks.utils.classifiers import OneLayerNN
 
 
 class TrecExperiment(Experiment):
@@ -32,12 +30,9 @@ class TrecExperiment(Experiment):
         input_module = self.__create_input_embedding_module__()
         type_module = self.__create_type_embedding_module__()
         cell_module = self.__create_cell_module__()
+        output_module = OneLayerNN(h_size, num_classes, **output_model_config)
 
-        t = TreeModel(input_module, None, cell_module, type_module)
-
-        output_module = TrecOutputModule(h_size, num_classes, **output_model_config)
-
-        return TrecModel(tree_module=t, output_module=output_module)
+        return TreeModel(input_module, output_module, cell_module, type_module, only_root_state=True)
 
     def __get_loss_function__(self):
         def f(output_model, true_label):
@@ -65,36 +60,3 @@ class TrecExperiment(Experiment):
             return [batched_trees], out
 
         return batcher_dev
-
-
-class TrecModel(nn.Module):
-
-    def __init__(self, tree_module, output_module):
-        super(TrecModel, self).__init__()
-        self.tree_module = tree_module
-        self.output_module = output_module
-
-    def forward(self, t):
-        h_t = self.tree_module(t)
-
-        root_ids = [i for i in range(t.number_of_nodes()) if t.out_degree(i) == 0]
-
-        h_root = h_t[root_ids]
-
-        return self.output_module(h_root)
-
-
-class TrecOutputModule(nn.Module):
-
-    def __init__(self, in_size, num_classes, dropout, h_size=0, non_linearity='torch.nn.ReLU'):
-        super(TrecOutputModule, self).__init__()
-        non_linearity_class = string2class(non_linearity)
-        if h_size == 0:
-            self.MLP = nn.Sequential(nn.Dropout(dropout), nn.Linear(in_size, num_classes))
-        else:
-            self.MLP = nn.Sequential(nn.Dropout(dropout),
-                                     nn.Linear(in_size, h_size), non_linearity_class(), nn.Dropout(dropout),
-                                     nn.Linear(h_size, num_classes))
-
-    def forward(self, h):
-        return self.MLP(h)
