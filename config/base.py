@@ -78,14 +78,14 @@ class ExpConfig:
     def __build_grid_dict__(config_dict):
         d_out = OrderedDict()
 
-        def __rec_build__(d):
+        def __rec_build__(d, k_pre):
             for k, v in d.items():
                 if isinstance(v, list):
-                    d_out[k] = copy.deepcopy(v)
+                    d_out[k_pre+'.'+k] = copy.deepcopy(v)
                 elif isinstance(v, dict):
-                    __rec_build__(v)
+                    __rec_build__(v, k)
 
-        __rec_build__(config_dict)
+        __rec_build__(config_dict, '')
         return d_out
 
     @staticmethod
