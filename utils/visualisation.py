@@ -5,7 +5,9 @@ from networkx.drawing.nx_agraph import graphviz_layout
 import networkx as nx
 import os
 from .serialization import from_json_file
-from config.base import ExpConfig
+from .utils import eprint, get_logger
+from config.base import Config, ExpConfig
+import torch as th
 
 
 def __plot_matrix__(ax, cm, x_label, x_tick_label, y_label, y_tick_label, title=None, cmap='viridis', vmin=None, vmax=None, fmt='.2f'):
@@ -123,7 +125,14 @@ def plot_results(results, param_grid, params_to_plot, params_to_change, metrics_
 
 
 def plot_tree_sentence(dgl_G, idx2words, input_attr='x', output_attr='y', type_attr='t', idx2types=None, ax=None):
-    G = dgl_G.to_networkx([input_attr, output_attr, type_attr])
+    node_attr_list = [input_attr]
+
+    if output_attr is not None:
+        node_attr_list.append(output_attr)
+    if type_attr is not None:
+        node_attr_list.append(type_attr)
+
+    G = dgl_G.to_networkx(node_attr_list)
     pos = graphviz_layout(G, prog='dot')
     # invert the y-axis
     for n in pos:
@@ -145,18 +154,23 @@ def plot_tree_sentence(dgl_G, idx2words, input_attr='x', output_attr='y', type_a
             type_id = G.nodes[u][type_attr].item()
         else:
             type_id = -1
+
         if x != -1:
             lbls[u] = idx2words[x]
-        elif type_id != -1:
-            if idx2types is not None:
+        elif type_id != -1 and idx2types is not None:
                 lbls[u] = idx2types[type_id]
+        else:
+            lbls[u] = u
 
-    colors = [my_color_map[G.nodes[u][output_attr].item()] for u in G.nodes]
+    if output_attr is not None:
+        colors = [my_color_map[G.nodes[u][output_attr].item()] for u in G.nodes]
+    else:
+        colors = [my_color_map[-1] for u in G.nodes]
 
     nx.draw(G, pos=pos, with_labels=True, labels=lbls, node_color=colors, ax=ax)
 
 
-def plot_netwrokx_tree(nx_t, node_attr_list=None, edge_attr=None, ax=None):
+def plot_netwrokx_tree(nx_t, node_attr_list=None, edge_attr=None, ax=None, **kwargs):
     pos = graphviz_layout(nx_t, prog='dot', args='-Granksep=2 -Gnodesep=2')
     if ax is None:
         plt.figure(figsize=(15, 15))
@@ -165,7 +179,7 @@ def plot_netwrokx_tree(nx_t, node_attr_list=None, edge_attr=None, ax=None):
     for n in pos:
         pos[n] = (pos[n][0], -pos[n][1])
 
-    node_color = ['#1f78b4' for i in range(nx_t.number_of_nodes())]
+    #node_color = ['#1f78b4' for i in range(nx_t.number_of_nodes())]
 
     node_labels = {}
     if node_attr_list is not None:
@@ -175,13 +189,65 @@ def plot_netwrokx_tree(nx_t, node_attr_list=None, edge_attr=None, ax=None):
                 if att in x:
                     aux.append(str(x[att]))
             node_labels[id] = '|'.join(aux)
-    nx.draw_networkx(nx_t, pos=pos, labels=node_labels, node_color=node_color, ax=ax)
+    else:
+        node_labels = {u:u for u in nx_t.nodes}
+    nx.draw_networkx(nx_t, pos=pos, labels=node_labels, ax=ax, **kwargs)
     if edge_attr is not None:
         edge_labels = {(u, v): d[edge_attr] for u, v, d in nx_t.edges(data=True) if edge_attr in d}
         nx.draw_networkx_edge_labels(nx_t, pos=pos, edge_labels=edge_labels, ax=ax)
 
 
-def read_ms_results(results_dir, config_exp_path):
+def tree_sentence_to_tikz(dgl_G, idx2words, node_attr='x'):
+    rev_t = dgl_G.to_networkx(node_attr).reverse()
+
+    def rec_writing(u, ind):
+        out = ''
+        l = rev_t.nodes[u][node_attr].item()
+        if l == -1:
+            l = u
+        else:
+            l = idx2words[l]
+
+
+        attr = '[]' if rev_t.out_degree(u) == 0 else '[internal]'
+        if ind == 0:
+            out += '\\node{} {{{}}}'.format(attr, l)
+        else:
+            out += '\t' * ind + 'node{} {{{}}}'.format(attr, l)
+        out += '\n'
+
+        for ch in rev_t.successors(u):
+            out += '\t' * ind + 'child{\n'
+            out += rec_writing(ch, ind + 1)
+            out += '\t' * ind + '}\n'
+        if ind == 0:
+            out += ';'
+        return out
+
+    return rec_writing(0, 0)
+
+
+def __get_run_exp_dir_and_config_path__(model_dir, run_exp_dir=None):
+    if run_exp_dir is not None:
+        results_dir = os.path.join(model_dir, run_exp_dir)
+    else:
+        ls_dir = sorted([x for x in os.listdir(model_dir) if os.path.isdir(os.path.join(model_dir, x))])
+        if len(ls_dir) == 0:
+            eprint('WARNING! {} does not contain results folder!'.format(model_dir))
+            return
+        else:
+            if len(ls_dir) > 1:
+                eprint('WARNING! There are mroe than one folder in {}. We select the most recent!'.format(model_dir))
+            results_dir = os.path.join(model_dir, ls_dir[-1])
+
+    config_exp_path = os.path.join(model_dir, 'config.yaml')
+
+    return results_dir, config_exp_path
+
+
+def read_ms_results(model_dir, run_exp_dir=None):
+
+    results_dir, config_exp_path = __get_run_exp_dir_and_config_path__(model_dir, run_exp_dir)
 
     out = {}
 
@@ -189,14 +255,17 @@ def read_ms_results(results_dir, config_exp_path):
     test_results = from_json_file(os.path.join(results_dir, 'test_results.json'))
     n_params_dict = __read_same_json_from_ms_folders__(results_dir, 'num_model_parameters.json')
     info_tr_dict = __read_same_json_from_ms_folders__(results_dir, 'info_training.json')
-    best_config = from_json_file(os.path.join(results_dir, 'best_config.json'))
+    # best_config = from_json_file(os.path.join(results_dir, 'best_config.json'))
 
     # get dict grid
     grid_dict, n_run = ExpConfig.get_grid_dict(config_exp_path)
     reshape_size = [len(x) for x in grid_dict.values()]
     reshape_size.append(n_run)
     out['validation_results'] = {}
-    for k in validation_results:
+    first_val_results = None
+    for i, k in enumerate(validation_results):
+        if i == 0:
+            first_val_results = np.array(validation_results[k]).reshape(*reshape_size)
         out['validation_results'][k] = np.array(validation_results[k]).reshape(*reshape_size)
 
     # trannsofrm test results
@@ -204,7 +273,7 @@ def read_ms_results(results_dir, config_exp_path):
     for k in test_results:
         out['test_results'][k] = np.array(test_results[k])
 
-    out['id_best_config'] = __find_id_best_config__(grid_dict, best_config)
+    out['id_best_config'] = np.argmax(np.mean(first_val_results.reshape(-1, first_val_results.shape[-1]), axis=-1))
     out['params_grid'] = grid_dict
     out['num_params'] = {k: np.array(v).reshape(*reshape_size) for k, v in n_params_dict.items()}
     out['info_training'] = {k: np.array(v).reshape(*reshape_size) for k, v in info_tr_dict.items()}
@@ -232,16 +301,20 @@ def __read_same_json_from_ms_folders__(result_dir, file_name):
     return {k: [[x[k] for x in y] for y in out_array] for k in out_array[0][0]}
 
 
-def __find_id_best_config__(grid_dict, best_config):
-    ris = {}
+def get_exp_best_model_best_pred(model_dir, out_dir, run_exp_dir=None):
 
-    def _rec_search(d, k_to_finds):
-        if isinstance(d, dict):
-            for kk, v in d.items():
-                if kk in k_to_finds:
-                    ris[kk] = grid_dict[kk].index(v)
-                else:
-                    _rec_search(v, k_to_finds)
+    results_dir, config_exp_path = __get_run_exp_dir_and_config_path__(model_dir, run_exp_dir)
 
-    _rec_search(best_config, list(grid_dict.keys()))
-    return ris
+    exp_runner_params, _ = ExpConfig.from_file(config_exp_path)
+    exp_class = exp_runner_params['experiment_class']
+
+    name = 'test'
+    m_logger = get_logger(name, out_dir, '{}.log'.format(name), True)
+    m_best_config = Config.from_json_fle(os.path.join(results_dir, 'best_config.json'))
+    m_exp = exp_class(config=m_best_config, output_dir=out_dir, logger=m_logger)
+    best_test_id = np.argmax(list(from_json_file(os.path.join(results_dir, 'test_results.json')).values())[0])
+    m = m_exp.__create_model__()
+    m.load_state_dict(th.load(os.path.join(results_dir, 'test/run_{}/params_learned.pth'.format(best_test_id))))
+
+    pred = th.cat(th.load(os.path.join(results_dir, 'test/run_{}/test_prediction.pth'.format(best_test_id))), dim=0).numpy()
+    return m_exp, m, pred

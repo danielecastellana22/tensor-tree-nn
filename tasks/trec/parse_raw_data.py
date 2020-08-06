@@ -82,8 +82,8 @@ if __name__ == '__main__':
     idx_train, idx_val = train_test_split(np.arange(n_trees), test_size=n_val / n_trees, stratify=labels)
 
     trees_to_write = {'train': {k: (np.array(v)[idx_train]).tolist() for k, v in all_parsed_trees['train'].items()},
-                      'validation': {k: (np.array(v)[idx_val]).tolist() for k, v in all_parsed_trees['train'].items()},
-                      'test': all_parsed_trees['test']}
+                     'validation': {k: (np.array(v)[idx_val]).tolist() for k, v in all_parsed_trees['train'].items()},
+                     'test': all_parsed_trees['test']}
 
     eprint('Saving parsed trees.')
     for k, v in trees_to_write.items():

@@ -9,7 +9,7 @@ def string_to_nltk_tree(s):
     return Tree.fromstring(s, brackets='()', node_pattern=node_pattern, leaf_pattern=node_pattern)
 
 
-def nx_to_dgl(nx_t, node_attrs, edge_attrs=None):
+def nx_to_dgl(nx_t, node_attrs, edge_attrs):
     g = dgl.DGLGraph()
     g.from_networkx(nx_t, node_attrs=node_attrs, edge_attrs=edge_attrs)
 

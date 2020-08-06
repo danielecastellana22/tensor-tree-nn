@@ -252,3 +252,56 @@ class CombinedTreeTransformer(BaseTransformer):
                     new_dep_t.remove_edge(u, v)
 
         return new_dep_t
+
+
+class TreeNetTransformer(ConstTreeTransformer):
+
+    CREATE_TYPES = False
+
+    def __init__(self):
+        super(TreeNetTransformer, self).__init__(None)
+
+    def transform(self, t:nx.DiGraph):
+        # make a copy
+        t = super(TreeNetTransformer, self).transform(t)
+
+        t = nx.reverse(t)
+        new_t = nx.DiGraph()
+        new_t.add_nodes_from(t.nodes(data=True))
+        f_id = max(list(t.nodes)) +1
+        new_t.add_node(f_id)
+        new_id = f_id+1
+        for u in nx.topological_sort(t):
+            prev = u
+            child_list = sorted(list(t.successors(u)), reverse=True)
+            for v in child_list:
+                if prev == u:
+                    pos = 1
+                else:
+                    pos = 0
+                if t.out_degree(v) == 0:
+                    # v is leaf
+                    pa_v = new_id
+                    new_id += 1
+
+                    new_t.add_node(pa_v)
+                    new_t.add_edge(v, pa_v, pos=1)
+                    new_t.add_edge(pa_v, prev, pos=pos)
+                    prev = pa_v
+                else:
+                    # v is internal
+                    new_t.add_edge(v, prev, pos=pos)
+                    prev = v
+
+        for u in new_t.nodes:
+            if new_t.in_degree(u) == 1:
+                ee = new_t.edges[list(new_t.in_edges(u))[0]]
+                new_t.add_edge(f_id, u, pos=(ee['pos']+1)%2)
+            assert new_t.in_degree(u) == 2 or new_t.in_degree(u) == 0
+        # t = nx.reverse(t)
+        # import matplotlib.pyplot as plt
+        # from utils.visualisation import plot_netwrokx_tree
+        # plot_netwrokx_tree(new_t, edge_attr='pos')
+        # plt.show()
+        return new_t
+

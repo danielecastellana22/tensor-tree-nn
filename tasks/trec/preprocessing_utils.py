@@ -39,7 +39,7 @@ class TrecParsedTreesPreprocessor(NlpParsedTreesPreprocessor):
 
             data_list = []
 
-            for x in tqdm(parsed_trees, desc='Preprocessing {}'.format(f)):
+            for x in tqdm(parsed_trees, desc='Preprocessing {}'.format(tag_name)):
                 t = self.tree_transformer.transform(*x['tree'])
 
                 self.__assign_node_features__(t)
@@ -54,24 +54,12 @@ class TrecParsedTreesPreprocessor(NlpParsedTreesPreprocessor):
 
         # save all stats
         self.__save_stats__()
-
-        eprint('Loading word embeddings.')
-        pretrained_embs_file = config.pretrained_embs_file
-        embedding_dim = config.embedding_dim
-        pretrained_embs = load_embeddings(pretrained_embs_file, self.words_vocab, embedding_dim=embedding_dim)
-        to_pkl_file(pretrained_embs, os.path.join(output_dir, 'pretrained_embs.pkl'))
-
-        if 'type_pretrained_embs_file' in config:
-            eprint('Loading type embeddings.')
-            type_pretrained_embs = load_embeddings(config.type_pretrained_embs_file,
-                                                   self.types_vocab,
-                                                   embedding_dim=config.type_embedding_dim)
-            to_pkl_file(type_pretrained_embs, os.path.join(output_dir, 'type_pretrained_embs.pkl'))
+        self.__save_word_embeddings__()
 
     def __assign_node_features__(self, t: nx.DiGraph):
 
         def _rec_assign(node_id):
-            assert len(list(t.successors(node_id))) <= 1
+            #assert len(list(t.successors(node_id))) <= 1
             all_ch = list(t.predecessors(node_id))
 
             phrase_subtree = []
