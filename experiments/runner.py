@@ -28,43 +28,49 @@ class ExperimentRunner:
         n_config = len(self.config_list)
         self.logger.info('Model selection starts: {} configurations to run {} times.'.format(n_config, self.num_run))
 
-        fs_list=[]
-        for i_config, c in enumerate(self.config_list):
-            for i_run in range(self.num_run):
+        if n_config > 1:
+            fs_list=[]
+            for i_config, c in enumerate(self.config_list):
+                for i_run in range(self.num_run):
 
-                exp_id = 'c{}_r{}'.format(i_config, i_run)
-                exp_out_dir = self.__get_conf_run_dir__(i_config, i_run)
-                os.makedirs(exp_out_dir)
-                output_msg = 'Configuration {} Run {} finished:'.format(i_config, i_run)
+                    exp_id = 'c{}_r{}'.format(i_config, i_run)
+                    exp_out_dir = self.__get_conf_run_dir__(i_config, i_run)
+                    os.makedirs(exp_out_dir)
+                    output_msg = 'Configuration {} Run {} finished:'.format(i_config, i_run)
 
-                f = self.__start_single_exp__(c, exp_id, exp_out_dir, output_msg, do_test=False)
-                fs_list.append(f)
+                    f = self.__start_single_exp__(c, exp_id, exp_out_dir, output_msg, do_test=False)
+                    fs_list.append(f)
 
-        if not self.debug_mode:
-            self.logger.info('All configuration sumitted to the pool.')
-            # this will wait the end of all subprocess
-            concurrent.futures.wait(fs_list)
+            if not self.debug_mode:
+                self.logger.info('All configuration sumitted to the pool.')
+                # this will wait the end of all subprocess
+                concurrent.futures.wait(fs_list)
 
-        self.logger.info('Model selection finished.')
+            self.logger.info('Model selection finished.')
 
-        ms_validation_results = self.__load_all_validation_results__()
-        to_json_file(ms_validation_results, os.path.join(self.output_dir, 'validation_results.json'))
+            ms_validation_results = self.__load_all_validation_results__()
+            to_json_file(ms_validation_results, os.path.join(self.output_dir, 'validation_results.json'))
 
-        ms_validation_avg = np.mean(ms_validation_results[self.metric_class_list[0].get_name()], axis=1)
+            ms_validation_avg = np.mean(ms_validation_results[self.metric_class_list[0].get_name()], axis=1)
 
-        if self.metric_class_list[0].HIGHER_BETTER:
-            best_config_id = np.argmax(ms_validation_avg)
+            if self.metric_class_list[0].HIGHER_BETTER:
+                best_config_id = np.argmax(ms_validation_avg)
+            else:
+                best_config_id = np.argmin(ms_validation_avg)
+
+            self.logger.info('Configuration {} is the best one! Validation Score: {}'.format(best_config_id, ms_validation_avg[best_config_id]))
+
+            # save best config
+            self.logger.info('Saving best configuration.')
+            best_config = self.config_list[best_config_id]
+            to_json_file(best_config, os.path.join(self.output_dir, 'best_config.json'))
+
+            self.logger.info('Retraining and test the best configuration.')
         else:
-            best_config_id = np.argmin(ms_validation_avg)
+            self.logger.info('There is only one configuration. No model selection is performed.')
+            best_config = self.config_list[0]
 
-        self.logger.info('Configuration {} is the best one! Validation Score: {}'.format(best_config_id, ms_validation_avg[best_config_id]))
 
-        # save best config
-        self.logger.info('Saving best configuration.')
-        best_config = self.config_list[best_config_id]
-        to_json_file(best_config, os.path.join(self.output_dir, 'best_config.json'))
-
-        self.logger.info('Retraining and test the best configuration.')
         for i_run in range(self.num_run):
             self.logger.info('Testing Run {}.'.format(i_run))
             test_id = 'test{}'.format(i_run)

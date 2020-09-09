@@ -128,7 +128,7 @@ class Preprocessor:
         if other_edge_attrs is None:
             other_edge_attrs = []
 
-        if 'pos' in list(t.edges(data=True))[0][2]:
+        if len(list(t.edges(data=True))) > 0 and 'pos' in list(t.edges(data=True))[0][2]:
             all_edge_attrs = ['pos']
         else:
             all_edge_attrs = []
@@ -137,6 +137,12 @@ class Preprocessor:
         all_node_attrs = ['x', 'y', 'x_mask'] + other_node_attrs
         if self.typed:
             all_node_attrs += ['t', 't_mask']
+
+        if len(all_node_attrs) == 0:
+            all_node_attrs = None
+
+        if len(all_edge_attrs) == 0:
+            all_edge_attrs = None
 
         return nx_to_dgl(t, node_attrs=all_node_attrs, edge_attrs=all_edge_attrs)
 

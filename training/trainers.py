@@ -41,7 +41,12 @@ class BasicTrainer:
             tr_forw_time = 0
             tr_backw_time = 0
 
+            logger.debug('START TRAINING EPOCH {}.'.format(epoch))
             with tqdm(total=len(trainset), desc='Training epoch ' + str(epoch) + ': ', disable=not BasicTrainer.__DEBUG__) as pbar:
+
+                print_every = pbar.total // 100
+                loss_to_print = 0
+                n=0
                 for step, batch in enumerate(train_loader):
 
                     t = time.time()
@@ -51,6 +56,8 @@ class BasicTrainer:
                     loss = loss_function(model_output, out_data)
                     tr_forw_time += (time.time() - t)
 
+                    loss_to_print += loss.item()
+
                     t = time.time()
                     optimizer.zero_grad()
                     loss.backward()
@@ -59,9 +66,18 @@ class BasicTrainer:
 
                     tr_backw_time += (time.time() - t)
 
-                    pbar.update(min(batch_size, pbar.total-pbar.n))
+                    if n // print_every != (n + min(batch_size, pbar.total - n)) // print_every:
+                        logger.debug("EPOCH {:3d}\t {:7d}/{:7d}\t|\tLOSS: {:4.3f}".format(epoch, n, pbar.total, loss_to_print/print_every))
+                        loss_to_print = 0
+
+                    n += min(batch_size, pbar.total - n)
+                    pbar.update(min(batch_size, pbar.total - n))
+
+            if loss_to_print != 0:
+                logger.debug("EPOCH {:3d}\t {:7d}/{:7d}\t|\tLOSS: {:4.3f}".format(epoch, n, pbar.total, loss_to_print/print_every))
 
             if evaluate_on_training_set:
+                logger.debug("START EVALUATION ON TRAINING SET")
                 # eval on tr set
                 pbar = tqdm(total=len(trainset), desc='Evaluate epoch ' + str(epoch) + ' on training set: ',
                             disable=not BasicTrainer.__DEBUG__)
@@ -75,6 +91,7 @@ class BasicTrainer:
                 logger.info(s)
 
             # eval on validation set
+            logger.debug("START EVALUATION ON VALIDATION SET")
             pbar = tqdm(total=len(valset), desc='Evaluate epoch ' + str(epoch) + ' on validation set: ',
                         disable=not BasicTrainer.__DEBUG__)
             metrics, eval_val_time, _ = BasicTrainer.__evaluate_model__(model, val_loader, metric_class_list, pbar, batch_size)
