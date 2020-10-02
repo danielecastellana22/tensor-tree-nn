@@ -27,15 +27,19 @@ def nltk_tree_to_nx(nltk_t, get_internal_node_dict, get_leaf_node_dict, collapse
         my_id = g.number_of_nodes()
         if not collapsePOS and isinstance(node, str):
             attr_dict = get_leaf_node_dict(node)
-            g.add_node(my_id, token_id=token_id, **attr_dict)
+            attr_dict['token_id'] = token_id
             token_id += 1
         else:
             # internal node
             attr_dict = get_internal_node_dict(node.label())
-            g.add_node(my_id, **attr_dict)
 
         if pa_id != -1:
+            attr_dict['pos'] = g.in_degree(pa_id)
+            g.add_node(my_id, **attr_dict)
             g.add_edge(my_id, pa_id)
+        else:
+            attr_dict['pos'] = -1
+            g.add_node(my_id, **attr_dict)
 
         if not isinstance(node, str):
             if collapsePOS and len(node)==1 and isinstance(node[0], str):

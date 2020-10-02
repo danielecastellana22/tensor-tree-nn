@@ -1,6 +1,7 @@
 import torch.nn as nn
 import dgl
 import dgl.init
+from preprocessing.utils import ConstValues
 
 
 class TreeModel(nn.Module):
@@ -23,12 +24,13 @@ class TreeModel(nn.Module):
 
             # apply type module
             if self.type_module is not None:
-                type_mask = t.ndata['t_mask']
+                type_mask = (t.ndata['t'] != ConstValues.NO_ELEMENT)
                 t.ndata['t_embs'] = self.type_module(t.ndata['t'] * type_mask) * type_mask.view(-1, 1)
 
             # apply input module
             if self.input_module is not None:
-                x_mask = t.ndata['x_mask']
+                x_mask = (t.ndata['x'] != ConstValues.NO_ELEMENT)
+                t.ndata['x_mask'] = x_mask
                 t.ndata['x_embs'] = self.input_module(t.ndata['x'] * x_mask) * x_mask.view(-1, 1)
 
             # propagate

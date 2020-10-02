@@ -88,7 +88,7 @@ class Preprocessor:
                     self.type_stats[tag_name]['type_max_out_degree'][t_id] = max(t.in_degree(i), self.type_stats[tag_name]['type_max_out_degree'][t_id])
                 else:
                     self.dataset_stats[tag_name]['no_types'] += 1
-            self.dataset_stats[tag_name]['num_types'] = len(self.type_stats[tag_name])
+            self.dataset_stats[tag_name]['num_types'] = len(self.type_stats[tag_name]['type_freq'])
 
     def __print_stats__(self, tag_name):
         eprint('{} stats:'.format(tag_name))
@@ -128,15 +128,11 @@ class Preprocessor:
         if other_edge_attrs is None:
             other_edge_attrs = []
 
-        if len(list(t.edges(data=True))) > 0 and 'pos' in list(t.edges(data=True))[0][2]:
-            all_edge_attrs = ['pos']
-        else:
-            all_edge_attrs = []
-        all_edge_attrs += other_edge_attrs
+        all_edge_attrs = other_edge_attrs
 
-        all_node_attrs = ['x', 'y', 'x_mask'] + other_node_attrs
+        all_node_attrs = ['x', 'y', 'pos'] + other_node_attrs
         if self.typed:
-            all_node_attrs += ['t', 't_mask']
+            all_node_attrs += ['t']
 
         if len(all_node_attrs) == 0:
             all_node_attrs = None

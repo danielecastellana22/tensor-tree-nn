@@ -124,7 +124,7 @@ def plot_results(results, param_grid, params_to_plot, params_to_change, metrics_
     fig.tight_layout()
 
 
-def plot_tree_sentence(dgl_G, idx2words, input_attr='x', output_attr='y', type_attr='t', idx2types=None, ax=None):
+def plot_tree_sentence(dgl_G, idx2words, input_attr='x', output_attr='y', type_attr='t', idx2types=None, ax=None, vmin=0, vmax=4):
     node_attr_list = [input_attr]
 
     if output_attr is not None:
@@ -138,13 +138,11 @@ def plot_tree_sentence(dgl_G, idx2words, input_attr='x', output_attr='y', type_a
     for n in pos:
         pos[n] = (pos[n][0], -pos[n][1])
 
-    vmin = 0
-    vmax = 4
     cmap = matplotlib.cm.get_cmap('bwr')
     my_color_map = {-1: (1, 200/255, 0, 1)}
     for v in range(vmin, vmax+1):
         my_color_map[v] = cmap((v-vmin)/(vmax-vmin))
-    my_color_map[2] = (0.9, 0.9, 0.9)
+    #my_color_map[2] = (0.9, 0.9, 0.9)
     #print(my_color_map)
 
     lbls = {}

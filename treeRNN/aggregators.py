@@ -19,7 +19,8 @@ class BaseAggregator(nn.Module):
         self.type_emb_size = type_emb_size
 
     def reset_parameters(self):
-        pass
+        for x in self.parameters(recurse=False):
+            INIT.xavier_uniform_(x)
 
     # input is nieghbour_h has shape batch_size x n_neighbours x h_size
     # output has shape batch_size x (n_aggr * h_size)
@@ -90,16 +91,6 @@ class Canonical(BaseAggregator):
 
         self.reset_parameters()
 
-    def reset_parameters(self):
-        INIT.xavier_uniform_(self.U)
-        INIT.xavier_uniform_(self.b)
-        INIT.xavier_uniform_(self.U_output)
-        INIT.xavier_uniform_(self.b_output)
-
-        if self.type_emb_size is not None:
-            INIT.xavier_uniform_(self.U_type)
-            INIT.xavier_uniform_(self.b_type)
-
     # neighbour_states has shape batch_size x n_neighbours x insize
     def forward(self, neighbour_h, type_embs=None):
         ris = th.matmul(neighbour_h.unsqueeze(2), self.U) + self.b  # ris has shape (bs x n_ch x 1 x n_aggr*rank)
@@ -167,16 +158,6 @@ class Hosvd(BaseAggregator):
 
         self.reset_parameters()
 
-    def reset_parameters(self):
-        INIT.xavier_uniform_(self.U)
-        INIT.xavier_uniform_(self.b)
-        INIT.xavier_uniform_(self.U_output)
-        INIT.xavier_uniform_(self.b_output)
-
-        if self.type_emb_size is not None:
-            INIT.xavier_uniform_(self.U_type)
-            INIT.xavier_uniform_(self.b_type)
-
     # neighbour_states has shape batch_size x n_neighbours x insize
     def forward(self, neighbour_h, type_embs=None):
         ris = (th.matmul(neighbour_h.unsqueeze(2).unsqueeze(3), self.U) + self.b).squeeze(3)
@@ -197,6 +178,7 @@ class Hosvd(BaseAggregator):
 # h3 =  tt decomposition
 class TensorTrain(BaseAggregator):
 
+    # TODO: orthoganl initialisation?
     # it is weight sharing, rather than pos_stationarity
     def __init__(self, h_size, pos_stationarity=False, max_output_degree=0, type_emb_size=None, n_aggr=1, rank=None):
         super(TensorTrain, self).__init__(h_size, pos_stationarity, max_output_degree, type_emb_size, n_aggr)
@@ -221,17 +203,6 @@ class TensorTrain(BaseAggregator):
         self.b_output = nn.Parameter(th.empty(n_aggr, 1, h_size), requires_grad=True)
 
         self.reset_parameters()
-
-    def reset_parameters(self):
-        # TODO: orthoganl initialisation?
-        INIT.xavier_uniform_(self.U)
-        INIT.xavier_uniform_(self.b)
-        INIT.xavier_uniform_(self.U_output)
-        INIT.xavier_uniform_(self.b_output)
-
-        if self.type_emb_size is not None:
-            INIT.xavier_uniform_(self.U_type)
-            INIT.xavier_uniform_(self.b_type)
 
     # neighbour_states has shape batch_size x n_neighbours x insize
     def forward(self, neighbour_h, type_embs=None):
@@ -294,18 +265,6 @@ class TensorTrainLMN(BaseAggregator):
 
         self.reset_parameters()
 
-    def reset_parameters(self):
-        # TODO: orthoganl initialisation?
-        INIT.xavier_uniform_(self.A)
-        INIT.xavier_uniform_(self.B)
-        INIT.xavier_uniform_(self.A_b)
-        INIT.xavier_uniform_(self.U_output)
-        INIT.xavier_uniform_(self.b_output)
-
-        if self.type_emb_size is not None:
-            INIT.xavier_uniform_(self.U_type)
-            INIT.xavier_uniform_(self.b_type)
-
     # neighbour_states has shape batch_size x n_neighbours x insize
     def forward(self, neighbour_h, type_embs=None):
         bs = neighbour_h.size(0)
@@ -334,6 +293,7 @@ class TensorTrainLMN(BaseAggregator):
         return out.view(neighbour_h.size(0), -1)
 
 
+########################################################################################################################
 class GRUAggregator(BaseAggregator):
 
     def __init__(self, h_size, max_output_degree, pos_stationarity, n_aggr, rank):

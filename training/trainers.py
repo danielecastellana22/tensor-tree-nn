@@ -6,24 +6,44 @@ import time
 from torch.utils.data import DataLoader
 
 
-class BasicTrainer:
+class BaseTrainer:
 
-    __DEBUG__ = False
+    def __init__(self, debug_mode, logger):
+        self.debug_mode = debug_mode
+        self.logger = logger
 
-    @staticmethod
-    def set_debug_flag(val):
-        BasicTrainer.__DEBUG__ = val
+    def __training_step__(self, **kwargs):
+        raise NotImplementedError('This methos must be specified in the subclass')
 
-    @staticmethod
-    def train_and_validate(model, loss_function, optimizer, trainset, valset, batcher_fun, metric_class_list, logger,
-                           batch_size, n_epochs, early_stopping_patience, evaluate_on_training_set):
+    def __on_epoch_ends__(self, model, **kwargs):
+        pass
 
-        train_loader = DataLoader(trainset, batch_size=batch_size, collate_fn=batcher_fun, shuffle=True, num_workers=0)
+    def __early_stopping_on_loss__(self, prev_loss, tot_loss, eps_loss):
+        return False
+
+    def train_and_validate(self, **kwargs):
+
+        model = kwargs.pop('model')
+        #loss_function, optimizer,
+        trainset = kwargs.pop('trainset')
+        valset = kwargs.pop('valset')
+        batcher_fun = kwargs.pop('batcher_fun')
+        metric_class_list = kwargs.pop('metric_class_list')
+        logger = self.logger.getChild('train')
+        batch_size = kwargs.pop('batch_size')
+        n_epochs = kwargs.pop('n_epochs')
+        early_stopping_patience = kwargs.pop('early_stopping_patience')
+        evaluate_on_training_set = kwargs.pop('evaluate_on_training_set')
+        eps_loss = kwargs.pop('eps_loss', None)
+
+        # TODO: shuffle true
+        train_loader = DataLoader(trainset, batch_size=batch_size, collate_fn=batcher_fun, shuffle=False, num_workers=0)
         val_loader = DataLoader(valset, batch_size=batch_size, collate_fn=batcher_fun, shuffle=False, num_workers=0)
 
         best_val_metrics = None
         best_epoch = -1
         best_model = None
+        prev_loss = None
 
         val_metrics = {}
         tr_metrics = {}
@@ -41,47 +61,42 @@ class BasicTrainer:
             tr_forw_time = 0
             tr_backw_time = 0
 
+            # TODO: implement print loss every tot. Can be useful for big dataset
             logger.debug('START TRAINING EPOCH {}.'.format(epoch))
-            with tqdm(total=len(trainset), desc='Training epoch ' + str(epoch) + ': ', disable=not BasicTrainer.__DEBUG__) as pbar:
+            with tqdm(total=len(trainset), desc='Training epoch ' + str(epoch) + ': ', disable=not self.debug_mode) as pbar:
 
                 print_every = pbar.total // 100
                 loss_to_print = 0
+                tot_loss = 0
                 n=0
                 for step, batch in enumerate(train_loader):
 
-                    t = time.time()
                     in_data = batch[0]
                     out_data = batch[1]
-                    model_output = model(*in_data)
-                    loss = loss_function(model_output, out_data)
-                    tr_forw_time += (time.time() - t)
+                    loss, f_time, b_time = self.__training_step__(model=model, in_data=in_data, out_data=out_data, **kwargs)
+                    tot_loss += loss
+                    loss_to_print += loss
+                    tr_forw_time += f_time
+                    tr_backw_time += b_time
 
-                    loss_to_print += loss.item()
-
-                    t = time.time()
-                    optimizer.zero_grad()
-                    loss.backward()
-                    th.nn.utils.clip_grad_norm_([p for p in model.parameters() if p.requires_grad], 10)
-                    optimizer.step()
-
-                    tr_backw_time += (time.time() - t)
-
-                    if n // print_every != (n + min(batch_size, pbar.total - n)) // print_every:
-                        logger.debug("EPOCH {:3d}\t {:7d}/{:7d}\t|\tLOSS: {:4.3f}".format(epoch, n, pbar.total, loss_to_print/print_every))
-                        loss_to_print = 0
+                    # if n // print_every != (n + min(batch_size, pbar.total - n)) // print_every:
+                    #     logger.debug("EPOCH {:3d}\t {:7d}/{:7d}\t|\tLOSS: {:4.3f}".format(epoch, n, pbar.total, loss_to_print/print_every))
+                    #     loss_to_print = 0
 
                     n += min(batch_size, pbar.total - n)
                     pbar.update(min(batch_size, pbar.total - n))
 
-            if loss_to_print != 0:
-                logger.debug("EPOCH {:3d}\t {:7d}/{:7d}\t|\tLOSS: {:4.3f}".format(epoch, n, pbar.total, loss_to_print/print_every))
+            # if loss_to_print != 0:
+            #     logger.debug("EPOCH {:3d}\t {:7d}/{:7d}\t|\tLOSS: {:4.3f}".format(epoch, n, pbar.total, loss_to_print/print_every))
+            self.logger.info("End training: Epoch {:3d} | Tot. Loss: {:4.3f}".format(epoch, tot_loss))
+            self.__on_epoch_ends__(model)
 
             if evaluate_on_training_set:
                 logger.debug("START EVALUATION ON TRAINING SET")
                 # eval on tr set
                 pbar = tqdm(total=len(trainset), desc='Evaluate epoch ' + str(epoch) + ' on training set: ',
-                            disable=not BasicTrainer.__DEBUG__)
-                metrics, _, _ = BasicTrainer.__evaluate_model__(model, train_loader, metric_class_list, pbar, batch_size)
+                            disable=not self.debug_mode)
+                metrics, _, _ = self.__evaluate_model__(model, train_loader, metric_class_list, pbar, batch_size)
 
                 # print tr metrics
                 s = "Evaluation on training set: Epoch {:03d} | ".format(epoch)
@@ -93,8 +108,8 @@ class BasicTrainer:
             # eval on validation set
             logger.debug("START EVALUATION ON VALIDATION SET")
             pbar = tqdm(total=len(valset), desc='Evaluate epoch ' + str(epoch) + ' on validation set: ',
-                        disable=not BasicTrainer.__DEBUG__)
-            metrics, eval_val_time, _ = BasicTrainer.__evaluate_model__(model, val_loader, metric_class_list, pbar, batch_size)
+                        disable=not self.debug_mode)
+            metrics, eval_val_time, _ = self.__evaluate_model__(model, val_loader, metric_class_list, pbar, batch_size)
 
             # print validation metrics
             s = "Evaluation on validation set: Epoch {:03d} | ".format(epoch)
@@ -103,7 +118,7 @@ class BasicTrainer:
                 val_metrics[v.get_name()].append(v.get_value())
             logger.info(s)
 
-            # early stopping
+            # select best model
             if best_val_metrics is None:
                 best_val_metrics = copy.deepcopy(metrics)
                 best_epoch = epoch
@@ -117,12 +132,14 @@ class BasicTrainer:
                     logger.info('Epoch {:03d}: New optimum found'.format(epoch))
                 else:
                     # early stopping
-                    if best_epoch <= epoch - early_stopping_patience:
+                    if best_epoch <= epoch - early_stopping_patience or \
+                       self.__early_stopping_on_loss__(prev_loss, tot_loss, eps_loss):
                         break
 
             tr_forw_time_list.append(tr_forw_time)
             tr_backw_time_list.append(tr_backw_time)
             val_time_list.append(eval_val_time)
+            prev_loss = tot_loss
 
         # print best results
         s = "Best found in Epoch {:03d} | ".format(best_epoch)
@@ -141,13 +158,13 @@ class BasicTrainer:
 
         return best_val_metrics, best_model, info_training
 
-    @staticmethod
-    def test(model, testset, batcher_fun, metric_class_list, logger, batch_size):
+    def test(self, model, testset, batcher_fun, metric_class_list, batch_size):
 
+        logger = self.logger.getChild('test')
         testloader = DataLoader(testset, batch_size=batch_size, collate_fn=batcher_fun, shuffle=False, num_workers=0)
 
-        pbar = tqdm(total=len(testset), desc='Evaluate on test set: ', disable=not BasicTrainer.__DEBUG__)
-        metrics, _, predictions = BasicTrainer.__evaluate_model__(model, testloader, metric_class_list, pbar, batch_size)
+        pbar = tqdm(total=len(testset), desc='Evaluate on test set: ', disable=not self.debug_mode)
+        metrics, _, predictions = self.__evaluate_model__(model, testloader, metric_class_list, pbar, batch_size)
 
         # print metrics
         s = "Test: "
@@ -158,8 +175,7 @@ class BasicTrainer:
 
         return metrics, predictions
 
-    @staticmethod
-    def __evaluate_model__(model, dataloader, metric_class_list, pbar, batch_size):
+    def __evaluate_model__(self, model, dataloader, metric_class_list, pbar, batch_size):
         predictions = []
         eval_time = 0
         metrics = []
@@ -194,3 +210,53 @@ class BasicTrainer:
             v.finalise_metric()
 
         return metrics, eval_time, predictions
+
+
+class NeuralTrainer(BaseTrainer):
+
+    def __training_step__(self, model, in_data, out_data, loss_function, optimiser):
+        t = time.time()
+
+        model_output = model(*in_data)
+        loss = loss_function(model_output, out_data)
+        tr_forw_time = (time.time() - t)
+
+        t = time.time()
+        optimiser.zero_grad()
+        loss.backward()
+        th.nn.utils.clip_grad_norm_([p for p in model.parameters() if p.requires_grad], 10)
+        optimiser.step()
+
+        tr_backw_time = (time.time() - t)
+
+        return loss.item(), tr_forw_time, tr_backw_time
+
+
+class EMTrainer(BaseTrainer):
+
+    def __training_step__(self, model, in_data, out_data):
+        t = time.time()
+        model(*in_data)
+        tr_forw_time = (time.time() - t)
+
+        t = time.time()
+        loglike = model.accumulate_posterior(in_data, out_data)
+        tr_backw_time = (time.time() - t)
+
+        return loglike.item(), tr_forw_time, tr_backw_time
+
+    def __on_epoch_ends__(self, model, **kwargs):
+        model.m_step()
+
+    def __early_stopping_on_loss__(self, prev_loss, tot_loss, eps_loss):
+        if prev_loss is None:
+            return False
+        else:
+            if (tot_loss - prev_loss) < 0:
+                self.logger.getChild('train').warning('Negative Log-Likelihood is decreasing!')
+
+            return (tot_loss - prev_loss) < eps_loss
+
+
+
+
