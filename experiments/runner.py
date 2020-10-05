@@ -1,16 +1,17 @@
 import os
-from utils.utils import get_logger, create_datatime_dir
+from utils.misc import get_logger, create_datatime_dir
 from utils.serialization import to_json_file, from_json_file, from_pkl_file, to_torch_file, from_torch_file
 import numpy as np
 from concurrent.futures import ProcessPoolExecutor
 import concurrent.futures
+from experiments.base import Experiment
 
 
 class ExperimentRunner:
 
     # TODO: add recovery strategy: a flag which indicates train, recover, test
-    def __init__(self, experiment_class, output_dir, num_run, num_workers, metric_class_list, config_list, debug_mode):
-        self.experiment_class = experiment_class
+    def __init__(self, output_dir, num_run, num_workers, metric_class_list, config_list, debug_mode):
+        # self.experiment_class = experiment_class
         self.config_list = config_list
         self.num_run = num_run
         self.output_dir = create_datatime_dir(output_dir)
@@ -99,7 +100,7 @@ class ExperimentRunner:
         def done_callback(fut):
             self.logger.info('{}: {}.'.format(output_msg, ' | '.join(map(str, fut.result()))))
 
-        fun_params = [self.experiment_class, config, exp_id, exp_out_dir, self.metric_class_list, do_test, self.debug_mode]
+        fun_params = [Experiment, config, exp_id, exp_out_dir, self.metric_class_list, do_test, self.debug_mode]
         if self.debug_mode:
             ris = self.__exp_execution_fun__(*fun_params)
             self.logger.info('{}: {}.'.format(output_msg, ' | '.join(map(str, ris))))

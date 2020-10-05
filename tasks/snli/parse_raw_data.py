@@ -1,6 +1,6 @@
 import os
 import argparse
-from utils.utils import eprint, path_exists_with_message
+from utils.misc import eprint, path_exists_with_message
 from utils.serialization import to_pkl_file
 from preprocessing.tree_conversions import string_to_nltk_tree
 from tqdm import tqdm

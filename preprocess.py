@@ -1,7 +1,7 @@
 import os
 import argparse
-from config.base import Config
-from utils.utils import eprint, path_exists_with_message, string2class
+from experiments.config import Config
+from utils.misc import eprint, string2class
 
 
 def parse_arguments():

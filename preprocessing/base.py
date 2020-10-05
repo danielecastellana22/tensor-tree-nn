@@ -1,6 +1,6 @@
 from abc import abstractmethod
 import networkx as nx
-from utils.utils import eprint, string2class
+from utils.misc import eprint, string2class
 from preprocessing.utils import ConstValues, load_embeddings
 from preprocessing.tree_conversions import nx_to_dgl
 from utils.serialization import to_json_file, from_pkl_file, to_pkl_file

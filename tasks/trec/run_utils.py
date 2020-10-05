@@ -2,8 +2,8 @@ from experiments.base import Experiment
 import torch as th
 import torch.nn.functional as F
 import dgl
-from treeRNN.models import TreeModel
-from tasks.utils.classifiers import OneLayerNN
+from models.neural.recursive import RecNN
+from models.neural.others import MLP
 
 
 class TrecExperiment(Experiment):
@@ -30,9 +30,9 @@ class TrecExperiment(Experiment):
         input_module = self.__create_input_embedding_module__()
         type_module = self.__create_type_embedding_module__()
         cell_module = self.__create_cell_module__()
-        output_module = OneLayerNN(h_size, num_classes, **output_model_config)
+        output_module = MLP(h_size, num_classes, **output_model_config)
 
-        return TreeModel(input_module, output_module, cell_module, type_module, only_root_state=True)
+        return RecNN(input_module, output_module, cell_module, type_module, only_root_state=True)
 
     def __get_loss_function__(self):
         def f(output_model, true_label):

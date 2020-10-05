@@ -4,8 +4,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 import dgl
 import numpy as np
-from treeRNN.models import TreeModel
-from training.metrics import MSE, Pearson
+from models.neural.recursive import RecNN
+from experiments.metrics import MSE, Pearson
 
 
 class SickExperiment(Experiment):
@@ -38,7 +38,7 @@ class SickExperiment(Experiment):
         else:
             output_module = EntailmentOutputModule(h_size, **output_model_config)
 
-        return TreeModel(input_module, output_module, cell_module, type_module, only_root_state=True)
+        return RecNN(input_module, output_module, cell_module, type_module, only_root_state=True)
 
     def __get_loss_function__(self):
         output_type = self.__get_output_type__()

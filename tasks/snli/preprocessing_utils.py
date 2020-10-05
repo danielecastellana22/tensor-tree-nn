@@ -3,7 +3,7 @@ import networkx as nx
 from tqdm import tqdm
 from preprocessing.base import NlpParsedTreesPreprocessor
 from preprocessing.utils import ConstValues, load_embeddings
-from utils.utils import eprint
+from utils.misc import eprint
 from utils.serialization import to_pkl_file, from_pkl_file
 
 

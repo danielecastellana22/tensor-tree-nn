@@ -2,15 +2,25 @@ import torch.nn as nn
 import dgl
 import dgl.init
 from preprocessing.utils import ConstValues
+from experiments.config import create_object_from_config
 
 
-class TreeModel(nn.Module):
-    def __init__(self, input_module, output_module, cell_module, type_module, only_root_state=False):
-        super(TreeModel, self).__init__()
-        self.input_module = input_module
-        self.output_module = output_module
-        self.type_module = type_module
-        self.cell_module = cell_module
+class RecNN(nn.Module):
+
+    def __init__(self, h_size, only_root_state, cell_module_config, input_module_config=None, output_module_config=None,
+                 type_module_config=None):
+        super(RecNN, self).__init__()
+
+        self.input_module = create_object_from_config(input_module_config) if input_module_config is not None else None
+        self.output_module = create_object_from_config(output_module_config, in_size=h_size) \
+            if output_module_config is not None else None
+        self.type_module = create_object_from_config(type_module_config) if type_module_config is not None else None
+        d = {'h_size': h_size}
+        if self.input_module is not None:
+            d['x_size'] = self.input_module.embedding_dim
+        if self.type_module is not None:
+            d['t_size'] = self.type_module.embedding_dim
+        self.cell_module = create_object_from_config(cell_module_config, **d)
 
         self.only_root_state = only_root_state
 

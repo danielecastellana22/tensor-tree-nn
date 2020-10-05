@@ -3,7 +3,7 @@ import networkx as nx
 from tqdm import tqdm
 from preprocessing.base import Preprocessor
 from preprocessing.utils import ConstValues
-from utils.utils import eprint
+from utils.misc import eprint
 from utils.serialization import to_pkl_file, from_pkl_file
 from preprocessing.tree_conversions import string_to_nltk_tree, nltk_tree_to_nx
 

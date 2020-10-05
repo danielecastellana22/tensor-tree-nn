@@ -1,6 +1,6 @@
 import os
 import argparse
-from utils.utils import eprint, path_exists_with_message
+from utils.misc import eprint, path_exists_with_message
 from utils.serialization import to_pkl_file
 from preprocessing.NLP.parsers import NLPAllParser
 from collections import OrderedDict

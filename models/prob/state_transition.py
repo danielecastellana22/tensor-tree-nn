@@ -1,6 +1,6 @@
 import torch.nn as nn
 import torch as th
-import HTMM.th_logprob as thlp
+import models.prob.th_logprob as thlp
 
 
 class BaseStateTransition(thlp.ProbModule):

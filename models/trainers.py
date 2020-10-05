@@ -1,7 +1,7 @@
 from tqdm import tqdm
 import torch as th
 import copy
-from .metrics import ValueMetricUpdate, TreeMetricUpdate
+from experiments.metrics import ValueMetricUpdate, TreeMetricUpdate
 import time
 from torch.utils.data import DataLoader
 
@@ -36,8 +36,7 @@ class BaseTrainer:
         evaluate_on_training_set = kwargs.pop('evaluate_on_training_set')
         eps_loss = kwargs.pop('eps_loss', None)
 
-        # TODO: shuffle true
-        train_loader = DataLoader(trainset, batch_size=batch_size, collate_fn=batcher_fun, shuffle=False, num_workers=0)
+        train_loader = DataLoader(trainset, batch_size=batch_size, collate_fn=batcher_fun, shuffle=True, num_workers=0)
         val_loader = DataLoader(valset, batch_size=batch_size, collate_fn=batcher_fun, shuffle=False, num_workers=0)
 
         best_val_metrics = None
@@ -79,15 +78,9 @@ class BaseTrainer:
                     tr_forw_time += f_time
                     tr_backw_time += b_time
 
-                    # if n // print_every != (n + min(batch_size, pbar.total - n)) // print_every:
-                    #     logger.debug("EPOCH {:3d}\t {:7d}/{:7d}\t|\tLOSS: {:4.3f}".format(epoch, n, pbar.total, loss_to_print/print_every))
-                    #     loss_to_print = 0
-
                     n += min(batch_size, pbar.total - n)
                     pbar.update(min(batch_size, pbar.total - n))
 
-            # if loss_to_print != 0:
-            #     logger.debug("EPOCH {:3d}\t {:7d}/{:7d}\t|\tLOSS: {:4.3f}".format(epoch, n, pbar.total, loss_to_print/print_every))
             self.logger.info("End training: Epoch {:3d} | Tot. Loss: {:4.3f}".format(epoch, tot_loss))
             self.__on_epoch_ends__(model)
 

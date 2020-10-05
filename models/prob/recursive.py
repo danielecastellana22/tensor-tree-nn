@@ -2,15 +2,16 @@ import torch as th
 import dgl
 import dgl.init
 from preprocessing.utils import ConstValues
-import HTMM.th_logprob as thlp
+import models.prob.th_logprob as thlp
+from experiments.config import create_object_from_config
 
 
-class BHTMM(thlp.ProbModule):
-    def __init__(self, x_emission, y_emission, state_transition, only_root_state=False):
-        super(BHTMM, self).__init__()
-        self.x_emission = x_emission
-        self.y_emission = y_emission
-        self.state_transition = state_transition
+class BottomUpHMM(thlp.ProbModule):
+    def __init__(self, h_size, only_root_state, state_transition_config, x_emission_config, y_emission_config=None):
+        super(BottomUpHMM, self).__init__()
+        self.x_emission = create_object_from_config(x_emission_config, h_size=h_size)
+        self.y_emission = create_object_from_config(y_emission_config, h_size=h_size) if y_emission_config is not None else None
+        self.state_transition = create_object_from_config(state_transition_config, h_size=h_size)
 
         self.only_root_state = only_root_state
 
@@ -40,6 +41,7 @@ class BHTMM(thlp.ProbModule):
 
             t.ndata['evid'] = evid
 
+            # TODO: leave -1 to indicate last element?
             # modify types to consider bottom
             t.ndata['t'][t.ndata['t'] == ConstValues.NO_ELEMENT] = self.state_transition.num_types-1
 

@@ -5,8 +5,8 @@ from networkx.drawing.nx_agraph import graphviz_layout
 import networkx as nx
 import os
 from .serialization import from_json_file
-from .utils import eprint, get_logger
-from config.base import Config, ExpConfig
+from .misc import eprint, get_logger
+from experiments.config import Config, ExpConfig
 import torch as th
 
 

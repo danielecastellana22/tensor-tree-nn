@@ -1,11 +1,10 @@
 from experiments.base import Experiment
 import torch as th
-import torch.nn as nn
 import torch.nn.functional as F
 import dgl
 from preprocessing.utils import ConstValues
-from treeRNN.models import TreeModel
-from tasks.utils.classifiers import OneLayerNN
+from models.neural.recursive import RecNN
+from models.neural.others import MLP
 
 
 class SstExperiment(Experiment):
@@ -27,13 +26,13 @@ class SstExperiment(Experiment):
 
         input_module = self.__create_input_embedding_module__()
         type_module = self.__create_type_embedding_module__()
-        output_module = OneLayerNN(h_size, **output_model_config)
+        output_module = MLP(h_size, **output_model_config)
 
         cell_module = self.__create_cell_module__()
 
         only_root_labels, hide_leaf_labels = self.__get_labels_options__()
 
-        return TreeModel(input_module, output_module, cell_module, type_module, only_root_state=only_root_labels)
+        return RecNN(input_module, output_module, cell_module, type_module, only_root_state=only_root_labels)
 
     def __get_loss_function__(self):
         def f(output_model, true_label):

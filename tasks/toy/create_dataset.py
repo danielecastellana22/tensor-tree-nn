@@ -2,7 +2,7 @@ import argparse
 import os
 import numpy as np
 from tqdm import tqdm
-from utils.utils import get_logger
+from utils.misc import get_logger
 import functools
 
 

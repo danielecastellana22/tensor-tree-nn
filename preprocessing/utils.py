@@ -1,6 +1,6 @@
 from tqdm import tqdm
 import numpy as np
-from utils.utils import eprint
+from utils.misc import eprint
 import re
 
 

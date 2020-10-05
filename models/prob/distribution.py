@@ -1,8 +1,8 @@
 import torch.nn as nn
 import torch as th
-import HTMM.th_logprob as thlp
+import models.prob.th_logprob as thlp
 from preprocessing.utils import ConstValues
-import torch.distributions as distr
+
 
 class Categorical(thlp.ProbModule):
 
@@ -12,17 +12,6 @@ class Categorical(thlp.ProbModule):
         size = [h_size for i in range(num_vars)] + [num_labels]
         self.p = nn.Parameter(th.empty(size), requires_grad=False)
         self.reset_parameters()
-
-    # def reset_parameters(self):
-    #    if self.p.shape[0] == self.p.shape[1]:
-    #        self.p.data = th.eye(self.p.shape[0])
-    #    else:
-    #        alpha = 0.2
-    #        dirich = distr.Dirichlet(th.tensor([alpha] * self.p.shape[-1]))
-    #        self.p.data = dirich.sample(self.p.shape[:-1]).log()
-    #
-    #    self.normalise_parameters()
-    #    self.reset_posterior()
 
     # comput p_out given p_hidden
     def forward(self, p_hidden):

@@ -1,4 +1,4 @@
-from utils.utils import string2class
+from utils.misc import string2class
 from utils.serialization import from_yaml_file, from_json_file
 import copy
 from collections import OrderedDict
@@ -64,7 +64,7 @@ class ExpConfig:
     def from_file(path):
         config_dict = from_yaml_file(path)
         exp_runner_params = config_dict.pop('experiment_config')
-        exp_runner_params['experiment_class'] = string2class(exp_runner_params['experiment_class'])
+        #exp_runner_params['experiment_class'] = string2class(exp_runner_params['experiment_class'])
         exp_runner_params['metric_class_list'] = list(map(string2class, exp_runner_params['metric_class_list']))
 
         config_list = ExpConfig.__build_config_list__(config_dict)
@@ -93,3 +93,10 @@ class ExpConfig:
         config_dict = from_yaml_file(path)
         exp_config = config_dict.pop('experiment_config')
         return ExpConfig.__build_grid_dict__(config_dict), exp_config['num_run']
+
+
+def create_object_from_config(obj_config, **other_params):
+    class_name = string2class(obj_config['class'])
+    params = obj_config['params'] if 'params' in obj_config else {}
+    params.update(other_params)
+    return class_name(**params)

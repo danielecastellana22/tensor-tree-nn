@@ -1,7 +1,7 @@
 import os
 # to redcue the number of thread in each process
 os.environ['OMP_NUM_THREADS'] = '1'
-from config.base import ExpConfig
+from experiments.config import ExpConfig
 import argparse
 from experiments.runner import ExperimentRunner
 
