@@ -16,7 +16,7 @@ def nx_to_dgl(nx_t, node_attrs, edge_attrs):
     return g
 
 
-def nltk_tree_to_nx(nltk_t, get_internal_node_dict, get_leaf_node_dict, collapsePOS=False):
+def nltk_tree_to_nx(nltk_t, get_internal_node_dict, get_leaf_node_dict):
     g = nx.DiGraph()
     token_id = 1
 
@@ -25,8 +25,12 @@ def nltk_tree_to_nx(nltk_t, get_internal_node_dict, get_leaf_node_dict, collapse
         nonlocal token_id
 
         my_id = g.number_of_nodes()
-        if not collapsePOS and isinstance(node, str):
+        if isinstance(node, str):
             attr_dict = get_leaf_node_dict(node)
+            attr_dict['token_id'] = token_id
+            token_id += 1
+        elif len(node) == 0:
+            attr_dict = get_leaf_node_dict(node.label())
             attr_dict['token_id'] = token_id
             token_id += 1
         else:
@@ -42,13 +46,8 @@ def nltk_tree_to_nx(nltk_t, get_internal_node_dict, get_leaf_node_dict, collapse
             g.add_node(my_id, **attr_dict)
 
         if not isinstance(node, str):
-            if collapsePOS and len(node)==1 and isinstance(node[0], str):
-                leaf_attr = get_leaf_node_dict(node[0])
-                g.add_node(my_id, **leaf_attr, token_id=token_id)
-                token_id += 1
-            else:
-                for ch in node:
-                    _rec_parsing(ch, my_id)
+            for ch in node:
+                _rec_parsing(ch, my_id)
 
     _rec_parsing(nltk_t, -1)
     return g

@@ -1,17 +1,17 @@
 import os
-import networkx as nx
+import dgl
 from tqdm import tqdm
 from preprocessing.base import Preprocessor
 from preprocessing.utils import ConstValues
-from utils.misc import eprint
-from utils.serialization import to_pkl_file, from_pkl_file
+from utils.serialization import to_pkl_file
 from preprocessing.tree_conversions import string_to_nltk_tree, nltk_tree_to_nx
+from experiments.base import CollateFun
 
 
-class ToyTreesPreprocessor(Preprocessor):
+class ToyBoolPreprocessor(Preprocessor):
 
     def __init__(self, config):
-        super(ToyTreesPreprocessor, self).__init__(config, typed=True)
+        super(ToyBoolPreprocessor, self).__init__(config, typed=True)
 
     def preprocess(self):
         config = self.config
@@ -54,3 +54,24 @@ class ToyTreesPreprocessor(Preprocessor):
 
         # save all stats
         self.__save_stats__()
+
+
+class ToyBoolCollateFun(CollateFun):
+
+    def __init__(self, device, only_root=False):
+        super(ToyBoolCollateFun, self).__init__(device)
+        self.only_root = only_root
+
+    def __call__(self, tuple_data):
+        tree_list = tuple_data
+        batched_trees = dgl.batch(tree_list)
+        if not self.only_root:
+            out = batched_trees.ndata['y']
+        else:
+            root_ids = [i for i in range(batched_trees.number_of_nodes()) if batched_trees.out_degree(i) == 0]
+            out = batched_trees.ndata['y'][root_ids]
+
+        batched_trees = batched_trees.to(self.device)
+        out_tens = out.to(self.device)
+
+        return [batched_trees], out_tens

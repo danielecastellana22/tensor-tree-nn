@@ -1,10 +1,12 @@
 import os
 import networkx as nx
 from tqdm import tqdm
+from experiments.base import CollateFun
+import dgl
 from preprocessing.base import NlpParsedTreesPreprocessor
 from preprocessing.utils import ConstValues
 from utils.misc import eprint
-from utils.serialization import to_pkl_file, from_pkl_file
+from utils.serialization import from_pkl_file, to_pkl_file
 
 
 class SstParsedTreesPreprocessor(NlpParsedTreesPreprocessor):
@@ -122,3 +124,11 @@ class SstParsedTreesPreprocessor(NlpParsedTreesPreprocessor):
             return True
         else:
             return False
+
+
+class SstCollateFun(CollateFun):
+
+    def __call__(self, tuple_data):
+        batched_trees = dgl.batch(tuple_data)
+        batched_trees.to(self.device)
+        return [batched_trees], batched_trees.ndata['y']

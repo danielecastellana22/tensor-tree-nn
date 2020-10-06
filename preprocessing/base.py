@@ -16,6 +16,7 @@ class Preprocessor:
         self.node_stats = {}
         self.typed = typed
         self.words_vocab = {}
+        self.outputs_vocab = {}
         if typed:
             self.type_stats = {}
             self.types_vocab = {}
@@ -104,12 +105,15 @@ class Preprocessor:
                 self.type_stats[k]['type_freq'] = {rev_types_vocab[kk]:vv for kk,vv in self.type_stats[k]['type_freq'].items()}
                 self.type_stats[k]['type_max_out_degree'] = {rev_types_vocab[kk]: vv for kk, vv in self.type_stats[k]['type_max_out_degree'].items()}
             to_json_file(self.type_stats, os.path.join(output_dir, 'type_stats.json'))
-            eprint('Saving types vocabulary.')
+            #eprint('Saving types vocabulary.')
             to_json_file(self.types_vocab, os.path.join(output_dir, 'types_vocab.json'))
 
         # save all stats
         eprint('Saving stats.')
-        to_json_file(self.words_vocab,os.path.join(output_dir, 'words_vocab.json'))
+        if len(self.words_vocab) > 0:
+            to_json_file(self.words_vocab,os.path.join(output_dir, 'words_vocab.json'))
+        if len(self.outputs_vocab) > 0:
+            to_json_file(self.outputs_vocab, os.path.join(output_dir, 'outputs_vocab.json'))
         to_json_file(self.dataset_stats, os.path.join(output_dir, 'dataset_stats.json'))
         to_json_file(self.tree_stats, os.path.join(output_dir, 'tree_stats.json'))
         to_json_file(self.node_stats, os.path.join(output_dir, 'node_stats.json'))
@@ -119,6 +123,9 @@ class Preprocessor:
 
     def __get_word_id__(self, w):
         return self.words_vocab.setdefault(w, len(self.words_vocab))
+
+    def __get_output_id__(self, y):
+        return self.outputs_vocab.setdefault(y, len(self.outputs_vocab))
 
     def __nx_to_dgl__(self, t, other_node_attrs=None, other_edge_attrs=None):
 
@@ -182,6 +189,42 @@ class NlpParsedTreesPreprocessor(Preprocessor):
                                                    self.types_vocab,
                                                    embedding_dim=self.config.type_embedding_dim)
             to_pkl_file(type_pretrained_embs, os.path.join(self.config.output_dir, 'type_pretrained_embs.pkl'))
+
+    def __assign_node_features__(self, t: nx.DiGraph, *args, **kwargs):
+
+        def _rec_assign(node_id):
+            #assert len(list(t.successors(node_id))) <= 1
+            all_ch = list(t.predecessors(node_id))
+
+            phrase_subtree = []
+            for ch_id in all_ch:
+                _rec_assign(ch_id)
+
+            t.nodes[node_id]['y'] = ConstValues.NO_ELEMENT
+
+            if 'word' in t.nodes[node_id]:
+                node_word = t.nodes[node_id]['word'].lower()
+                phrase_subtree += [node_word]
+                t.nodes[node_id]['x'] = self.__get_word_id__(node_word)
+                t.nodes[node_id]['x_mask'] = 1
+            else:
+                t.nodes[node_id]['x'] = ConstValues.NO_ELEMENT
+                t.nodes[node_id]['x_mask'] = 0
+
+            # set type
+            if self.typed:
+                if 'type' in t.nodes[node_id]:
+                    tag = t.nodes[node_id]['type']
+                    t.nodes[node_id]['t'] = self.__get_type_id__(tag)
+                    t.nodes[node_id]['t_mask'] = 1
+                else:
+                    t.nodes[node_id]['t'] = ConstValues.NO_ELEMENT
+                    t.nodes[node_id]['t_mask'] = 0
+
+        # find the root
+        root_list = [x for x in t.nodes if t.out_degree(x) == 0]
+        assert len(root_list) == 1
+        _rec_assign(root_list[0])
 
     @abstractmethod
     def preprocess(self):

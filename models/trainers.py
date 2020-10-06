@@ -27,7 +27,7 @@ class BaseTrainer:
         #loss_function, optimizer,
         trainset = kwargs.pop('trainset')
         valset = kwargs.pop('valset')
-        batcher_fun = kwargs.pop('batcher_fun')
+        collate_fun = kwargs.pop('collate_fun')
         metric_class_list = kwargs.pop('metric_class_list')
         logger = self.logger.getChild('train')
         batch_size = kwargs.pop('batch_size')
@@ -36,8 +36,8 @@ class BaseTrainer:
         evaluate_on_training_set = kwargs.pop('evaluate_on_training_set')
         eps_loss = kwargs.pop('eps_loss', None)
 
-        train_loader = DataLoader(trainset, batch_size=batch_size, collate_fn=batcher_fun, shuffle=True, num_workers=0)
-        val_loader = DataLoader(valset, batch_size=batch_size, collate_fn=batcher_fun, shuffle=False, num_workers=0)
+        train_loader = DataLoader(trainset, batch_size=batch_size, collate_fn=collate_fun, shuffle=True, num_workers=0)
+        val_loader = DataLoader(valset, batch_size=batch_size, collate_fn=collate_fun, shuffle=False, num_workers=0)
 
         best_val_metrics = None
         best_epoch = -1
@@ -151,10 +151,10 @@ class BaseTrainer:
 
         return best_val_metrics, best_model, info_training
 
-    def test(self, model, testset, batcher_fun, metric_class_list, batch_size):
+    def test(self, model, testset, collate_fun, metric_class_list, batch_size):
 
         logger = self.logger.getChild('test')
-        testloader = DataLoader(testset, batch_size=batch_size, collate_fn=batcher_fun, shuffle=False, num_workers=0)
+        testloader = DataLoader(testset, batch_size=batch_size, collate_fn=collate_fun, shuffle=False, num_workers=0)
 
         pbar = tqdm(total=len(testset), desc='Evaluate on test set: ', disable=not self.debug_mode)
         metrics, _, predictions = self.__evaluate_model__(model, testloader, metric_class_list, pbar, batch_size)

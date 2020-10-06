@@ -18,10 +18,9 @@ if __name__ == '__main__':
     c = Config.from_yaml_file(args.config_file)
     output_dir = c.output_dir
 
-    if not False: # path_exists_with_message(output_dir):
-        os.makedirs(output_dir, exist_ok=True)
-        eprint("Starts preprocessing function!")
+    os.makedirs(output_dir, exist_ok=True)
+    eprint("Starts preprocessing function!")
 
-        prep_class = string2class(c.preprocessor_class)
-        p_obj = prep_class(c)
-        p_obj.preprocess()
+    prep_class = string2class(c.preprocessor_class)
+    p_obj = prep_class(c)
+    p_obj.preprocess()

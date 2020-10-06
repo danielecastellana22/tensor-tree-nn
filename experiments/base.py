@@ -4,6 +4,17 @@ from utils.serialization import to_json_file, from_pkl_file, to_torch_file
 from experiments.config import create_object_from_config
 import torch as th
 from preprocessing.dataset import ListDataset
+from abc import abstractmethod
+
+
+class CollateFun:
+
+    def __init__(self, device, **kwargs):
+        self.device = device
+
+    @abstractmethod
+    def __call__(self, tuple_data):
+        raise NotImplementedError('Must be implemented in subclasses')
 
 
 # class for all experiments
@@ -28,6 +39,7 @@ class Experiment:
 
         data_dir = dataset_config.data_dir
 
+        # TODO: allows to load a dataset divided in multiple files (SNLI)
         trainset = ListDataset(from_pkl_file(os.path.join(data_dir, 'train.pkl')))
         valset = ListDataset(from_pkl_file(os.path.join(data_dir, 'validation.pkl')))
 
@@ -70,7 +82,7 @@ class Experiment:
         if 'loss_function' in d:
             d['loss_function'] = create_object_from_config(d['loss_function'])
         if 'batcher_fun' in d:
-            d['batcher_fun'] = create_object_from_config(d['batcher_fun'])
+            d['batcher_fun'] = create_object_from_config(d['batcher_fun'], device=self.__get_device__())
 
         return d
 
@@ -132,7 +144,7 @@ class Experiment:
             testset = self.__load_test_data__()
 
             test_metrics, test_prediction = trainer.test(best_model, testset,
-                                                         batcher_fun=training_params['batcher_fun'],
+                                                         collate_fun=training_params['batcher_fun'],
                                                          metric_class_list=metric_class_list,
                                                          batch_size=training_params['batch_size'])
 
