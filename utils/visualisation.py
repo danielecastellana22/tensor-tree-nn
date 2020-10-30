@@ -7,6 +7,7 @@ import os
 from .serialization import from_json_file
 from .misc import eprint, get_logger
 from experiments.config import Config, ExpConfig
+from experiments.base import Experiment
 import torch as th
 
 
@@ -304,14 +305,16 @@ def get_exp_best_model_best_pred(model_dir, out_dir, run_exp_dir=None):
     results_dir, config_exp_path = __get_run_exp_dir_and_config_path__(model_dir, run_exp_dir)
 
     exp_runner_params, _ = ExpConfig.from_file(config_exp_path)
-    exp_class = exp_runner_params['experiment_class']
+    if 'experiment_class' in exp_runner_params:
+        raise ValueError('Old config file!')
+        #exp_class = exp_runner_params['experiment_class']
 
     name = 'test'
     m_logger = get_logger(name, out_dir, '{}.log'.format(name), True)
     m_best_config = Config.from_json_fle(os.path.join(results_dir, 'best_config.json'))
-    m_exp = exp_class(config=m_best_config, output_dir=out_dir, logger=m_logger)
+    m_exp = Experiment(config=m_best_config, output_dir=out_dir, logger=m_logger, debug_mode=True)
     best_test_id = np.argmax(list(from_json_file(os.path.join(results_dir, 'test_results.json')).values())[0])
-    m = m_exp.__create_model__()
+    m = m_exp.__create_tree_module__()
     m.load_state_dict(th.load(os.path.join(results_dir, 'test/run_{}/params_learned.pth'.format(best_test_id))))
 
     pred = th.cat(th.load(os.path.join(results_dir, 'test/run_{}/test_prediction.pth'.format(best_test_id))), dim=0).numpy()

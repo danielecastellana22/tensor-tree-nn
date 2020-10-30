@@ -18,7 +18,7 @@ class BaseTrainer:
     def __on_epoch_ends__(self, model, **kwargs):
         pass
 
-    def __early_stopping_on_loss__(self, prev_loss, tot_loss, eps_loss):
+    def __early_stopping_on_loss__(self, tot_loss, eps_loss):
         return False
 
     def train_and_validate(self, **kwargs):
@@ -33,7 +33,7 @@ class BaseTrainer:
         batch_size = kwargs.pop('batch_size')
         n_epochs = kwargs.pop('n_epochs')
         early_stopping_patience = kwargs.pop('early_stopping_patience')
-        evaluate_on_training_set = kwargs.pop('evaluate_on_training_set')
+        evaluate_on_training_set = kwargs.pop('evaluate_on_training_set') if 'evaluate_on_training_set' in kwargs else False
         eps_loss = kwargs.pop('eps_loss', None)
 
         train_loader = DataLoader(trainset, batch_size=batch_size, collate_fn=collate_fun, shuffle=True, num_workers=0)
@@ -42,7 +42,6 @@ class BaseTrainer:
         best_val_metrics = None
         best_epoch = -1
         best_model = None
-        prev_loss = None
 
         val_metrics = {}
         tr_metrics = {}
@@ -126,13 +125,12 @@ class BaseTrainer:
                 else:
                     # early stopping
                     if best_epoch <= epoch - early_stopping_patience or \
-                       self.__early_stopping_on_loss__(prev_loss, tot_loss, eps_loss):
+                       self.__early_stopping_on_loss__(tot_loss, eps_loss):
                         break
 
             tr_forw_time_list.append(tr_forw_time)
             tr_backw_time_list.append(tr_backw_time)
             val_time_list.append(eval_val_time)
-            prev_loss = tot_loss
 
         # print best results
         s = "Best found in Epoch {:03d} | ".format(best_epoch)
@@ -229,26 +227,37 @@ class EMTrainer(BaseTrainer):
 
     def __training_step__(self, model, in_data, out_data):
         t = time.time()
-        model(*in_data)
+        loglike = model(*in_data, out_data=out_data)
         tr_forw_time = (time.time() - t)
 
-        t = time.time()
-        loglike = model.accumulate_posterior(in_data, out_data)
-        tr_backw_time = (time.time() - t)
+        # t = time.time()
+        # model.accumulate_posterior(in_data, out_data)
+        # tr_backw_time = (time.time() - t)
 
-        return loglike.item(), tr_forw_time, tr_backw_time
+        return loglike.item(), tr_forw_time, 0
 
     def __on_epoch_ends__(self, model, **kwargs):
         model.m_step()
 
-    def __early_stopping_on_loss__(self, prev_loss, tot_loss, eps_loss):
-        if prev_loss is None:
+    def __early_stopping_on_loss__(self, tot_loss, eps_loss):
+        if not hasattr(self, 'prev_loss'):
+            self.prev_loss = tot_loss
             return False
         else:
-            if (tot_loss - prev_loss) < 0:
+            if (tot_loss - self.prev_loss) < 0:
                 self.logger.getChild('train').warning('Negative Log-Likelihood is decreasing!')
+                if hasattr(self, 'n_epoch_decr'):
+                    self.n_epoch_decr += 1
+                else:
+                    self.n_epoch_decr = 1
 
-            return (tot_loss - prev_loss) < eps_loss
+                # stop after 5 epoch with decreasing loglikelihood
+                return self.n_epoch_decr >= 5
+            else:
+                self.n_epoch_decr = 0
+                out = (tot_loss - self.prev_loss) < eps_loss
+                self.prev_loss = tot_loss
+                return out
 
 
 

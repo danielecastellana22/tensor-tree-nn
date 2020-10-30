@@ -28,6 +28,8 @@ class ToyBoolPreprocessor(Preprocessor):
                 if i == 2:
                     self.types_vocab = {k: v for v,k in enumerate(l.strip().split('\t'))}
 
+        self.words_vocab = {str(x): x for x in range(2)}
+
         # preprocessing trees
         for tag_name, fname in file_names.items():
 
@@ -42,9 +44,8 @@ class ToyBoolPreprocessor(Preprocessor):
                     nx_t = nltk_tree_to_nx(nltk_t,
                                            get_internal_node_dict=lambda w: {'x': ConstValues.NO_ELEMENT,
                                                                              'y': int(w.strip().split('_')[0]),
-                                                                             't': self.types_vocab[w.strip().split('_')[1]]},
-                                           get_leaf_node_dict=lambda w: {'x': int(w), 'y': ConstValues.NO_ELEMENT, 't': ConstValues.NO_ELEMENT},
-                                           collapsePOS=False)
+                                                                             't': self.__get_type_id__(w.strip().split('_')[1])},
+                                           get_leaf_node_dict=lambda w: {'x': self.__get_word_id__(w), 'y': ConstValues.NO_ELEMENT, 't': ConstValues.NO_ELEMENT})
 
                     self.__update_stats__(tag_name, nx_t)
                     data_list.append((self.__nx_to_dgl__(nx_t)))
@@ -71,7 +72,7 @@ class ToyBoolCollateFun(CollateFun):
             root_ids = [i for i in range(batched_trees.number_of_nodes()) if batched_trees.out_degree(i) == 0]
             out = batched_trees.ndata['y'][root_ids]
 
-        batched_trees = batched_trees.to(self.device)
-        out_tens = out.to(self.device)
+        batched_trees.to(self.device)
+        out.to(self.device)
 
-        return [batched_trees], out_tens
+        return [batched_trees], out

@@ -8,6 +8,7 @@ from preprocessing.tree_conversions import nltk_tree_to_nx
 from nltk.tree import Tree
 from experiments.base import CollateFun
 import torch as th
+import torch.nn as nn
 
 
 def parse_string_tree(s, start):
@@ -169,4 +170,19 @@ class LrtCollateFun(CollateFun):
 
         return (batched_a_trees, batched_b_trees), out_tens
 
-# TODO: implement classifier
+
+class LrtClassifier(nn.Module):
+
+    def __init__(self, in_size, num_classes):
+        super(LrtClassifier, self).__init__()
+        self.A = nn.Parameter(th.rand(in_size, in_size, num_classes), requires_grad=True)
+        self.U1 = nn.Linear(in_size, num_classes, bias=False)
+        self.U2 = nn.Linear(in_size, num_classes, bias=False)
+        self.b = nn.Parameter(th.rand(num_classes), requires_grad=True)
+
+    # neighbour_states has shape batch_size x n_neighbours x insize
+    def forward(self, h_lsent, h_rsent):
+        h_comb = th.einsum('ijk,ni,nj->nk', self.A, h_lsent, h_rsent) + self.U1(h_lsent) + self.U2(h_rsent) + self.b
+
+        return nn.functional.leaky_relu(h_comb, negative_slope=0.01)
+

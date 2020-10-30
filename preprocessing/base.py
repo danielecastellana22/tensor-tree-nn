@@ -190,41 +190,37 @@ class NlpParsedTreesPreprocessor(Preprocessor):
                                                    embedding_dim=self.config.type_embedding_dim)
             to_pkl_file(type_pretrained_embs, os.path.join(self.config.output_dir, 'type_pretrained_embs.pkl'))
 
-    def __assign_node_features__(self, t: nx.DiGraph, *args, **kwargs):
+    def __assign_node_features__(self, t: nx.DiGraph, *args):
 
-        def _rec_assign(node_id):
-            #assert len(list(t.successors(node_id))) <= 1
+        def _rec_assign(node_id, pos):
             all_ch = list(t.predecessors(node_id))
 
             phrase_subtree = []
-            for ch_id in all_ch:
-                _rec_assign(ch_id)
+            for pos, ch_id in enumerate(all_ch):
+                _rec_assign(ch_id, pos)
 
             t.nodes[node_id]['y'] = ConstValues.NO_ELEMENT
+            t.nodes[node_id]['pos'] = pos
 
             if 'word' in t.nodes[node_id]:
                 node_word = t.nodes[node_id]['word'].lower()
                 phrase_subtree += [node_word]
                 t.nodes[node_id]['x'] = self.__get_word_id__(node_word)
-                t.nodes[node_id]['x_mask'] = 1
             else:
                 t.nodes[node_id]['x'] = ConstValues.NO_ELEMENT
-                t.nodes[node_id]['x_mask'] = 0
 
             # set type
             if self.typed:
                 if 'type' in t.nodes[node_id]:
                     tag = t.nodes[node_id]['type']
                     t.nodes[node_id]['t'] = self.__get_type_id__(tag)
-                    t.nodes[node_id]['t_mask'] = 1
                 else:
                     t.nodes[node_id]['t'] = ConstValues.NO_ELEMENT
-                    t.nodes[node_id]['t_mask'] = 0
 
         # find the root
         root_list = [x for x in t.nodes if t.out_degree(x) == 0]
         assert len(root_list) == 1
-        _rec_assign(root_list[0])
+        _rec_assign(root_list[0], -1)
 
     @abstractmethod
     def preprocess(self):

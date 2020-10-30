@@ -67,25 +67,27 @@ class SstParsedTreesPreprocessor(NlpParsedTreesPreprocessor):
         # compute and sabe word_embeddings
         self.__save_word_embeddings__()
 
-    def __assign_node_features__(self, t: nx.DiGraph, sentiment_map, output_type):
+    def __assign_node_features__(self, t: nx.DiGraph, *args):
 
-        def _rec_assign(node_id):
-            #assert len(list(t.successors(node_id))) <= 1
+        sentiment_map = args[0]
+        output_type = args[1]
+
+        def _rec_assign(node_id, pos):
             all_ch = list(t.predecessors(node_id))
 
             tokenid_word_list = []
             for ch_id in all_ch:
-                s = _rec_assign(ch_id)
+                s = _rec_assign(ch_id, pos)
                 tokenid_word_list += s
+
+            t.nodes[node_id]['pos'] = pos
 
             if 'word' in t.nodes[node_id]:
                 node_word = t.nodes[node_id]['word'].lower()
                 tokenid_word_list += [(t.nodes[node_id]['token_id'], node_word)]
                 t.nodes[node_id]['x'] = self.__get_word_id__(node_word)
-                t.nodes[node_id]['x_mask'] = 1
             else:
                 t.nodes[node_id]['x'] = ConstValues.NO_ELEMENT
-                t.nodes[node_id]['x_mask'] = 0
 
             phrase_key = tuple([x[1] for x in sorted(tokenid_word_list)])
             if phrase_key in sentiment_map:
@@ -108,17 +110,15 @@ class SstParsedTreesPreprocessor(NlpParsedTreesPreprocessor):
                 if 'type' in t.nodes[node_id]:
                     tag = t.nodes[node_id]['type']
                     t.nodes[node_id]['t'] = self.__get_type_id__(tag)
-                    t.nodes[node_id]['t_mask'] = 1
                 else:
                     t.nodes[node_id]['t'] = ConstValues.NO_ELEMENT
-                    t.nodes[node_id]['t_mask'] = 0
 
             return tokenid_word_list
 
         # find the root
         root_list = [x for x in t.nodes if t.out_degree(x) == 0]
         assert len(root_list) == 1
-        _rec_assign(root_list[0])
+        _rec_assign(root_list[0], -1)
 
         if t.nodes[root_list[0]]['y'] != -1:
             return True

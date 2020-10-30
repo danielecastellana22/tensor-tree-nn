@@ -5,6 +5,7 @@ from experiments.config import create_object_from_config
 import torch as th
 from preprocessing.dataset import ListDataset
 from abc import abstractmethod
+import copy
 
 
 class CollateFun:
@@ -43,7 +44,10 @@ class Experiment:
         trainset = ListDataset(from_pkl_file(os.path.join(data_dir, 'train.pkl')))
         valset = ListDataset(from_pkl_file(os.path.join(data_dir, 'validation.pkl')))
 
-        return trainset, valset
+        if 'max_tr_elements' is dataset_config:
+            return trainset[:dataset_config.max_tr_elements], valset
+        else:
+            return trainset, valset
 
     def __load_test_data__(self):
         dataset_config = self.config.dataset_config
@@ -74,15 +78,14 @@ class Experiment:
         return create_object_from_config(self.config.trainer_config, debug_mode=self.debug_mode, logger=self.logger)
 
     def __get_training_params__(self, model):
-        d = {}
-        d.update(self.config.trainer_config.training_params)
+        d = copy.deepcopy(self.config.trainer_config.training_params)
 
         if 'optimiser' in d:
             d['optimiser'] = self.__get_optimiser__(d['optimiser'], model)
         if 'loss_function' in d:
             d['loss_function'] = create_object_from_config(d['loss_function'])
-        if 'batcher_fun' in d:
-            d['batcher_fun'] = create_object_from_config(d['batcher_fun'], device=self.__get_device__())
+        if 'collate_fun' in d:
+            d['collate_fun'] = create_object_from_config(d['collate_fun'], device=self.__get_device__())
 
         return d
 
@@ -144,7 +147,7 @@ class Experiment:
             testset = self.__load_test_data__()
 
             test_metrics, test_prediction = trainer.test(best_model, testset,
-                                                         collate_fun=training_params['batcher_fun'],
+                                                         collate_fun=training_params['collate_fun'],
                                                          metric_class_list=metric_class_list,
                                                          batch_size=training_params['batch_size'])
 
