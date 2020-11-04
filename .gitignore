@@ -10,3 +10,4 @@
 /tasks/oj/
 tasks/sst/set_preprocessing.py
 tasks/sst/set_utils.py
+/tasks/snli/

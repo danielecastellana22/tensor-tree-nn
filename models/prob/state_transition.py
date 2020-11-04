@@ -3,6 +3,8 @@ import torch as th
 import models.prob.th_logprob as thlp
 
 
+# TODO: pos_stationarity cannot be implemented due to the saving child info into node.
+
 class BaseStateTransition(thlp.CategoricalProbModule):
 
     # n_aggr allows to speed up the computation computing more aggregation in parallel. USEFUL FOR LSTM
@@ -12,6 +14,10 @@ class BaseStateTransition(thlp.CategoricalProbModule):
         self.h_size = h_size
         self.max_output_degree = max_output_degree
         self.pos_stationarity = pos_stationarity
+
+        if self.pos_stationarity:
+            raise ValueError('Pos stationarity must be false!')
+
         if num_types is None:
             num_types = 1
         else:
@@ -70,6 +76,104 @@ class BaseStateTransition(thlp.CategoricalProbModule):
                     param.grad.index_add_(0, pos, posterior.exp())
                 else:
                     param.grad += th.sum(posterior.exp(), 0)
+
+
+class SwitchingParent(BaseStateTransition):
+
+    def __init__(self, h_size, pos_stationarity=False, max_output_degree=0, num_types=None):
+        super(SwitchingParent, self).__init__(h_size, pos_stationarity, max_output_degree, num_types)
+
+        if self.pos_stationarity:
+            raise ValueError('Switching Parent cannot be implemented with positional stationarity')
+            # self.U = nn.Parameter(th.empty(self.num_types, self.h_size, self.h_size).squeeze(0), requires_grad=False)
+            # self.p = nn.Parameter(th.empty(self.num_types, self.h_size).squeeze(0), requires_grad=False)
+        else:
+            self.Sp = nn.Parameter(th.empty(self.num_types, self.max_output_degree).squeeze(0), requires_grad=False)
+            self.U = nn.Parameter(th.empty(self.num_types, self.max_output_degree, self.h_size, self.h_size).squeeze(0),
+                                  requires_grad=False)
+            self.p = nn.Parameter(th.empty(self.num_types, self.max_output_degree, self.h_size).squeeze(0),
+                                  requires_grad=False)
+
+        self.init_parameters()
+        self.reset_posterior()
+
+    def up_message_func(self, edges):
+        return {'beta_ch': edges.src['beta']}
+
+    def up_reduce_func(self, nodes):
+        bs = nodes.mailbox['beta_ch'].shape[0]
+        n_ch = nodes.mailbox['beta_ch'].shape[1]
+        beta_ch = thlp.zeros(bs, self.max_output_degree, self.h_size)
+        beta_ch[:, :n_ch, :] = nodes.mailbox['beta_ch']
+
+        U = self.__gather_param__(self.U,
+                                  types=nodes.data['t'] if self.num_types > 1 else None)
+        # has shape bs x L x h x h
+        Sp = self.__gather_param__(self.Sp,
+                                  types=nodes.data['t'] if self.num_types > 1 else None)
+        # has shape bs x L
+        gamma_ch = thlp.mul(thlp.mul(beta_ch.unsqueeze(3), U), Sp.unsqueeze(2).unsqueeze(3))  # has shape (bs x L x h x h)
+        gamma_p_ch = thlp.sum_over(gamma_ch, 2)  # has shape (bs x L x h)
+
+        gamma_r = thlp.sum_over(gamma_p_ch, 1)  # has shape (bs x h)
+
+        return {'gamma_r': gamma_r, 'gamma_ch': gamma_ch, 'gamma_p_ch': gamma_p_ch}
+
+    def up_apply_node_func(self, nodes):
+        x = nodes.data['evid']  # represents P(x_u | Q_u) have size bs x h
+
+        if 'gamma_r' in nodes.data:
+            beta = nodes.data['gamma_r']
+        else:
+            beta = self.__gather_param__(self.p,
+                                         types=nodes.data['t'] if self.num_types > 1 else None,
+                                         pos=nodes.data['pos'])
+
+        beta = thlp.mul(x, beta)  # has shape (bs x h)
+        beta, N_u = thlp.normalise(beta, 1, get_Z=True)
+
+        return {'beta': beta, 'N_u': N_u}
+
+    def down_message_func(self, edges):
+        pos = edges.dst['pos']
+        return {'eta_ch': edges.src['eta_ch'].gather(1, pos.view(-1, 1, 1).expand(-1, 1, self.h_size)).squeeze(1)}
+
+    def down_reduce_func(self, nodes):
+        eta_ch = nodes.mailbox['eta_ch'].squeeze(1)  # has shape (bs x h)
+
+        return {'eta': eta_ch}
+
+    def down_apply_node_func(self, nodes):
+        if 'eta' in nodes.data:
+            eta_u = nodes.data['eta']
+        else:
+            # root
+            eta_u = nodes.data['beta']
+
+        gamma_ch = nodes.data['gamma_ch']  # has shape (bs x L x h x h)
+        gamma_p_ch = nodes.data['gamma_p_ch'].unsqueeze(2) # has shape (bs x L x 1 x h)
+        gamma_r = nodes.data['gamma_r'].unsqueeze(1).unsqueeze(2)  # has shape (bs x 1 x 1 x h)
+        n_ch_mask = gamma_p_ch.exp().sum((2, 3), keepdim=True)
+        #a = thlp.div(gamma_ch, gamma_r * n_ch_mask)
+        # a = thlp.mul(a, gamma_r)
+        #b = thlp.sum_over(a, 2, keepdim=True)
+        # P(Q_l, Q_ch_l, Sp=l| X)
+        eta_u_chl = thlp.div(thlp.mul(gamma_ch, eta_u.unsqueeze(1).unsqueeze(2)), gamma_r * n_ch_mask)  # has shape (bs x L x h x h)
+        eta_u_chl, eta_sp = thlp.normalise(eta_u_chl, [2, 3], get_Z=True)
+
+        is_leaf = nodes.data['is_leaf']
+        is_internal = th.logical_not(is_leaf)
+        self.accumulate_posterior(self.U, eta_u_chl[is_internal],
+                                  types=nodes.data['t'][is_internal] if self.num_types > 1 else None)
+
+        self.accumulate_posterior(self.Sp, eta_sp[is_internal].squeeze(3).squeeze(2),
+                                  types=nodes.data['t'][is_internal] if self.num_types > 1 else None)
+
+        self.accumulate_posterior(self.p, eta_u[is_leaf],
+                                  types=nodes.data['t'][is_leaf] if self.num_types > 1 else None,
+                                  pos=nodes.data['pos'][is_leaf] if not self.pos_stationarity else None)
+
+        return {'eta_ch': thlp.sum_over(eta_u_chl, 3), 'eta': eta_u}
 
 
 class SumChild(BaseStateTransition):
@@ -210,7 +314,7 @@ class Canonical(BaseStateTransition):
         else:
             beta = self.__gather_param__(self.p,
                                          types=nodes.data['t'] if self.num_types > 1 else None,
-                                         pos=nodes.data['pos'])
+                                         pos=nodes.data['pos'] if not self.pos_stationarity else None)
 
         beta = thlp.mul(x, beta)  # has shape (bs x h)
         beta, N_u = thlp.normalise(beta, 1, get_Z=True)

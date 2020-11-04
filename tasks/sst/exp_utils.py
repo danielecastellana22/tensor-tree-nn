@@ -76,8 +76,8 @@ class SstParsedTreesPreprocessor(NlpParsedTreesPreprocessor):
             all_ch = list(t.predecessors(node_id))
 
             tokenid_word_list = []
-            for ch_id in all_ch:
-                s = _rec_assign(ch_id, pos)
+            for p, ch_id in enumerate(all_ch):
+                s = _rec_assign(ch_id, p)
                 tokenid_word_list += s
 
             t.nodes[node_id]['pos'] = pos

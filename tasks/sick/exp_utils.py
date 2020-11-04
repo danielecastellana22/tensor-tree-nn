@@ -67,7 +67,7 @@ class SickParsedTreesPreprocessor(NlpParsedTreesPreprocessor):
         self.__save_word_embeddings__()
 
 
-class SickKlLoss:
+class SickRelatednessLoss:
 
     def __call__(self, output_model, true_label):
         return F.kl_div(output_model[0], true_label[0], reduction='batchmean')
@@ -97,7 +97,7 @@ class SickCollateFun(CollateFun):
             target_distr = th.tensor(self.get_target_distribution(relatedness_list, 5))
             target_distr.to(self.device)
             score_list_th.to(self.device)
-            out = (target_distr, score_list_th)
+            out = (target_distr.float(), score_list_th)
         else:
             out = th.tensor(entailment_list, dtype=th.long)
             out.to(self.device)
@@ -122,13 +122,13 @@ class SickCollateFun(CollateFun):
 
 class EntailmentClassifier(nn.Module):
 
-    def __init__(self, input_dim, hidden_dim, num_classes):
+    def __init__(self, in_size, h_size, num_classes=3):
         super(EntailmentClassifier, self).__init__()
-        self.input_dim = input_dim
-        self.hidden_dim = hidden_dim
+        self.in_size = in_size
+        self.h_size = h_size
         self.num_classes = num_classes
-        self.wh = nn.Linear(2 * self.input_dim, self.hidden_dim)
-        self.wp = nn.Linear(self.hidden_dim, self.num_classes)
+        self.wh = nn.Linear(2 * self.in_size, self.h_size)
+        self.wp = nn.Linear(self.h_size, self.num_classes)
 
     def forward(self, lvec, rvec):
         mult_dist = th.mul(lvec, rvec)
@@ -143,13 +143,13 @@ class EntailmentClassifier(nn.Module):
 
 class RelatednessClassifier(nn.Module):
 
-    def __init__(self, input_dim, hidden_dim, num_classes):
+    def __init__(self, in_size, h_size, num_classes=5):
         super(RelatednessClassifier, self).__init__()
-        self.input_dim = input_dim
-        self.hidden_dim = hidden_dim
+        self.in_size = in_size
+        self.h_size = h_size
         self.num_classes = num_classes
-        self.wh = nn.Linear(2 * self.input_dim, self.hidden_dim)
-        self.wp = nn.Linear(self.hidden_dim, self.num_classes)
+        self.wh = nn.Linear(2 * self.in_size, self.h_size)
+        self.wp = nn.Linear(self.h_size, self.num_classes)
         self.r = nn.Parameter(th.arange(1, num_classes+1).float().t(), requires_grad=False)
 
     def forward(self, lvec, rvec):

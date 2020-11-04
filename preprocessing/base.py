@@ -196,8 +196,8 @@ class NlpParsedTreesPreprocessor(Preprocessor):
             all_ch = list(t.predecessors(node_id))
 
             phrase_subtree = []
-            for pos, ch_id in enumerate(all_ch):
-                _rec_assign(ch_id, pos)
+            for p, ch_id in enumerate(all_ch):
+                _rec_assign(ch_id, p)
 
             t.nodes[node_id]['y'] = ConstValues.NO_ELEMENT
             t.nodes[node_id]['pos'] = pos
