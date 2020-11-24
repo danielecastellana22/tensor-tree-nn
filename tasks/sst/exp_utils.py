@@ -74,13 +74,14 @@ class SstParsedTreesPreprocessor(NlpParsedTreesPreprocessor):
 
         def _rec_assign(node_id, pos):
             all_ch = list(t.predecessors(node_id))
-
+            all_ch.sort()
             tokenid_word_list = []
             for p, ch_id in enumerate(all_ch):
                 s = _rec_assign(ch_id, p)
                 tokenid_word_list += s
 
-            t.nodes[node_id]['pos'] = pos
+            if 'pos' not in t.nodes[node_id]:
+                t.nodes[node_id]['pos'] = pos
 
             if 'word' in t.nodes[node_id]:
                 node_word = t.nodes[node_id]['word'].lower()

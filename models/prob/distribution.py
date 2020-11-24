@@ -57,8 +57,8 @@ class Normal(thlp.ProbModule):
         self.init_parameters()
 
     def init_parameters(self):
-        INIT.zeros_(self.mu)
-        INIT.constant_(self.sigma, 0.1)
+        INIT.normal_(self.mu, 0, 0.1)
+        INIT.constant_(self.sigma, 1)
 
         self.reset_posterior()
 
@@ -76,8 +76,9 @@ class Normal(thlp.ProbModule):
         # visible has shape bs x out_size
         bs = visible.size(0)
         diff = self.mu.unsqueeze(0).expand(bs, -1, -1) - visible.unsqueeze(1).expand(-1, self.h_size, -1)
-        loglike = - (diff * diff / self.sigma).sum(2) - (self.Z + th.log(self.sigma).sum(1))
-        return loglike/2
+        loglike = - (diff*diff / self.sigma.unsqueeze(0)).sum(2) - (self.Z + th.log(self.sigma).sum(1))
+        loglike = loglike/2
+        return loglike
 
     def accumulate_posterior(self, posterior: th.Tensor, visible_vec: th.Tensor):
         # posterior has shape bs x h_size
@@ -108,5 +109,7 @@ class Normal(thlp.ProbModule):
             self.sigma.grad += (diag_element * post_i.unsqueeze(2)).sum(0)
 
         self.sigma.data = self.sigma.grad / self.m_step_denom
+        my_eps = 10**-6
+        self.sigma.data[self.sigma.data<my_eps] = my_eps
 
 

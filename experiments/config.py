@@ -64,10 +64,14 @@ class ExpConfig:
     def from_file(path):
         config_dict = from_yaml_file(path)
         exp_runner_params = config_dict.pop('experiment_config')
-        #exp_runner_params['experiment_class'] = string2class(exp_runner_params['experiment_class'])
+        if 'experiment_class' in exp_runner_params:
+            raise ValueError('Old config file!')
+
+
         exp_runner_params['metric_class_list'] = list(map(string2class, exp_runner_params['metric_class_list']))
 
         config_list = ExpConfig.__build_config_list__(config_dict)
+
         ris = []
         for d in config_list:
             ris.append(Config(**d))
@@ -92,6 +96,8 @@ class ExpConfig:
     def get_grid_dict(path):
         config_dict = from_yaml_file(path)
         exp_config = config_dict.pop('experiment_config')
+        if 'experiment_class' in exp_config:
+            raise ValueError('Old config file!')
         return ExpConfig.__build_grid_dict__(config_dict), exp_config['num_run']
 
 

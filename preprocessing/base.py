@@ -4,6 +4,8 @@ from utils.misc import eprint, string2class
 from preprocessing.utils import ConstValues, load_embeddings
 from preprocessing.tree_conversions import nx_to_dgl
 from utils.serialization import to_json_file, from_pkl_file, to_pkl_file
+from experiments.config import create_object_from_config
+
 import os
 
 
@@ -153,14 +155,10 @@ class Preprocessor:
 class NlpParsedTreesPreprocessor(Preprocessor):
 
     def __init__(self, config):
-        tree_transformer_class = string2class(config.preprocessor_config.tree_transformer_class)
-        super(NlpParsedTreesPreprocessor, self).__init__(config, tree_transformer_class.CREATE_TYPES)
+        tree_transformer = create_object_from_config(config.preprocessor_config.tree_transformer)
+        super(NlpParsedTreesPreprocessor, self).__init__(config, tree_transformer.CREATE_TYPES)
 
-        # create tree transformer
-        if 'tree_transformer_params' in config.preprocessor_config:
-            self.tree_transformer = tree_transformer_class(**config.preprocessor_config.tree_transformer_params)
-        else:
-            self.tree_transformer = tree_transformer_class()
+        self.tree_transformer = tree_transformer
 
         tree_type = config.preprocessor_config.tree_type
         if not isinstance(tree_type, list):
@@ -194,13 +192,15 @@ class NlpParsedTreesPreprocessor(Preprocessor):
 
         def _rec_assign(node_id, pos):
             all_ch = list(t.predecessors(node_id))
+            all_ch.sort()
 
             phrase_subtree = []
             for p, ch_id in enumerate(all_ch):
                 _rec_assign(ch_id, p)
 
             t.nodes[node_id]['y'] = ConstValues.NO_ELEMENT
-            t.nodes[node_id]['pos'] = pos
+            if 'pos' not in t.nodes[node_id]:
+                t.nodes[node_id]['pos'] = pos
 
             if 'word' in t.nodes[node_id]:
                 node_word = t.nodes[node_id]['word'].lower()

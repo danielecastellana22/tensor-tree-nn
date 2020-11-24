@@ -186,7 +186,7 @@ class TreeNet(BaseCell):
 
     @classmethod
     def message_func(cls, edges):
-        return {'h': edges.src['h'], 'c': edges.src['c'], 'pos': edges.src['pos']}
+        return {'h': edges.src['h'], 'c': edges.src['c'], 'pos': edges.data['pos']}
 
     def reduce_func(self, nodes, type_mask=None):
         if type_mask is None:

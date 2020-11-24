@@ -5,7 +5,6 @@ from preprocessing.base import Preprocessor
 from preprocessing.utils import ConstValues
 from utils.serialization import to_pkl_file
 from preprocessing.tree_conversions import string_to_nltk_tree, nltk_tree_to_nx
-import torch as th
 from experiments.base import CollateFun
 import networkx as nx
 

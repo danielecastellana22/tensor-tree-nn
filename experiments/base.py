@@ -1,6 +1,6 @@
 import os
 from utils.misc import set_initial_seed, string2class
-from utils.serialization import to_json_file, from_pkl_file, to_torch_file
+from utils.serialization import to_json_file, from_pkl_file, to_torch_file, from_torch_file
 from experiments.config import create_object_from_config
 import torch as th
 from preprocessing.dataset import ListDataset
@@ -44,7 +44,7 @@ class Experiment:
         trainset = ListDataset(from_pkl_file(os.path.join(data_dir, 'train.pkl')))
         valset = ListDataset(from_pkl_file(os.path.join(data_dir, 'validation.pkl')))
 
-        if 'max_tr_elements' is dataset_config:
+        if 'max_tr_elements' in dataset_config:
             return trainset[:dataset_config.max_tr_elements], valset
         else:
             return trainset, valset
@@ -61,7 +61,15 @@ class Experiment:
     # MODULE FUNCTIONS
     ####################################################################################################################
     def __create_tree_module__(self):
-        return create_object_from_config(self.config.tree_module_config)
+        tree_m = create_object_from_config(self.config.tree_module_config)
+        if 'params_path' in self.config.tree_module_config:
+            run_dir = os.path.basename(os.path.normpath(self.output_dir))
+            params_path = os.path.join(self.config.tree_module_config.params_path, run_dir)
+            params_path = os.path.join(params_path, 'params_learned.pth')
+            self.logger.warning('Loading model params from {}'.format(params_path))
+            params = from_torch_file(params_path)
+            tree_m.load_state_dict(params)
+        return tree_m
 
     ####################################################################################################################
     # TRAINER FUNCTIONS

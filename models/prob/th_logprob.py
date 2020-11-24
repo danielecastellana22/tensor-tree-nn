@@ -81,14 +81,14 @@ class ProbModule(nn.Module):
         raise NotImplementedError('Must be implemented in subclasses!')
 
     def m_step(self):
-        # do m step on self
-        self.__m_step__()
-        self.reset_posterior()
-
         # propagate on other prob modules
         for n, m in self.named_children():
             if isinstance(m, ProbModule):
                 m.m_step()
+
+        # do m step on self
+        self.__m_step__()
+        self.reset_posterior()
 
     def accumulate_posterior(self, *args):
         pass

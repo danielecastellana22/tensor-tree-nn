@@ -3,7 +3,7 @@ import torch as th
 import models.prob.th_logprob as thlp
 
 
-# TODO: pos_stationarity cannot be implemented due to the saving child info into node.
+# TODO: pos_stationarity requires max_output_degree
 
 class BaseStateTransition(thlp.CategoricalProbModule):
 
@@ -15,8 +15,8 @@ class BaseStateTransition(thlp.CategoricalProbModule):
         self.max_output_degree = max_output_degree
         self.pos_stationarity = pos_stationarity
 
-        if self.pos_stationarity:
-            raise ValueError('Pos stationarity must be false!')
+        # if self.pos_stationarity:
+        #    raise ValueError('Pos stationarity must be false!')
 
         if num_types is None:
             num_types = 1
@@ -75,7 +75,13 @@ class BaseStateTransition(thlp.CategoricalProbModule):
                 if pos is not None:
                     param.grad.index_add_(0, pos, posterior.exp())
                 else:
-                    param.grad += th.sum(posterior.exp(), 0)
+                    # sum on batch size
+                    post = th.sum(posterior.exp(), 0)
+                    if post.size(0) != param.grad.size(0):
+                        # we have to sum also on child pos
+                        post = th.sum(post, 0).unsqueeze(0)
+
+                    param.grad += post
 
 
 class SwitchingParent(BaseStateTransition):
@@ -84,9 +90,10 @@ class SwitchingParent(BaseStateTransition):
         super(SwitchingParent, self).__init__(h_size, pos_stationarity, max_output_degree, num_types)
 
         if self.pos_stationarity:
-            raise ValueError('Switching Parent cannot be implemented with positional stationarity')
-            # self.U = nn.Parameter(th.empty(self.num_types, self.h_size, self.h_size).squeeze(0), requires_grad=False)
-            # self.p = nn.Parameter(th.empty(self.num_types, self.h_size).squeeze(0), requires_grad=False)
+            #raise ValueError('Switching Parent cannot be implemented with positional stationarity')
+            self.U = nn.Parameter(th.empty(self.num_types, 1, self.h_size, self.h_size).squeeze(0), requires_grad=False)
+            self.p = nn.Parameter(th.empty(self.num_types, self.h_size).squeeze(0), requires_grad=False)
+            self.Sp = nn.Parameter(th.empty(self.num_types, self.max_output_degree).squeeze(0), requires_grad=False)
         else:
             self.Sp = nn.Parameter(th.empty(self.num_types, self.max_output_degree).squeeze(0), requires_grad=False)
             self.U = nn.Parameter(th.empty(self.num_types, self.max_output_degree, self.h_size, self.h_size).squeeze(0),
@@ -96,6 +103,11 @@ class SwitchingParent(BaseStateTransition):
 
         self.init_parameters()
         self.reset_posterior()
+
+    def init_parameters(self, alpha=1.):
+        super(SwitchingParent, self).init_parameters()
+        if self.pos_stationarity:
+            self.Sp.data.fill_(1/self.max_output_degree)
 
     def up_message_func(self, edges):
         return {'beta_ch': edges.src['beta']}
@@ -127,7 +139,7 @@ class SwitchingParent(BaseStateTransition):
         else:
             beta = self.__gather_param__(self.p,
                                          types=nodes.data['t'] if self.num_types > 1 else None,
-                                         pos=nodes.data['pos'])
+                                         pos=nodes.data['pos'] if not self.pos_stationarity else None)
 
         beta = thlp.mul(x, beta)  # has shape (bs x h)
         beta, N_u = thlp.normalise(beta, 1, get_Z=True)
@@ -166,8 +178,9 @@ class SwitchingParent(BaseStateTransition):
         self.accumulate_posterior(self.U, eta_u_chl[is_internal],
                                   types=nodes.data['t'][is_internal] if self.num_types > 1 else None)
 
-        self.accumulate_posterior(self.Sp, eta_sp[is_internal].squeeze(3).squeeze(2),
-                                  types=nodes.data['t'][is_internal] if self.num_types > 1 else None)
+        if not self.pos_stationarity:
+            self.accumulate_posterior(self.Sp, eta_sp[is_internal].squeeze(3).squeeze(2),
+                                      types=nodes.data['t'][is_internal] if self.num_types > 1 else None)
 
         self.accumulate_posterior(self.p, eta_u[is_leaf],
                                   types=nodes.data['t'][is_leaf] if self.num_types > 1 else None,
@@ -182,7 +195,7 @@ class SumChild(BaseStateTransition):
         super(SumChild, self).__init__(h_size, pos_stationarity, max_output_degree, num_types)
 
         if self.pos_stationarity:
-            self.U = nn.Parameter(th.empty(self.num_types, self.h_size, self.h_size).squeeze(0), requires_grad=False)
+            self.U = nn.Parameter(th.empty(self.num_types, 1, self.h_size, self.h_size).squeeze(0), requires_grad=False)
             self.p = nn.Parameter(th.empty(self.num_types, self.h_size).squeeze(0), requires_grad=False)
         else:
             self.U = nn.Parameter(th.empty(self.num_types, self.max_output_degree, self.h_size, self.h_size).squeeze(0),
@@ -204,7 +217,7 @@ class SumChild(BaseStateTransition):
 
         U = self.__gather_param__(self.U,
                                   types=nodes.data['t'] if self.num_types > 1 else None)
-        # has shape bs x L x h x h)
+        # has shape (bs x L x h x h) or (bs x 1 x h x h)
         gamma_ch = thlp.mul(beta_ch.unsqueeze(3), U)  # has shape (bs x L x h x h)
         gamma_p_ch = thlp.sum_over(gamma_ch, 2)  # has shape (bs x L x h)
 
@@ -220,7 +233,7 @@ class SumChild(BaseStateTransition):
         else:
             beta = self.__gather_param__(self.p,
                                          types=nodes.data['t'] if self.num_types > 1 else None,
-                                         pos=nodes.data['pos'])
+                                         pos=nodes.data['pos'] if not self.pos_stationarity else None)
 
         beta = thlp.mul(x, beta)  # has shape (bs x h)
         beta, N_u = thlp.normalise(beta, 1, get_Z=True)
@@ -272,7 +285,7 @@ class Canonical(BaseStateTransition):
         self.rank = rank
 
         if self.pos_stationarity:
-            self.U = nn.Parameter(th.empty(self.num_types, self.h_size, self.rank).squeeze(0), requires_grad=False)
+            self.U = nn.Parameter(th.empty(self.num_types, 1, self.h_size, self.rank).squeeze(0), requires_grad=False)
             self.p = nn.Parameter(th.empty(self.num_types, self.h_size).squeeze(0), requires_grad=False)
         else:
             self.U = nn.Parameter(th.empty(self.num_types, self.max_output_degree, self.h_size, self.rank).squeeze(0),
@@ -617,7 +630,7 @@ class TensorTrain(BaseStateTransition):
 
         if self.pos_stationarity:
             # 3d tensor
-            self.U = nn.Parameter(th.empty(self.num_types, self.h_size, self.rank+1, self.rank).squeeze(0), requires_grad=False)
+            self.U = nn.Parameter(th.empty(self.num_types, 1, self.h_size, self.rank+1, self.rank).squeeze(0), requires_grad=False)
 
             # priori on leaves
             self.p = nn.Parameter(th.empty(self.num_types, self.h_size).squeeze(0), requires_grad=False)
@@ -682,7 +695,7 @@ class TensorTrain(BaseStateTransition):
         else:
             a = self.__gather_param__(self.p,
                                          types=nodes.data['t'] if self.num_types > 1 else None,
-                                         pos=nodes.data['pos'])
+                                         pos=nodes.data['pos'] if not self.pos_stationarity else None)
 
         beta = thlp.mul(x, a)  # has shape (bs x h)
         # normalise
@@ -718,7 +731,7 @@ class TensorTrain(BaseStateTransition):
 
         self.accumulate_posterior(self.p, eta_u[is_leaf],
                                   types=nodes.data['t'][is_leaf] if self.num_types > 1 else None,
-                                  pos=nodes.data['pos'][is_leaf])
+                                  pos=nodes.data['pos'][is_leaf] if not self.pos_stationarity else None)
 
         eta_u_ch_all = thlp.zeros(eta_u.shape[0], self.max_output_degree, self.h_size)
         if th.any(is_internal):
@@ -742,6 +755,10 @@ class TensorTrain(BaseStateTransition):
             # eta_rL = thlp.sum_over(eta_rul, 2)  # has shape bs x rank
             eta_rL = eta_r
             U = self.__gather_param__(self.U, types=t if self.num_types > 1 else None)
+            if self.pos_stationarity:
+                U = U.expand((-1, self.max_output_degree, -1,-1,-1))
+            if U.size(0) == 1:
+                U = U.expand((gamma_less_l.size(0), -1, -1, -1, -1))
             # U has shape bs x L x h x rank+1  x rank
             eta_u_ch = thlp.zeros(eta_rL.shape[0], self.max_output_degree, self.h_size)
             last_eta = eta_rL  # has shape bs x rank
@@ -756,9 +773,11 @@ class TensorTrain(BaseStateTransition):
                         a[:, :, -1, :] = thlp.mul(U[:, i, :, -1, :], beta_ch[:, i, :].unsqueeze(2))
                     b = thlp.sum_over(a, (1, 2), keepdim=True)
                     eta_rul_rlprec = thlp.div(thlp.mul(a, last_eta[pos_flag, :].unsqueeze(1).unsqueeze(2)), b)
+
                     self.accumulate_posterior(self.U, eta_rul_rlprec,
                                               types=t[pos_flag] if self.num_types > 1 else None,
-                                              pos=th.full((eta_rul_rlprec.shape[0], 1), i, dtype=th.long).squeeze(1))
+                                              pos=th.full((eta_rul_rlprec.shape[0], 1), i, dtype=th.long).squeeze(1) if not self.pos_stationarity else None)
+
                     eta_u_ch[pos_flag, i, :] = thlp.sum_over(eta_rul_rlprec, (2, 3))
                     last_eta[pos_flag, :] = thlp.sum_over(eta_rul_rlprec, (1, 3))[:, :-1]
 

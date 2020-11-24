@@ -21,9 +21,6 @@ class BUHMM(thlp.ProbModule):
         self.y_emission = create_object_from_config(y_emission_config, h_size=h_size) if y_emission_config is not None else None
         self.state_transition = create_object_from_config(state_transition_config, h_size=h_size)
 
-
-
-
         self.only_root_state = only_root_state
 
     def forward(self, *t_list, out_data=None):

@@ -183,7 +183,7 @@ def plot_netwrokx_tree(nx_t, node_attr_list=None, edge_attr=None, ax=None, **kwa
     node_labels = {}
     if node_attr_list is not None:
         for id, x in nx_t.nodes(data=True):
-            aux= []
+            aux = [str(id)]
             for att in node_attr_list:
                 if att in x:
                     aux.append(str(x[att]))
@@ -254,7 +254,6 @@ def read_ms_results(model_dir, run_exp_dir=None):
     test_results = from_json_file(os.path.join(results_dir, 'test_results.json'))
     n_params_dict = __read_same_json_from_ms_folders__(results_dir, 'num_model_parameters.json')
     info_tr_dict = __read_same_json_from_ms_folders__(results_dir, 'info_training.json')
-    # best_config = from_json_file(os.path.join(results_dir, 'best_config.json'))
 
     # get dict grid
     grid_dict, n_run = ExpConfig.get_grid_dict(config_exp_path)
@@ -303,12 +302,7 @@ def __read_same_json_from_ms_folders__(result_dir, file_name):
 def get_exp_best_model_best_pred(model_dir, out_dir, run_exp_dir=None):
 
     results_dir, config_exp_path = __get_run_exp_dir_and_config_path__(model_dir, run_exp_dir)
-
-    exp_runner_params, _ = ExpConfig.from_file(config_exp_path)
-    if 'experiment_class' in exp_runner_params:
-        raise ValueError('Old config file!')
-        #exp_class = exp_runner_params['experiment_class']
-
+    eprint('LOADING {}'.format(results_dir))
     name = 'test'
     m_logger = get_logger(name, out_dir, '{}.log'.format(name), True)
     m_best_config = Config.from_json_fle(os.path.join(results_dir, 'best_config.json'))

@@ -52,7 +52,7 @@ class ConstTreeTransformer(BaseTransformer):
 
     CREATE_TYPES = True
 
-    def __init__(self, pos_tag_clusters_file=None):
+    def __init__(self, pos_tag_clusters_file=None, max_out_degree=None):
         super(ConstTreeTransformer, self).__init__()
 
         if pos_tag_clusters_file is not None:
@@ -62,6 +62,8 @@ class ConstTreeTransformer(BaseTransformer):
                 self.tag2cluster.update({vv: k for vv in v})
         else:
             self.tag2cluster = None
+
+        self.max_out_degree = max_out_degree
 
     def transform(self, t):
         # make a copy
@@ -96,18 +98,32 @@ class ConstTreeTransformer(BaseTransformer):
 
         # remove composed tag obtained from binarisation and copy tag to type attribute
         for u, d in new_t.nodes(data=True):
-            t = d['tag']
-            if '|' in t:
-                t = t.split('|')[0]
+            tag = d['tag']
+            if '|' in tag:
+                tag = tag.split('|')[0]
 
             if self.tag2cluster is not None:
-                t = self.tag2cluster[t] if t in self.tag2cluster else 'X'
+                tag = self.tag2cluster[tag] if tag in self.tag2cluster else 'X'
 
-            d['type'] = t
+            d['type'] = tag
+
+
+        # if max_out_degree is set, remove all child nodes with a position greater than that
+        if self.max_out_degree is not None:
+            idx_to_remove = set()
+
+            for u in new_t.nodes:
+                all_ch = list(new_t.predecessors(u))
+                all_ch.sort()
+                for ch in all_ch[self.max_out_degree:]:
+                    idx_to_remove = idx_to_remove.union(set(nx.ancestors(new_t, ch)))
+                    idx_to_remove.add(ch)
+
+            sss = new_t.copy(as_view=False)
+            new_t.remove_nodes_from(idx_to_remove)
 
         assert nx.algorithms.tree.is_arborescence(new_t.reverse())
-        assert len([u for u,d in new_t.nodes(data=True) if 'tag' not in d]) == 0
-
+        assert len([u for u, d in new_t.nodes(data=True) if 'tag' not in d]) == 0
         return new_t
 
 
@@ -298,10 +314,6 @@ class TreeNetTransformer(ConstTreeTransformer):
                 ee = new_t.edges[list(new_t.in_edges(u))[0]]
                 new_t.add_edge(f_id, u, pos=(ee['pos']+1)%2)
             assert new_t.in_degree(u) == 2 or new_t.in_degree(u) == 0
-        # t = nx.reverse(t)
-        # import matplotlib.pyplot as plt
-        # from utils.visualisation import plot_netwrokx_tree
-        # plot_netwrokx_tree(new_t, edge_attr='pos')
-        # plt.show()
+
         return new_t
 
