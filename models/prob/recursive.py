@@ -158,4 +158,7 @@ class BUHMM(thlp.ProbModule):
 
     @staticmethod
     def __reverse_dgl_batch__(b):
-        return dgl.batch([x.reverse(True, True) for x in dgl.unbatch(b)])
+        if isinstance(b, dgl.BatchedDGLGraph):
+            return dgl.batch([x.reverse(True, True) for x in dgl.unbatch(b)])
+        else:
+            return b.reverse(True, True)

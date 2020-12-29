@@ -1,0 +1,4 @@
+[2020-09-21 17:57:56,417] INFO:runner: Namespace(N=10000, all_labels=True, dataset_name='2', h_size=2, max_height=8, max_output_degree=2, min_height=4, output_dir='data/toy/raw', type='bool')
+[2020-09-21 17:57:59,609] INFO:runner: 131487 nodes have been generated.
+[2020-09-21 17:57:59,609] INFO:runner: 4233 trees of type 0
+[2020-09-21 17:57:59,609] INFO:runner: 5767 trees of type 1

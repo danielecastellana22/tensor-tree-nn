@@ -230,7 +230,7 @@ def __get_run_exp_dir_and_config_path__(model_dir, run_exp_dir=None):
     if run_exp_dir is not None:
         results_dir = os.path.join(model_dir, run_exp_dir)
     else:
-        ls_dir = sorted([x for x in os.listdir(model_dir) if os.path.isdir(os.path.join(model_dir, x))])
+        ls_dir = sorted([x for x in os.listdir(model_dir) if os.path.isdir(os.path.join(model_dir, x)) and x.startswith('2')])
         if len(ls_dir) == 0:
             eprint('WARNING! {} does not contain results folder!'.format(model_dir))
             return
@@ -249,11 +249,32 @@ def read_ms_results(model_dir, run_exp_dir=None):
     results_dir, config_exp_path = __get_run_exp_dir_and_config_path__(model_dir, run_exp_dir)
 
     out = {}
+    if os.path.exists(os.path.join(results_dir, 'test_results.json')):
+        test_results = from_json_file(os.path.join(results_dir, 'test_results.json'))
+    else:
+        eprint('WARNING! {} is missing! try to recover it in a test folder'.format(os.path.join(results_dir, 'test_results.json')))
+        p = os.path.join(results_dir, '../test')
+        if os.path.exists(p):
+            eprint('test folder exists! try to read an exp folder in it')
+            p = os.path.join(p, os.listdir(p)[0])
+            test_results = from_json_file(os.path.join(p, 'test_results.json'))
+        else:
+            eprint(''.format(p))
+            raise FileNotFoundError('test_results.json not found')
 
-    validation_results = from_json_file(os.path.join(results_dir, 'validation_results.json'))
-    test_results = from_json_file(os.path.join(results_dir, 'test_results.json'))
+    # trannsofrm test results
+    out['test_results'] = {}
+    for k in test_results:
+        out['test_results'][k] = np.array(test_results[k])
+
     n_params_dict = __read_same_json_from_ms_folders__(results_dir, 'num_model_parameters.json')
     info_tr_dict = __read_same_json_from_ms_folders__(results_dir, 'info_training.json')
+
+    if os.path.exists(os.path.join(results_dir, 'validation_results.json')):
+        validation_results = from_json_file(os.path.join(results_dir, 'validation_results.json'))
+    else:
+        eprint('WARNING! {} is missing! try to recover it'.format(os.path.join(results_dir, 'validation_results.json')))
+        validation_results = __read_same_json_from_ms_folders__(results_dir, 'best_validation_metrics.json')
 
     # get dict grid
     grid_dict, n_run = ExpConfig.get_grid_dict(config_exp_path)
@@ -266,15 +287,10 @@ def read_ms_results(model_dir, run_exp_dir=None):
             first_val_results = np.array(validation_results[k]).reshape(*reshape_size)
         out['validation_results'][k] = np.array(validation_results[k]).reshape(*reshape_size)
 
-    # trannsofrm test results
-    out['test_results'] = {}
-    for k in test_results:
-        out['test_results'][k] = np.array(test_results[k])
-
-    out['id_best_config'] = np.argmax(np.mean(first_val_results.reshape(-1, first_val_results.shape[-1]), axis=-1))
-    out['params_grid'] = grid_dict
     out['num_params'] = {k: np.array(v).reshape(*reshape_size) for k, v in n_params_dict.items()}
-    out['info_training'] = {k: np.array(v).reshape(*reshape_size) for k, v in info_tr_dict.items()}
+    out['info_training'] = {k: np.array(v).reshape(*reshape_size) if len(v) == np.prod(reshape_size) else v for k, v in info_tr_dict.items()}
+    out['id_best_config'] = np.argmax(np.mean(first_val_results.reshape(-1, first_val_results.shape[-1]), axis=-1),)
+    out['params_grid'] = grid_dict
 
     return out
 
@@ -288,7 +304,12 @@ def __read_same_json_from_ms_folders__(result_dir, file_name):
         id_run = 0
         run_dir = os.path.join(conf_dir, 'run_{}'.format(id_run))
         while os.path.exists(run_dir):
-            ris = from_json_file(os.path.join(run_dir, file_name))
+            if os.path.exists(os.path.join(run_dir, file_name)):
+                ris = from_json_file(os.path.join(run_dir, file_name))
+            else:
+                eprint('WARNING! {} is missing!'.format(os.path.join(run_dir, file_name)))
+                ris = None
+
             out_array[id_conf].append(ris)
             id_run += 1
             run_dir = os.path.join(conf_dir, 'run_{}'.format(id_run))
@@ -296,18 +317,35 @@ def __read_same_json_from_ms_folders__(result_dir, file_name):
         id_conf += 1
         conf_dir = os.path.join(result_dir, 'conf_{}'.format(id_conf))
 
-    return {k: [[x[k] for x in y] for y in out_array] for k in out_array[0][0]}
+    out_d = {}
+    for k in out_array[0][0]:
+        out_d[k] = []
+        for y in out_array:
+            out_d[k].append([])
+            for x in y:
+                if x is not None:
+                    out_d[k][-1].append(x[k])
+                else:
+                    out_d[k][-1].append(np.nan)
+    return out_d
 
 
-def get_exp_best_model_best_pred(model_dir, out_dir, run_exp_dir=None):
+def get_exp_best_model_best_pred(model_dir, out_dir, run_exp_dir=None, id_run=-1):
 
     results_dir, config_exp_path = __get_run_exp_dir_and_config_path__(model_dir, run_exp_dir)
     eprint('LOADING {}'.format(results_dir))
     name = 'test'
     m_logger = get_logger(name, out_dir, '{}.log'.format(name), True)
-    m_best_config = Config.from_json_fle(os.path.join(results_dir, 'best_config.json'))
+    if os.path.exists(os.path.join(results_dir, 'best_config.json')):
+        m_best_config = Config.from_json_fle(os.path.join(results_dir, 'best_config.json'))
+    else:
+        # probably no model selection has been performed
+        m_best_config = Config.from_yaml_file(os.path.join(results_dir, '../config.yaml'))
     m_exp = Experiment(config=m_best_config, output_dir=out_dir, logger=m_logger, debug_mode=True)
-    best_test_id = np.argmax(list(from_json_file(os.path.join(results_dir, 'test_results.json')).values())[0])
+    if id_run == -1:
+        best_test_id = np.argmax(list(from_json_file(os.path.join(results_dir, 'test_results.json')).values())[0])
+    else:
+        best_test_id = id_run
     m = m_exp.__create_tree_module__()
     m.load_state_dict(th.load(os.path.join(results_dir, 'test/run_{}/params_learned.pth'.format(best_test_id))))
 

@@ -3,7 +3,6 @@
 *.pkl
 **/.ipynb_checkpoints
 .idea/
-**data
 **results
 **notebooks
 /tasks/mr/
@@ -11,3 +10,8 @@
 tasks/sst/set_preprocessing.py
 tasks/sst/set_utils.py
 /tasks/snli/
+
+data/*
+!data/BoolSent/
+data/BoolSent/*
+!data/BoolSent/raw

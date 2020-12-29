@@ -83,11 +83,13 @@ class ExpConfig:
         d_out = OrderedDict()
 
         def __rec_build__(d, k_pre):
+            if k_pre != '':
+                k_pre = k_pre + '.'
             for k, v in d.items():
                 if isinstance(v, list):
-                    d_out[k_pre+'.'+k] = copy.deepcopy(v)
+                    d_out[k_pre+k] = copy.deepcopy(v)
                 elif isinstance(v, dict):
-                    __rec_build__(v, k)
+                    __rec_build__(v, k_pre+k)
 
         __rec_build__(config_dict, '')
         return d_out
@@ -97,7 +99,7 @@ class ExpConfig:
         config_dict = from_yaml_file(path)
         exp_config = config_dict.pop('experiment_config')
         if 'experiment_class' in exp_config:
-            raise ValueError('Old config file!')
+            raise ValueError('{} is an old config file!'.format(path))
         return ExpConfig.__build_grid_dict__(config_dict), exp_config['num_run']
 
 
