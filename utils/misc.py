@@ -61,7 +61,7 @@ def get_logger(name, log_dir, file_name, write_on_console):
     return logger
 
 
-def prompt_before_overwite(fpath):
+def prompt_before_overwrite(fpath):
     ans = True
     if os.path.exists(fpath):
         eprint('{} already exists! Overwrite? [y/N]'.format(fpath))
