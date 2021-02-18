@@ -2,11 +2,11 @@ import os
 import dgl
 from tqdm import tqdm
 from preprocessing.base import Preprocessor
-from preprocessing.utils import ConstValues
-from utils.serialization import to_pkl_file
+from exputils.datasets import ConstValues
+from exputils.serialisation import to_pkl_file
 from preprocessing.tree_conversions import nltk_tree_to_nx
 from nltk.tree import Tree
-from experiments.base import CollateFun
+from exputils.experiments import CollateFun
 import torch as th
 import torch.nn as nn
 

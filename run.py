@@ -1,10 +1,10 @@
 import os
 # to redcue the number of thread in each process
 os.environ['OMP_NUM_THREADS'] = '1'
-from experiments.config import ExpConfig
+from exputils.configurations import ExpConfig
 import argparse
-from experiments.runner import ExperimentRunner
-
+from exputils.runners import ExperimentRunner
+from tasks.sick.exp_utils import PearsonSICK
 
 def parse_arguments():
     parser = argparse.ArgumentParser()

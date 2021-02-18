@@ -2,7 +2,7 @@ import argparse
 import os
 import numpy as np
 from tqdm import tqdm
-from utils.misc import get_logger
+from exputils.utils import get_logger
 import functools
 
 
@@ -244,15 +244,6 @@ def main(args):
         in_vocab_dict = {str(x): x for x in range(10)}
         write_vocabularies_file(voc_filename, [in_vocab_dict.keys(), in_vocab_dict.keys(), ops_dict.keys()])
         assign_label_fun = create_fun_assign_op_on_list(in_vocab_dict, ops_dict)
-
-    elif args.type == 'select':
-        assign_label_fun = create_fun_assign_op_on_list(0, 10, [lambda l: l[np.sum(l) % len(l)]])
-
-    elif args.type == 'vote':
-        assign_label_fun = create_fun_assign_op_on_list(0, 10, [lambda l: np.argmax(np.bincount(l))])
-
-    elif args.type == 'sorted':
-        assign_label_fun = create_fun_assign_op_on_list(0, 1, [lambda l: int(np.all(np.diff(l)>=0))+1])
 
     elif args.type == 'bool':
         ops_dict = {'AND': lambda l: int(np.all(l)),

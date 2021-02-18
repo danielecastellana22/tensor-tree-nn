@@ -1,10 +1,10 @@
 import os
 from tqdm import tqdm
-from experiments.base import CollateFun
+from exputils.experiments import CollateFun
 import torch as th
 import dgl
 from preprocessing.base import NlpParsedTreesPreprocessor
-from utils.serialization import from_pkl_file, to_pkl_file
+from exputils.serialisation import from_pkl_file, to_pkl_file
 
 
 class TrecParsedTreesPreprocessor(NlpParsedTreesPreprocessor):

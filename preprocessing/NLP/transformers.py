@@ -1,6 +1,6 @@
 from abc import abstractmethod
 import networkx as nx
-from utils.serialization import from_json_file
+from exputils.serialisation import from_json_file
 
 
 class BaseTransformer:

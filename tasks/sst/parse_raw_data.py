@@ -1,7 +1,7 @@
 import os
 import argparse
-from utils.misc import eprint, path_exists_with_message
-from utils.serialization import to_pkl_file
+from exputils.utils import eprint, path_exists_with_message
+from exputils.serialisation import to_pkl_file
 from preprocessing.NLP.parsers import NLPAllParser
 from collections import OrderedDict
 from tqdm import tqdm

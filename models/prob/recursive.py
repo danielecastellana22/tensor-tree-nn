@@ -1,9 +1,9 @@
 import torch as th
 import dgl
 import dgl.init
-from preprocessing.utils import ConstValues
-import models.prob.th_logprob as thlp
-from experiments.config import create_object_from_config
+from exputils.datasets import ConstValues
+import thlogprob as thlp
+from exputils.configurations import create_object_from_config
 
 
 class BUHMM(thlp.ProbModule):
@@ -143,8 +143,6 @@ class BUHMM(thlp.ProbModule):
 
         # compute the returned value
         if self.training:
-            if th.any(th.isnan(th.stack(loglike_list))):
-                aa=4
             return th.stack(loglike_list).sum()
         else:
             # here only_root_state is false

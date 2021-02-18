@@ -1,7 +1,7 @@
 import os
 import argparse
-from experiments.config import Config
-from utils.misc import eprint, string2class
+from exputils.configurations import Config
+from exputils.utils import eprint, string2class
 
 
 def parse_arguments():

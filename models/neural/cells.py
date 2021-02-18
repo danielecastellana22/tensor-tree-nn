@@ -1,7 +1,7 @@
 import torch as th
 import torch.nn as nn
-from utils.misc import string2class
-from experiments.config import create_object_from_config
+from exputils.utils import string2class
+from exputils.configurations import create_object_from_config
 
 
 class BaseCell(nn.Module):

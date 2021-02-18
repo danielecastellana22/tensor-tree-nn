@@ -1,10 +1,9 @@
 import torch.nn as nn
 import torch as th
-import models.prob.th_logprob as thlp
+import thlogprob as thlp
 
 
-# TODO: pos_stationarity requires max_output_degree
-
+# TODO: pos_stationarity requires max_output_degrees
 class BaseStateTransition(thlp.CategoricalProbModule):
 
     # n_aggr allows to speed up the computation computing more aggregation in parallel. USEFUL FOR LSTM

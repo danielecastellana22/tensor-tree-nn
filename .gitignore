@@ -1,15 +1,9 @@
 .gitignore
-**/__pycache__
+.idea
+_**
+#**/__pycache__
 *.pkl
 **/.ipynb_checkpoints
-.idea/
-**results
-**notebooks
-/tasks/mr/
-/tasks/oj/
-tasks/sst/set_preprocessing.py
-tasks/sst/set_utils.py
-/tasks/snli/
 
 data/*
 !data/BoolSent/
