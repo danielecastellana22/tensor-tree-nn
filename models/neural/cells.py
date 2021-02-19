@@ -40,7 +40,7 @@ class LSTM(BaseCell):
 
         # n_aggr = 3 because we would like to compute i,o,u gate
         aggregator_class = string2class(aggregator_class)
-        self.aggregator_module = aggregator_class(h_size, pos_stationarity, max_output_degree, t_size,
+        self.aggregator_module = aggregator_class(h_size, h_size, pos_stationarity, max_output_degree, t_size,
                                                   n_aggr=3, **kwargs)
 
         # we ALWAYS ignoe type embs for the input
@@ -50,13 +50,13 @@ class LSTM(BaseCell):
         # forget gate matrices
         if pos_stationarity:
             if self.use_types:
-                self.forget_module = aggregator_class(h_size, pos_stationarity=False, max_output_degree=1,
+                self.forget_module = aggregator_class(h_size, h_size, pos_stationarity=False, max_output_degree=1,
                                                       type_emb_size=t_size,
                                                       n_aggr=1, **kwargs)
             else:
                 self.forget_module = nn.Linear(h_size, h_size, bias= True)
         else:
-            self.forget_module = aggregator_class(h_size, pos_stationarity, max_output_degree, t_size,
+            self.forget_module = aggregator_class(h_size, h_size, pos_stationarity, max_output_degree, t_size,
                                                   n_aggr=max_output_degree, **kwargs)
 
     def __compute_forget_gates__(self, x, x_mask, neighbour_h, type_embs):
@@ -148,7 +148,7 @@ class TreeNet(BaseCell):
             self.use_types = False
 
         aggregator_class = string2class(aggregator_class)
-        self.aggregator_module = aggregator_class(h_size, pos_stationarity, max_output_degree, t_size,
+        self.aggregator_module = aggregator_class(h_size, h_size, pos_stationarity, max_output_degree, t_size,
                                                   n_aggr=1, **kwargs)
 
         # we ALWAYS ignoe type embs for the input
@@ -158,13 +158,13 @@ class TreeNet(BaseCell):
         # forget gate matrices
         if pos_stationarity:
             if self.use_types:
-                self.forget_module = aggregator_class(h_size, pos_stationarity=False, max_output_degree=1,
+                self.forget_module = aggregator_class(h_size, h_size, pos_stationarity=False, max_output_degree=1,
                                                       type_emb_size=t_size,
                                                       n_aggr=1, **kwargs)
             else:
                 self.forget_module = nn.Linear(h_size, h_size, bias= True)
         else:
-            self.forget_module = aggregator_class(h_size, pos_stationarity, max_output_degree, t_size,
+            self.forget_module = aggregator_class(h_size, h_size, pos_stationarity, max_output_degree, t_size,
                                                   n_aggr=max_output_degree, **kwargs)
 
     def __compute_forget_gates__(self, x, x_mask, neighbour_h, type_embs):
@@ -261,7 +261,7 @@ class RNN(BaseCell):
             self.use_types = False
 
         aggregator_class = string2class(aggregator_class)
-        self.aggregator_module = aggregator_class(h_size, self.pos_stationarity, self.max_output_degree,
+        self.aggregator_module = aggregator_class(h_size, h_size, self.pos_stationarity, self.max_output_degree,
                                                   t_size, n_aggr=1, **kwargs)
 
         # we ALWAYS ignoe type embs for the input
