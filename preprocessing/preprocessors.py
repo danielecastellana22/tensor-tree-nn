@@ -1,39 +1,34 @@
+import os
 from abc import abstractmethod
 import networkx as nx
+
 from exputils.utils import eprint, string2class
 from exputils.datasets import ConstValues
 from exputils.misc import load_embeddings
 from preprocessing.tree_conversions import nx_to_dgl
 from exputils.serialisation import to_json_file, from_pkl_file, to_pkl_file
 from exputils.configurations import create_object_from_config
+from exputils.preprocessing import Preprocessor
 
-import os
 
-
-class Preprocessor:
+class TreePreprocessor(Preprocessor):
 
     def __init__(self, config, typed):
-        self.config = config
-        self.dataset_stats = {}
+        super(TreePreprocessor, self).__init__(config)
         self.tree_stats = {}
         self.node_stats = {}
         self.typed = typed
-        self.words_vocab = {}
-        self.outputs_vocab = {}
         if typed:
             self.type_stats = {}
             self.types_vocab = {}
 
-    @abstractmethod
-    def preprocess(self):
-        raise NotImplementedError('This method must be implmented in a subclass!')
-
     def __init_stats__(self, tag_name):
-        self.dataset_stats[tag_name] = {'tot_trees': 0,
-                                        'tot_nodes': 0,
-                                        'tot_leaves': 0,
-                                        'no_labels': 0,
-                                        'max_out_degree': 0}
+        super(TreePreprocessor, self).__init_stats__(tag_name)
+
+        self.dataset_stats[tag_name].update({'tot_nodes': 0,
+                                             'tot_leaves': 0,
+                                             'no_labels': 0,
+                                             'max_out_degree': 0})
         self.tree_stats[tag_name] = {'num_leaves': [],
                                      'height': [],
                                      'max_out_degree': []}
@@ -48,6 +43,8 @@ class Preprocessor:
                                          'type_max_out_degree': {}}
 
     def __update_stats__(self, tag_name, t: nx.DiGraph):
+        super(TreePreprocessor, self).__update_stats__(tag_name, t)
+
         in_degree_list = [d for u, d in t.in_degree]
         n_leaves = len([x for x in in_degree_list if x == 0])
         rev_t = t.reverse()
@@ -55,7 +52,6 @@ class Preprocessor:
         depth_list = {k:len(v)-1 for k,v in nx.shortest_path(rev_t, root).items()}
 
         # update dataset stats
-        self.dataset_stats[tag_name]['tot_trees'] += 1
         self.dataset_stats[tag_name]['tot_nodes'] += t.number_of_nodes()
         self.dataset_stats[tag_name]['tot_leaves'] += n_leaves
         self.dataset_stats[tag_name]['no_labels'] += len([i for i, d in t.nodes(data=True) if d['y'] == ConstValues.NO_ELEMENT])
@@ -94,12 +90,9 @@ class Preprocessor:
                     self.dataset_stats[tag_name]['no_types'] += 1
             self.dataset_stats[tag_name]['num_types'] = len(self.type_stats[tag_name]['type_freq'])
 
-    def __print_stats__(self, tag_name):
-        eprint('{} stats:'.format(tag_name))
-        for k, v in self.dataset_stats[tag_name].items():
-            eprint('{}:  {}.'.format(k, v))
-
     def __save_stats__(self):
+        super(TreePreprocessor, self).__save_stats__()
+
         output_dir = self.config.output_dir
         if self.typed:
             eprint('Saving type stats.')
@@ -112,23 +105,12 @@ class Preprocessor:
             to_json_file(self.types_vocab, os.path.join(output_dir, 'types_vocab.json'))
 
         # save all stats
-        eprint('Saving stats.')
-        if len(self.words_vocab) > 0:
-            to_json_file(self.words_vocab,os.path.join(output_dir, 'words_vocab.json'))
-        if len(self.outputs_vocab) > 0:
-            to_json_file(self.outputs_vocab, os.path.join(output_dir, 'outputs_vocab.json'))
-        to_json_file(self.dataset_stats, os.path.join(output_dir, 'dataset_stats.json'))
+        eprint('Saving other stats.')
         to_json_file(self.tree_stats, os.path.join(output_dir, 'tree_stats.json'))
         to_json_file(self.node_stats, os.path.join(output_dir, 'node_stats.json'))
 
     def __get_type_id__(self, t):
         return self.types_vocab.setdefault(t, len(self.types_vocab))
-
-    def __get_word_id__(self, w):
-        return self.words_vocab.setdefault(w, len(self.words_vocab))
-
-    def __get_output_id__(self, y):
-        return self.outputs_vocab.setdefault(y, len(self.outputs_vocab))
 
     def __nx_to_dgl__(self, t, other_node_attrs=None, other_edge_attrs=None):
 
@@ -153,7 +135,7 @@ class Preprocessor:
         return nx_to_dgl(t, node_attrs=all_node_attrs, edge_attrs=all_edge_attrs)
 
 
-class NlpParsedTreesPreprocessor(Preprocessor):
+class NlpParsedTreesPreprocessor(TreePreprocessor):
 
     def __init__(self, config):
         tree_transformer = create_object_from_config(config.preprocessor_config.tree_transformer)

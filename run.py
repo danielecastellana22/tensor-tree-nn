@@ -4,7 +4,7 @@ os.environ['OMP_NUM_THREADS'] = '1'
 from exputils.configurations import ExpConfig
 import argparse
 from exputils.runners import ExperimentRunner
-from tasks.sick.exp_utils import PearsonSICK
+
 
 def parse_arguments():
     parser = argparse.ArgumentParser()

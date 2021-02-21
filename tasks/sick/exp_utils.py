@@ -7,7 +7,7 @@ import torch.nn.functional as F
 import dgl
 import numpy as np
 from exputils.metrics import MSE, Pearson
-from preprocessing.base import NlpParsedTreesPreprocessor
+from preprocessing.preprocessors import NlpParsedTreesPreprocessor
 from exputils.serialisation import from_pkl_file, to_pkl_file
 
 

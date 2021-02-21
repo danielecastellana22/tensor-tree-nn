@@ -1,7 +1,7 @@
 import os
 import dgl
 from tqdm import tqdm
-from preprocessing.base import Preprocessor
+from preprocessing.preprocessors import TreePreprocessor
 from exputils.datasets import ConstValues
 from exputils.serialisation import to_pkl_file
 from preprocessing.tree_conversions import string_to_nltk_tree, nltk_tree_to_nx
@@ -9,7 +9,7 @@ from exputils.experiments import CollateFun
 import networkx as nx
 
 
-class ListOpsPreprocessor(Preprocessor):
+class ListOpsPreprocessor(TreePreprocessor):
 
     def __init__(self, config):
         super(ListOpsPreprocessor, self).__init__(config, typed=True)

@@ -3,7 +3,7 @@ import networkx as nx
 from tqdm import tqdm
 from exputils.experiments import CollateFun
 import dgl
-from preprocessing.base import NlpParsedTreesPreprocessor
+from preprocessing.preprocessors import NlpParsedTreesPreprocessor
 from exputils.datasets import ConstValues
 from exputils.utils import eprint
 from exputils.serialisation import from_pkl_file, to_pkl_file

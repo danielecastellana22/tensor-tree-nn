@@ -1,7 +1,7 @@
 import os
 import dgl
 from tqdm import tqdm
-from preprocessing.base import Preprocessor
+from preprocessing.preprocessors import TreePreprocessor
 from exputils.datasets import ConstValues
 from exputils.serialisation import to_pkl_file
 from preprocessing.tree_conversions import nltk_tree_to_nx
@@ -89,7 +89,7 @@ def parse_string_tree(s, start):
             return t, idx
 
 
-class LrtPreprocessor(Preprocessor):
+class LrtPreprocessor(TreePreprocessor):
 
     def __init__(self, config):
         super(LrtPreprocessor, self).__init__(config, typed=True)
