@@ -1,5 +1,5 @@
 import os
-from abc import abstractmethod
+from abc import ABC
 import networkx as nx
 
 from exputils.utils import eprint, string2class
@@ -11,7 +11,7 @@ from exputils.configurations import create_object_from_config
 from exputils.preprocessing import Preprocessor
 
 
-class TreePreprocessor(Preprocessor):
+class TreePreprocessor(Preprocessor, ABC):
 
     def __init__(self, config, typed):
         super(TreePreprocessor, self).__init__(config)
@@ -135,7 +135,7 @@ class TreePreprocessor(Preprocessor):
         return nx_to_dgl(t, node_attrs=all_node_attrs, edge_attrs=all_edge_attrs)
 
 
-class NlpParsedTreesPreprocessor(TreePreprocessor):
+class NlpParsedTreesPreprocessor(TreePreprocessor, ABC):
 
     def __init__(self, config):
         tree_transformer = create_object_from_config(config.preprocessor_config.tree_transformer)
@@ -204,7 +204,3 @@ class NlpParsedTreesPreprocessor(TreePreprocessor):
         root_list = [x for x in t.nodes if t.out_degree(x) == 0]
         assert len(root_list) == 1
         _rec_assign(root_list[0], -1)
-
-    @abstractmethod
-    def preprocess(self):
-        raise NotImplementedError('This method must be implmented in a subclass!')
