@@ -1,0 +1,9 @@
+preprocessor_class: tasks.sst.preprocessing_utils.SstParsedTreesPreprocessor
+preprocessor_config:
+  tree_type: const # dep, const, bin_const, sup
+  tree_transformer_class: preprocessing.NLP.transformers.TreeNetTransformer
+input_dir: data/sst/parsed_trees
+output_dir: data/sst/dgl_tree_net_2
+pretrained_embs_file: data/glove.840B.300d.txt
+embedding_dim: 300
+output_type: binary

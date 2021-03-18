@@ -2,7 +2,7 @@ experiment_config:
   output_dir: results/listOps/prob/hosvd
   num_run: 3
   metric_class_list:
-    - experiments.metrics.Accuracy
+    - exputils.metrics.Accuracy
 dataset_config:
   #dataset_class: experiments.sst.sst_dataset.SSTBinaryDataset
   # this folder must contains: train.pkl, dev.pkl, test.pkl
@@ -11,7 +11,7 @@ dataset_config:
 others_config:
   gpu: -1
 trainer_config:
-  class: models.trainers.EMTrainer
+  class: exputils.trainers.EMTrainer
   training_params:
     batch_size: 50
     early_stopping_patience: 50

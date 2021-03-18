@@ -1,0 +1,62 @@
+dataset_config:
+  data_dir: data/sst/dgl_bin_const
+experiment_config:
+  metric_class_list:
+  - exputils.metrics.RootAccuracy
+  - exputils.metrics.Accuracy
+  - exputils.metrics.LeavesAccuracy
+  num_run: 3
+  output_dir: results/sst_5_with_leaf/no_types/bin_const/canonical
+others_config:
+  gpu: -1
+training_config:
+  class: exputils.trainers.NeuralTrainer
+  params:
+    batch_size:
+    - 5
+    - 10
+    - 25
+    collate_fun:
+      class: tasks.sst.exp_utils.SstCollateFun
+    early_stopping_patience: 5
+    evaluate_on_training_set: true
+    loss_function:
+      class: torch.nn.CrossEntropyLoss
+      params:
+        ignore_index: -1
+    n_epochs: 100
+    optimiser:
+      class: torch.optim.Adadelta
+tree_module_config:
+  class: models.neural.recursive.RecNN
+  params:
+    cell_module_config:
+      class: models.neural.cells.LSTM
+      params:
+        aggregator_class: models.neural.aggregators.Canonical
+        max_output_degree: 2
+        pos_stationarity: false
+        rank:
+        - 50
+        - 100
+        - 150
+    h_size:
+    - 100
+    - 200
+    - 300
+    input_module_config:
+      class: models.neural.others.VectorEmbedding
+      params:
+        embedding_type: pretrained
+        freeze: false
+        pretrained_embs: data/sst/dgl_bin_const/pretrained_embs.pkl
+    only_root_state: false
+    output_module_config:
+      class: models.neural.others.MLP
+      params:
+        dropout: 0.5
+        h_size:
+        - 0
+        - 500
+        - 1000
+        num_classes: 5

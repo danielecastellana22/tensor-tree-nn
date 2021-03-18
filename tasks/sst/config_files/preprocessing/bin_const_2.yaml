@@ -1,0 +1,11 @@
+preprocessor_class: tasks.sst.exp_utils.SstParsedTreesPreprocessor
+preprocessor_config:
+  tree_type: bin_const
+  tree_transformer_class: preprocessing.NLP.transformers.ConstTreeTransformer
+  tree_transformer_params: # this can be remove to obtain all types
+    pos_tag_clusters_file: data/pos_tag_clusters.json
+input_dir: data/sst/parsed_trees
+output_dir: data/sst/dgl_bin_const_2
+pretrained_embs_file: data/glove.840B.300d.txt
+embedding_dim: 300
+output_type: binary
