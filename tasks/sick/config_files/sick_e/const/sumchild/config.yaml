@@ -1,0 +1,55 @@
+dataset_config:
+  data_dir: data/sick/dgl_const
+  output_type: entailment
+experiment_config:
+  metric_class_list:
+  - experiments.metrics.Accuracy
+  num_run: 3
+  output_dir: results/sick_e/no_types/const/sumchild
+others_config:
+  gpu: -1
+training_config:
+  class: models.trainers.NeuralTrainer
+  params:
+    batch_size:
+    - 10
+    - 25
+    - 40
+    collate_fun:
+      class: torch.nn.CrossEntropyLoss
+      params: entailment
+    early_stopping_patience: 5
+    evaluate_on_training_set: true
+    loss_function:
+      class: torch.nn.CrossEntropyLoss
+    n_epochs: 100
+    optimiser:
+      class: torch.optim.Adadelta
+tree_module_config:
+  class: models.neural.recursive.RecNN
+  params:
+    cell_module_config:
+      class: models.neural.cells.LSTM
+      params:
+        aggregator_class: models.neural.aggregators.SumChild
+        max_output_degree: 2
+        pos_stationarity: true
+    h_size:
+    - 150
+    - 200
+    - 300
+    input_module_config:
+      class: models.neural.others.VectorEmbedding
+      params:
+        embedding_type: pretrained
+        freeze: true
+        pretrained_embs: data/sick/dgl_const/pretrained_embs.pkl
+    only_root_state: true
+    output_module_config:
+      class: tasks.sick.exp_utils.EntailmentClassifier
+      params:
+        h_size:
+        - 50
+        - 100
+        - 200
+        num_classes: 5

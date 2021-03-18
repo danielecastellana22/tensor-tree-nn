@@ -1,0 +1,51 @@
+experiment_config:
+  output_dir: results/sick_r/no_types/const/tt
+  num_run: 3
+  metric_class_list:
+    - tasks.sick.exp_utils.PearsonSICK
+    - tasks.sick.exp_utils.MseSICK
+dataset_config:
+  output_type: entailment
+  #dataset_class: experiments.sst.sst_dataset.SSTBinaryDataset
+  # this folder must contains: train.pkl, dev.pkl, test.pkl
+  data_dir: data/sick/dgl_const
+others_config:
+  #seed: 1949013946
+  gpu: -1
+trainer_config:
+  class: models.trainers.NeuralTrainer
+  training_params:
+    batch_size: [25, 40] #[10, 25, 40]
+    early_stopping_patience: 10
+    n_epochs: 100
+    evaluate_on_training_set: False
+    optimiser:
+      class: torch.optim.Adadelta
+    loss_function:
+      class: tasks.sick.exp_utils.SickRelatednessLoss
+    collate_fun:
+      class: tasks.sick.exp_utils.SickCollateFun
+      params:
+        output_type: relatedness
+tree_module_config:
+  class: models.neural.recursive.RecNN
+  params:
+    h_size: [150, 200, 300]
+    only_root_state: True
+    cell_module_config:
+      class: models.neural.cells.LSTM
+      params:
+        aggregator_class: models.neural.aggregators.TensorTrain #Canonical
+        pos_stationarity: True
+        #max_output_degree: 5
+        rank: [10, 30]
+    input_module_config:
+      class: models.neural.others.VectorEmbedding
+      params:
+        embedding_type: pretrained
+        pretrained_embs: data/sick/dgl_const/pretrained_embs.pkl
+        freeze: True
+    output_module_config:
+      class: tasks.sick.exp_utils.RelatednessClassifier
+      params:
+        h_size: [50, 100, 200]

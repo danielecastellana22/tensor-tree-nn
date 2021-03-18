@@ -1,0 +1,8 @@
+preprocessor_class: tasks.sick.preprocessing_utils.SickParsedTreesPreprocessor
+preprocessor_config:
+  tree_type: const # dep, const, bin_const, sup
+  tree_transformer_class: preprocessing.NLP.transformers.TreeNetTransformer
+input_dir: data/sick/parsed_trees
+output_dir: data/sick/dgl_tree_net
+pretrained_embs_file: data/glove.840B.300d.txt
+embedding_dim: 300

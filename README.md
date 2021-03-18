@@ -30,4 +30,6 @@ Also, two other repositories are used:
 
 See the readme for more information.
 
+## How to download other datasets
+
 ## How to run an experiment

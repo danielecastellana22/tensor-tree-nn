@@ -1,0 +1,10 @@
+preprocessor_class: tasks.sick.preprocessing_utils.SickParsedTreesPreprocessor
+preprocessor_config:
+  tree_type: bin_const # dep, const, bin_const, sup
+  tree_transformer_class: preprocessing.NLP.transformers.ConstTreeTransformer
+  tree_transformer_params:
+    pos_tag_clusters_file: data/pos_tag_clusters.json
+input_dir: data/sick/parsed_trees
+output_dir: data/sick/dgl_bin_const
+pretrained_embs_file: data/glove.840B.300d.txt
+embedding_dim: 300
