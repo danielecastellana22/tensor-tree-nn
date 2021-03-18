@@ -1,12 +1,11 @@
 dataset_config:
-  data_dir: data/sick/dgl_bin_const
-  output_type: relatedness
+  data_dir: data/trec/dgl_const
+  output_type: coarse
 experiment_config:
   metric_class_list:
-  - tasks.sick.exp_utils.PearsonSICK
-  - tasks.sick.exp_utils.MseSICK
+  - exputils.metrics.Accuracy
   num_run: 3
-  output_dir: results/sick_r/no_types/bin_const/canonical
+  output_dir: results/trec_6/no_types/const/canonical
 others_config:
   gpu: -1
 training_config:
@@ -17,12 +16,12 @@ training_config:
     - 25
     - 40
     collate_fun:
-      class: tasks.sick.exp_utils.SickCollateFun
-      params: relatedness
+      class: tasks.trec.exp_utils.TrecCollateFun
+      params: coarse
     early_stopping_patience: 5
     evaluate_on_training_set: true
     loss_function:
-      class: tasks.sick.exp_utils.SickRelatednessLoss
+      class: torch.nn.CrossEntropyLoss
     n_epochs: 100
     optimiser:
       class: torch.optim.Adadelta
@@ -34,7 +33,7 @@ tree_module_config:
       params:
         aggregator_class: models.neural.aggregators.Canonical
         max_output_degree: 2
-        pos_stationarity: false
+        pos_stationarity: true
         rank:
         - 30
         - 50
@@ -48,13 +47,13 @@ tree_module_config:
       params:
         embedding_type: pretrained
         freeze: true
-        pretrained_embs: data/sick/dgl_bin_const/pretrained_embs.pkl
+        pretrained_embs: data/trec/dgl_const/pretrained_embs.pkl
     only_root_state: true
     output_module_config:
-      class: tasks.sick.exp_utils.RelatednessClassifier
+      class: models.neural.others.MLP
       params:
+        dropout: 0.5
         h_size:
+        - 0
         - 50
         - 100
-        - 200
-        num_classes: 5

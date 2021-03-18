@@ -3,13 +3,13 @@ dataset_config:
   output_type: entailment
 experiment_config:
   metric_class_list:
-  - experiments.metrics.Accuracy
+  - exputils.metrics.Accuracy
   num_run: 3
   output_dir: results/sick_e/no_types/const/canonical
 others_config:
   gpu: -1
 training_config:
-  class: models.trainers.NeuralTrainer
+  class: exputils.trainers.NeuralTrainer
   params:
     batch_size:
     - 10

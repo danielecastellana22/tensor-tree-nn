@@ -1,0 +1,10 @@
+preprocessor_class: tasks.trec.preprocessing_utils.TrecParsedTreesPreprocessor
+preprocessor_config:
+  tree_type: const # dep, const, bin_const, sup
+  tree_transformer_class: preprocessing.NLP.transformers.ConstTreeTransformer
+  tree_transformer_params:
+    pos_tag_clusters_file: data/pos_tag_clusters.json
+input_dir: data/trec/parsed_trees
+output_dir: data/trec/dgl_const
+pretrained_embs_file: data/glove.840B.300d.txt
+embedding_dim: 300

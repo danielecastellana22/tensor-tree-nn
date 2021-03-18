@@ -10,7 +10,7 @@ experiment_config:
 others_config:
   gpu: -1
 training_config:
-  class: models.trainers.NeuralTrainer
+  class: exputils.trainers.NeuralTrainer
   params:
     batch_size:
     - 10
