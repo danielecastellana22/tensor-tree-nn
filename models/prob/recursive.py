@@ -6,10 +6,10 @@ import thlogprob as thlp
 from exputils.configurations import create_object_from_config
 
 
-class BUHMM(thlp.ProbModule):
+class HRM(thlp.ProbModule):
     def __init__(self, h_size, only_root_state, state_transition_config, x_emission_config, y_emission_config=None,
                  x_embedding_config=None):
-        super(BUHMM, self).__init__()
+        super(HRM, self).__init__()
 
         self.x_embedding = create_object_from_config(x_embedding_config) if x_embedding_config is not None else None
 

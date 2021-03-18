@@ -1,0 +1,55 @@
+experiment_config:
+  #experiment_class: tasks.toy.run_utils.NeuralToyExperiment
+  output_dir: results/boolSent/boolSent_2/LSTM/tt
+  num_run: 3
+  metric_class_list:
+    - exputils.metrics.Accuracy
+dataset_config:
+  #dataset_class: experiments.sst.sst_dataset.SSTBinaryDataset
+  # this folder must contains: train.pkl, dev.pkl, test.pkl
+  data_dir:  data/boolSent/dgl/boolSent_2
+others_config:
+  gpu: -1
+trainer_config:
+  class: exputils.trainer.NeuralTrainer
+  training_params:
+    batch_size: 50
+    early_stopping_patience: 5
+    n_epochs: 100
+    evaluate_on_training_set: False
+    optimiser:
+      class: torch.optim.Adadelta
+    loss_function:
+      class: torch.nn.CrossEntropyLoss
+      params:
+        ignore_index: -1
+    collate_fun:
+      class: tasks.boolSent.exp_utils.BoolSentCollateFun
+      params:
+        only_root: True
+tree_module_config:
+  class: models.neural.recursive.RecNN
+  params:
+    h_size: [10, 20]
+    only_root_state: True
+    cell_module_config:
+      class: models.neural.cells.Typed
+      params:
+        num_types: 4
+        cell_config:
+          class: models.neural.cells.LSTM
+          params:
+            aggregator_class: models.neural.aggregators.TensorTrain #
+            pos_stationarity: False
+            max_output_degree: 2
+            rank: [5, 10, 20]
+    input_module_config:
+      class: models.neural.others.VectorEmbedding
+      params:
+        embedding_type: one_hot
+        num_embs: 2
+    output_module_config:
+      class: models.neural.others.MLP
+      params:
+        num_classes: 2
+        num_layers: 0

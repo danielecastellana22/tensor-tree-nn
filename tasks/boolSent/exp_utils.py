@@ -8,10 +8,10 @@ from preprocessing.tree_conversions import string_to_nltk_tree, nltk_tree_to_nx
 from exputils.experiments import CollateFun
 
 
-class ToyBoolPreprocessor(TreePreprocessor):
+class BoolSentPreprocessor(TreePreprocessor):
 
     def __init__(self, config):
-        super(ToyBoolPreprocessor, self).__init__(config, typed=True)
+        super(BoolSentPreprocessor, self).__init__(config, typed=True)
 
     def preprocess(self):
         config = self.config
@@ -57,10 +57,10 @@ class ToyBoolPreprocessor(TreePreprocessor):
         self.__save_stats__()
 
 
-class ToyBoolCollateFun(CollateFun):
+class BoolSentCollateFun(CollateFun):
 
     def __init__(self, device, only_root=False):
-        super(ToyBoolCollateFun, self).__init__(device)
+        super(BoolSentCollateFun, self).__init__(device)
         self.only_root = only_root
 
     def __call__(self, tuple_data):

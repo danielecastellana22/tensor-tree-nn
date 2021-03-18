@@ -1,0 +1,42 @@
+dataset_config:
+  data_dir: data/boolSent/dgl/boolSent_5/
+experiment_config:
+  metric_class_list:
+  - exputils.metrics.Accuracy
+  num_run: 3
+  output_dir: results/boolSent/boolSent_5/HRM/full
+others_config:
+  gpu: -1
+trainer_config:
+  class: exputils.trainer.EMTrainer
+  params:
+    batch_size: 50
+    collate_fun:
+      class: tasks.boolSent.exp_utils.BoolSentCollateFun
+      params:
+        only_root: false
+    early_stopping_patience: 10
+    eps_loss: 1
+    evaluate_on_training_set: false
+    n_epochs: 100
+tree_module_config:
+  class: models.prob.recursive.HRM
+  params:
+    h_size:
+    - 2
+    - 3
+    only_root_state: false
+    state_transition_config:
+      class: models.prob.state_transition.Full
+      params:
+        max_output_degree: 5
+        num_types: 4
+        pos_stationarity: false
+    x_emission_config:
+      class: models.prob.distribution.Categorical
+      params:
+        num_labels: 2
+    y_emission_config:
+      class: models.prob.distribution.Categorical
+      params:
+        num_labels: 2

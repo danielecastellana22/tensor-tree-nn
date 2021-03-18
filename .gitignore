@@ -6,6 +6,6 @@ _**
 **/.ipynb_checkpoints
 
 data/*
-!data/BoolSent/
-data/BoolSent/*
-!data/BoolSent/raw
+!data/boolSent/
+data/boolSent/*
+!data/boolSent/raw
