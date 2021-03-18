@@ -30,6 +30,26 @@ Also, two other repositories are used:
 
 See the readme for more information.
 
-## How to download other datasets
-
 ## How to run an experiment
+
+1) download the raw data (see [next section](#where-to-download-the-dataset));
+2) in NLP tasks, sentences should be parsed running the command:
+
+    `python tasks/task_name/parse_raw_data raw_data_folder output_folder`
+3) Run the preprocessor using the command:
+
+    `python preprocess.py --config-file preproc_config_file`,<br>
+    where `preproc_config_file` can be found in the folder `tasks/task_name/config_files`
+4) Run the experiment using the command:
+
+    `python run.py --config-file run_config_file`,<br>
+    where `run_config_file` can be found in the folder `tasks/task_name/config_files`.
+
+
+#### Where to download the dataset
+
+- [*ListOps*](https://github.com/nyu-mll/spinn/tree/listops-release/python/spinn/data/listops)
+- [*LRT*](https://github.com/sleepinyourhat/vector-entailment/tree/master/propositionallogic)
+- [*SICK*](https://alt.qcri.org/semeval2014/task1/index.php?id=data-and-tools)
+- [*SST*](https://nlp.stanford.edu/~socherr/stanfordSentimentTreebank.zip)
+- [*TREC*](https://cogcomp.seas.upenn.edu/Data/QA/QC/)

@@ -6,7 +6,7 @@ from exputils.datasets import ConstValues
 from exputils.serialisation import to_pkl_file
 from preprocessing.tree_conversions import nltk_tree_to_nx
 from nltk.tree import Tree
-from exputils.experiments import CollateFun
+from exputils.datasets import CollateFun
 import torch as th
 import torch.nn as nn
 
