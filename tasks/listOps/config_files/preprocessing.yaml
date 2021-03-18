@@ -1,0 +1,3 @@
+preprocessor_class: tasks.listOps.exp_utils.ListOpsPreprocessor
+input_dir: data/listOps/raw
+output_dir: data/listOps/dgl/
