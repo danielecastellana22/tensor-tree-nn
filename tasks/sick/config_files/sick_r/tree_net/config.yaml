@@ -10,7 +10,7 @@ experiment_config:
 others_config:
   gpu: -1
 training_config:
-  class: exputils.trainers.NeuralTrainer
+  class: exputils.trainerss.NeuralTrainer
   params:
     batch_size: 25
     collate_fun:
@@ -25,7 +25,7 @@ training_config:
       class: torch.optim.Adam
       params:
         'lr': [0.001,0.005,0.008]
-tree_module_config:
+exp_module_config:
   class: models.neural.recursive.RecNN
   params:
     cell_module_config:

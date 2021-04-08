@@ -11,7 +11,7 @@ others_config:
   #seed: 1949013946
   gpu: -1
 trainer_config:
-  class: exputils.trainers.NeuralTrainer
+  class: exputils.trainerss.NeuralTrainer
   training_params:
     batch_size: [25, 40] #[10, 25, 40]
     early_stopping_patience: 10
@@ -25,7 +25,7 @@ trainer_config:
       class: tasks.trec.exp_utils.TrecCollateFun
       params:
         output_type: coarse
-tree_module_config:
+exp_module_config:
   class: models.neural.recursive.RecNN
   params:
     h_size: [150, 200, 300]

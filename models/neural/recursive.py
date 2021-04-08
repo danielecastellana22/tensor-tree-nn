@@ -28,9 +28,6 @@ class RecNN(nn.Module):
         out_list = []
         for t in t_list:
             t.set_n_initializer(dgl.init.zero_initializer)
-            t.register_message_func(self.cell_module.message_func)
-            t.register_reduce_func(self.cell_module.reduce_func)
-            t.register_apply_node_func(self.cell_module.apply_node_func)
 
             # apply type module
             if self.type_module is not None:
@@ -44,13 +41,16 @@ class RecNN(nn.Module):
                 t.ndata['x_embs'] = self.input_module(t.ndata['x'] * x_mask) * x_mask.view(-1, 1)
 
             # propagate
-            dgl.prop_nodes_topo(t)
+            dgl.prop_nodes_topo(t,
+                                message_func=self.cell_module.message_func,
+                                reduce_func=self.cell_module.reduce_func,
+                                apply_node_func=self.cell_module.apply_node_func)
 
             # return the hidden
             h = t.ndata['h']
 
             if self.only_root_state:
-                root_ids = [i for i in range(t.number_of_nodes()) if t.out_degree(i) == 0]
+                root_ids = [i for i in range(t.number_of_nodes()) if t.out_degreess(i) == 0]
                 out_list.append(h[root_ids])
             else:
                 out_list.append(h)

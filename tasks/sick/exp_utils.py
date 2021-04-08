@@ -1,6 +1,6 @@
 import os
 from tqdm import tqdm
-from exputils.experiments import CollateFun
+from exputils.datasets import CollateFun
 import torch as th
 import torch.nn as nn
 import torch.nn.functional as F

@@ -7,8 +7,10 @@ from exputils.configurations import create_object_from_config
 
 
 class HRM(thlp.ProbModule):
+
     def __init__(self, h_size, only_root_state, state_transition_config, x_emission_config, y_emission_config=None,
                  x_embedding_config=None):
+
         super(HRM, self).__init__()
 
         self.x_embedding = create_object_from_config(x_embedding_config) if x_embedding_config is not None else None
@@ -24,6 +26,7 @@ class HRM(thlp.ProbModule):
         self.only_root_state = only_root_state
 
     def forward(self, *t_list, out_data=None):
+
         ################################################################################################################
         # UPWARD
         ################################################################################################################
@@ -32,9 +35,6 @@ class HRM(thlp.ProbModule):
         for t in t_list:
             # register upward functions
             t.set_n_initializer(dgl.init.zero_initializer)
-            t.register_message_func(self.state_transition.up_message_func)
-            t.register_reduce_func(self.state_transition.up_reduce_func)
-            t.register_apply_node_func(self.state_transition.up_apply_node_func)
 
             # set evidence
             if self.x_emission is not None:
@@ -60,9 +60,12 @@ class HRM(thlp.ProbModule):
             t.ndata['pos'] = t.ndata['pos'] * (t.ndata['pos'] != ConstValues.NO_ELEMENT) #t.ndata['pos_mask']
 
             # start propagation
-            dgl.prop_nodes_topo(t)
+            dgl.prop_nodes_topo(t,
+                                message_func=self.state_transition.up_message_func,
+                                reduce_func=self.state_transition.up_reduce_func,
+                                apply_node_func=self.state_transition.up_apply_node_func)
 
-            root_ids = [i for i in range(t.number_of_nodes()) if t.out_degree(i) == 0]
+            root_ids = [i for i in range(t.number_of_nodes()) if t.out_degrees(i) == 0]
             beta_root_list.append(t.ndata['beta'][root_ids])
 
             loglike_list.append(t.ndata['N_u'].sum())
@@ -104,24 +107,24 @@ class HRM(thlp.ProbModule):
         ################################################################################################################
         all_eta_list = []
         for idx_t, t in enumerate(t_list):
-            leaf_ids = [i for i in range(t.number_of_nodes()) if t.in_degree(i) == 0]
+            leaf_ids = [i for i in range(t.number_of_nodes()) if t.in_degrees(i) == 0]
             t.ndata['is_leaf'] = th.zeros_like(t.ndata['t'], dtype=th.bool)
             t.ndata['is_leaf'][leaf_ids] = 1
 
             # set base case for downward recursion
-            root_ids = [i for i in range(t.number_of_nodes()) if t.out_degree(i) == 0]
+            root_ids = [i for i in range(t.number_of_nodes()) if t.out_degrees(i) == 0]
             t.ndata['beta'][root_ids] = eta_root_list[idx_t]
 
             t_rev = self.__reverse_dgl_batch__(t)
 
             # downward
             t_rev.set_n_initializer(dgl.init.zero_initializer)
-            t_rev.register_message_func(self.state_transition.down_message_func)
-            t_rev.register_reduce_func(self.state_transition.down_reduce_func)
-            t_rev.register_apply_node_func(self.state_transition.down_apply_node_func)
 
             # propagate
-            dgl.prop_nodes_topo(t_rev)
+            dgl.prop_nodes_topo(t_rev,
+                                message_func=self.state_transition.down_message_func,
+                                reduce_func=self.state_transition.down_reduce_func,
+                                apply_node_func=self.state_transition.down_apply_node_func)
 
             # return the posterior
             eta = t_rev.ndata['eta']
@@ -154,9 +157,10 @@ class HRM(thlp.ProbModule):
     def __m_step__(self):
         pass
 
+
     @staticmethod
-    def __reverse_dgl_batch__(b):
-        if isinstance(b, dgl.BatchedDGLGraph):
-            return dgl.batch([x.reverse(True, True) for x in dgl.unbatch(b)])
-        else:
-            return b.reverse(True, True)
+    def __reverse_dgl_batch__(t):
+        t_rev = dgl.reverse(t, copy_edata=True, copy_ndata=True)
+        t_rev.set_batch_num_nodes(t.batch_num_nodes())
+        t_rev.set_batch_num_edges(t.batch_num_edges())
+        return t_rev

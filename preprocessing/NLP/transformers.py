@@ -70,14 +70,14 @@ class ConstTreeTransformer(BaseTransformer):
         new_t = t.copy(as_view=False)
 
         # remove root node
-        root_id = [u for u in new_t.nodes if new_t.out_degree(u) == 0]
+        root_id = [u for u in new_t.nodes if new_t.out_degrees(u) == 0]
         assert len(root_id) == 1
         root_id = root_id[0]
-        assert new_t.in_degree(root_id) == 1
+        assert new_t.in_degrees(root_id) == 1
         new_t.remove_node(root_id)
 
         # collapse unary nodes
-        unary_nodes = [u for u, d in new_t.in_degree if d==1]
+        unary_nodes = [u for u, d in new_t.in_degrees if d==1]
         while len(unary_nodes) > 0:
 
             for pa_u in unary_nodes:
@@ -94,7 +94,7 @@ class ConstTreeTransformer(BaseTransformer):
                     new_t.add_edge(u, pa_pa_u)
                 new_t.remove_node(pa_u)
 
-            unary_nodes = [u for u, d in new_t.in_degree if d == 1]
+            unary_nodes = [u for u, d in new_t.in_degrees if d == 1]
 
         # remove composed tag obtained from binarisation and copy tag to type attribute
         for u, d in new_t.nodes(data=True):
@@ -295,7 +295,7 @@ class TreeNetTransformer(ConstTreeTransformer):
                     pos = 1
                 else:
                     pos = 0
-                if t.out_degree(v) == 0:
+                if t.out_degrees(v) == 0:
                     # v is leaf
                     pa_v = new_id
                     new_id += 1

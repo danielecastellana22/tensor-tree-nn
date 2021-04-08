@@ -9,7 +9,7 @@ experiment_config:
 others_config:
   gpu: -1
 training_config:
-  class: exputils.trainers.NeuralTrainer
+  class: exputils.trainerss.NeuralTrainer
   params:
     batch_size:
     - 10
@@ -25,7 +25,7 @@ training_config:
     n_epochs: 100
     optimiser:
       class: torch.optim.Adadelta
-tree_module_config:
+exp_module_config:
   class: models.neural.recursive.RecNN
   params:
     cell_module_config:

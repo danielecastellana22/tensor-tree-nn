@@ -1,7 +1,7 @@
 import os
 import networkx as nx
 from tqdm import tqdm
-from exputils.experiments import CollateFun
+from exputils.datasets import CollateFun
 import dgl
 from preprocessing.preprocessors import NlpParsedTreesPreprocessor
 from exputils.datasets import ConstValues

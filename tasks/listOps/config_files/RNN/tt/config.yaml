@@ -11,7 +11,7 @@ dataset_config:
 others_config:
   gpu: -1
 trainer_config:
-  class: exputils.trainers.NeuralTrainer
+  class: exputils.trainerss.NeuralTrainer
   training_params:
     batch_size: 50
     early_stopping_patience: 10
@@ -27,7 +27,7 @@ trainer_config:
       class: tasks.listOps.exp_utils.ListOpsCollateFun
       params:
         only_root: True
-tree_module_config:
+exp_module_config:
   class: models.neural.recursive.RecNN
   params:
     h_size: 50

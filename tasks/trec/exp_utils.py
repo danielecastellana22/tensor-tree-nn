@@ -1,6 +1,6 @@
 import os
 from tqdm import tqdm
-from exputils.experiments import CollateFun
+from exputils.datasets import CollateFun
 import torch as th
 import dgl
 from preprocessing.preprocessors import NlpParsedTreesPreprocessor

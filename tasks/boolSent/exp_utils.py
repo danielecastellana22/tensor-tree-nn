@@ -5,7 +5,7 @@ from preprocessing.preprocessors import TreePreprocessor
 from exputils.datasets import ConstValues
 from exputils.serialisation import to_pkl_file
 from preprocessing.tree_conversions import string_to_nltk_tree, nltk_tree_to_nx
-from exputils.experiments import CollateFun
+from exputils.datasets import CollateFun
 
 
 class BoolSentPreprocessor(TreePreprocessor):
@@ -69,7 +69,7 @@ class BoolSentCollateFun(CollateFun):
         if not self.only_root:
             out = batched_trees.ndata['y']
         else:
-            root_ids = [i for i in range(batched_trees.number_of_nodes()) if batched_trees.out_degree(i) == 0]
+            root_ids = [i for i in range(batched_trees.number_of_nodes()) if batched_trees.out_degrees(i) == 0]
             out = batched_trees.ndata['y'][root_ids]
 
         batched_trees.to(self.device)

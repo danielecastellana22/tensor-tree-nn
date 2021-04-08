@@ -9,6 +9,7 @@ from nltk.tree import Tree
 from exputils.datasets import CollateFun
 import torch as th
 import torch.nn as nn
+import torch.nn.functional as F
 
 
 def parse_string_tree(s, start):
@@ -183,6 +184,5 @@ class LrtClassifier(nn.Module):
     # neighbour_states has shape batch_size x n_neighbours x insize
     def forward(self, h_lsent, h_rsent):
         h_comb = th.einsum('ijk,ni,nj->nk', self.A, h_lsent, h_rsent) + self.U1(h_lsent) + self.U2(h_rsent) + self.b
-
-        return nn.functional.leaky_relu(h_comb, negative_slope=0.01)
+        return F.leaky_relu(h_comb, negative_slope=0.01)
 

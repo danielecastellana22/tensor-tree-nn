@@ -2,7 +2,7 @@ import os
 from abc import ABC
 import networkx as nx
 
-from exputils.utils import eprint, string2class
+from exputils.utils import eprint
 from exputils.datasets import ConstValues
 from exputils.misc import load_embeddings
 from preprocessing.tree_conversions import nx_to_dgl

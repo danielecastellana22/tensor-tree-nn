@@ -11,7 +11,7 @@ dataset_config:
 others_config:
   gpu: -1
 trainer_config:
-  class: exputils.trainers.EMTrainer
+  class: exputils.trainerss.EMTrainer
   training_params:
     batch_size: 50
     early_stopping_patience: 50
@@ -22,8 +22,8 @@ trainer_config:
       class: tasks.listOps.exp_utils.ListOpsCollateFun
       params:
         only_root: False
-tree_module_config:
-  class: models.prob.recursive.BUHMM
+exp_module_config:
+  class: models.prob.recursive.HRM
   params:
     h_size: [20, 50, 100]
     only_root_state: False
@@ -35,10 +35,10 @@ tree_module_config:
         max_output_degree: 5
         rank: [20, 50, 100]
     x_emission_config:
-      class: models.prob.distribution.Categorical
+      class: thlogprob.distributions.Categorical
       params:
         num_labels: 10
     y_emission_config:
-      class: models.prob.distribution.Categorical
+      class: thlogprob.distributions.Categorical
       params:
         num_labels: 10

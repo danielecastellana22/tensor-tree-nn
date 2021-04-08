@@ -28,8 +28,11 @@ class BaseStateTransition(thlp.CategoricalProbModule):
     def forward(self):
         pass
 
-    def up_message_func(self, nodes):
-        raise NotImplementedError("This function must be overridden!")
+    def up_message_func(self, edges):
+        if len(edges) > 0:
+            return {'beta_ch': edges.src['beta']}
+        else:
+            return {}
 
     def up_reduce_func(self, nodes):
         raise NotImplementedError("This function must be overridden!")
@@ -37,8 +40,12 @@ class BaseStateTransition(thlp.CategoricalProbModule):
     def up_apply_node_func(self, nodes):
         raise NotImplementedError("This function must be overridden!")
 
-    def down_message_func(self, nodes):
-        raise NotImplementedError("This function must be overridden!")
+    def down_message_func(self, edges):
+        if len(edges)>0:
+            pos = edges.dst['pos']
+            return {'eta_ch': edges.src['eta_ch'].gather(1, pos.view(-1, 1, 1).expand(-1, 1, self.h_size)).squeeze(1)}
+        else:
+            return {}
 
     def down_reduce_func(self, nodes):
         raise NotImplementedError("This function must be overridden!")
@@ -67,7 +74,7 @@ class BaseStateTransition(thlp.CategoricalProbModule):
             if types is not None:
                 if pos is not None:
                     idx_tensor = th.stack((types, pos))
-                    param.grad += th.sparse.FloatTensor(idx_tensor, posterior.exp(), param.grad.shape).coalesce().to_dense()
+                    param.grad += th.sparse_coo_tensor(idx_tensor, posterior.exp(), param.grad.shape).coalesce().to_dense()
                 else:
                     param.grad.index_add_(0, types, posterior.exp())
             else:
@@ -108,9 +115,6 @@ class SwitchingParent(BaseStateTransition):
         if self.pos_stationarity:
             self.Sp.data.fill_(1/self.max_output_degree)
 
-    def up_message_func(self, edges):
-        return {'beta_ch': edges.src['beta']}
-
     def up_reduce_func(self, nodes):
         bs = nodes.mailbox['beta_ch'].shape[0]
         n_ch = nodes.mailbox['beta_ch'].shape[1]
@@ -135,19 +139,22 @@ class SwitchingParent(BaseStateTransition):
 
         if 'gamma_r' in nodes.data:
             beta = nodes.data['gamma_r']
+            gamma_r = nodes.data['gamma_r']
+            gamma_ch =nodes.data['gamma_ch']
+            gamma_p_ch = nodes.data['gamma_p_ch']
         else:
             beta = self.__gather_param__(self.p,
                                          types=nodes.data['t'] if self.num_types > 1 else None,
                                          pos=nodes.data['pos'] if not self.pos_stationarity else None)
+            bs = beta.size(0)
+            gamma_r = th.zeros((bs, self.h_size))
+            gamma_ch = th.zeros((bs, self.max_output_degree, self.h_size, self.h_size))
+            gamma_p_ch = th.zeros((bs, self.max_output_degree, self.h_size,))
 
         beta = thlp.mul(x, beta)  # has shape (bs x h)
         beta, N_u = thlp.normalise(beta, 1, get_Z=True)
 
-        return {'beta': beta, 'N_u': N_u}
-
-    def down_message_func(self, edges):
-        pos = edges.dst['pos']
-        return {'eta_ch': edges.src['eta_ch'].gather(1, pos.view(-1, 1, 1).expand(-1, 1, self.h_size)).squeeze(1)}
+        return {'beta': beta, 'N_u': N_u, 'gamma_r': gamma_r, 'gamma_ch': gamma_ch, 'gamma_p_ch': gamma_p_ch}
 
     def down_reduce_func(self, nodes):
         eta_ch = nodes.mailbox['eta_ch'].squeeze(1)  # has shape (bs x h)
@@ -205,9 +212,6 @@ class SumChild(BaseStateTransition):
         self.init_parameters()
         self.reset_posterior()
 
-    def up_message_func(self, edges):
-        return {'beta_ch': edges.src['beta']}
-
     def up_reduce_func(self, nodes):
         bs = nodes.mailbox['beta_ch'].shape[0]
         n_ch = nodes.mailbox['beta_ch'].shape[1]
@@ -229,19 +233,22 @@ class SumChild(BaseStateTransition):
 
         if 'gamma_r' in nodes.data:
             beta = nodes.data['gamma_r']
+            gamma_r = nodes.data['gamma_r']
+            gamma_ch =nodes.data['gamma_ch']
+            gamma_p_ch = nodes.data['gamma_p_ch']
         else:
             beta = self.__gather_param__(self.p,
                                          types=nodes.data['t'] if self.num_types > 1 else None,
                                          pos=nodes.data['pos'] if not self.pos_stationarity else None)
+            bs = beta.size(0)
+            gamma_r = th.zeros((bs, self.h_size))
+            gamma_ch = th.zeros((bs, self.max_output_degree, self.h_size, self.h_size))
+            gamma_p_ch = th.zeros((bs, self.max_output_degree, self.h_size,))
 
         beta = thlp.mul(x, beta)  # has shape (bs x h)
         beta, N_u = thlp.normalise(beta, 1, get_Z=True)
 
-        return {'beta': beta, 'N_u': N_u}
-
-    def down_message_func(self, edges):
-        pos = edges.dst['pos']
-        return {'eta_ch': edges.src['eta_ch'].gather(1, pos.view(-1, 1, 1).expand(-1, 1, self.h_size)).squeeze(1)}
+        return {'beta': beta, 'N_u': N_u, 'gamma_r': gamma_r, 'gamma_ch': gamma_ch, 'gamma_p_ch': gamma_p_ch}
 
     def down_reduce_func(self, nodes):
         eta_ch = nodes.mailbox['eta_ch'].squeeze(1)  # has shape (bs x h)
@@ -297,9 +304,6 @@ class Canonical(BaseStateTransition):
         self.init_parameters()
         self.reset_posterior()
 
-    def up_message_func(self, edges):
-        return {'beta_ch': edges.src['beta']}
-
     def up_reduce_func(self, nodes):
         bs = nodes.mailbox['beta_ch'].shape[0]
         n_ch = nodes.mailbox['beta_ch'].shape[1]
@@ -320,6 +324,10 @@ class Canonical(BaseStateTransition):
         x = nodes.data['evid']  # represents P(x_u | Q_u) have size bs x h
 
         if 'gamma_r' in nodes.data:
+            gamma_r = nodes.data['gamma_r']
+            gamma_ch = nodes.data['gamma_ch']
+            gamma_p_ch = nodes.data['gamma_p_ch']
+
             U_out = self.__gather_param__(self.U_output, types=nodes.data['t'] if self.num_types > 1 else None)
             # U_out has shape bs x rank x h
             beta = thlp.sum_over(thlp.mul(nodes.data['gamma_r'].unsqueeze(2), U_out), 1)
@@ -327,15 +335,15 @@ class Canonical(BaseStateTransition):
             beta = self.__gather_param__(self.p,
                                          types=nodes.data['t'] if self.num_types > 1 else None,
                                          pos=nodes.data['pos'] if not self.pos_stationarity else None)
+            bs = beta.size(0)
+            gamma_r = th.zeros((bs, self.rank))
+            gamma_ch = th.zeros((bs, self.max_output_degree, self.h_size, self.rank))
+            gamma_p_ch = th.zeros((bs, self.max_output_degree, self.rank))
 
         beta = thlp.mul(x, beta)  # has shape (bs x h)
         beta, N_u = thlp.normalise(beta, 1, get_Z=True)
 
-        return {'beta': beta, 'N_u': N_u}
-
-    def down_message_func(self, edges):
-        pos = edges.dst['pos']
-        return {'eta_ch': edges.src['eta_ch'].gather(1, pos.view(-1, 1, 1).expand(-1, 1, self.h_size)).squeeze(1)}
+        return {'beta': beta, 'N_u': N_u, 'gamma_r': gamma_r, 'gamma_ch': gamma_ch, 'gamma_p_ch': gamma_p_ch}
 
     def down_reduce_func(self, nodes):
         eta_ch = nodes.mailbox['eta_ch'].squeeze(1)  # has shape (bs x h)
@@ -398,9 +406,6 @@ class Full(BaseStateTransition):
         self.init_parameters()
         self.reset_posterior()
 
-    def up_message_func(self, edges):
-        return {'beta_ch': edges.src['beta']} # , 'pos': edges.data['pos']}
-
     def up_reduce_func(self, nodes):
         beta_ch = nodes.mailbox['beta_ch']  # has shape (bs x n_ch x h)
         n_ch = beta_ch.shape[1]
@@ -428,19 +433,19 @@ class Full(BaseStateTransition):
 
         if 'beta_np' in nodes.data:
             beta = nodes.data['beta_np']  # has shape (bs x h)
+            beta_np = nodes.data['beta_np']
+            beta_ch = nodes.data['beta_ch']
         else:
             beta = self.__gather_param__(self.p, types=nodes.data['t'] if self.num_types > 1 else None)
-
+            bs = beta.size(0)
+            beta_np = th.zeros((bs, self.h_size))
+            beta_ch = th.zeros([bs]+[self.h_size+1 for i in range(self.max_output_degree)] +[self.h_size])
         beta = thlp.mul(x, beta)  # has shape (bs x h)
 
         # normalise
         beta, N_u = thlp.normalise(beta, 1, get_Z=True)
 
-        return {'beta': beta, 'N_u': N_u}
-
-    def down_message_func(self, edges):
-        pos = edges.dst['pos']
-        return {'eta_ch': edges.src['eta_ch'].gather(1, pos.view(-1, 1, 1).expand(-1, 1, self.h_size)).squeeze(1)}
+        return {'beta': beta, 'N_u': N_u,'beta_np': beta_np, 'beta_ch': beta_ch}
 
     def down_reduce_func(self, nodes):
         eta_ch = nodes.mailbox['eta_ch'].squeeze(1)  # has shape (bs x h)
@@ -478,10 +483,10 @@ class Full(BaseStateTransition):
         return {'eta_ch': eta_ch[:, :, :-1], 'eta': eta_u}
 
 
-class HOSVD(BaseStateTransition):
+class Hosvd(BaseStateTransition):
 
     def __init__(self, h_size, pos_stationarity=False, max_output_degree=0, num_types=None, rank=None):
-        super(HOSVD, self).__init__(h_size, pos_stationarity, max_output_degree, num_types)
+        super(Hosvd, self).__init__(h_size, pos_stationarity, max_output_degree, num_types)
 
         self.rank = rank
 
@@ -507,9 +512,6 @@ class HOSVD(BaseStateTransition):
 
         self.init_parameters()
         self.reset_posterior()
-
-    def up_message_func(self, edges):
-        return {'beta_ch': edges.src['beta']}
 
     def up_reduce_func(self, nodes):
         bs = nodes.mailbox['beta_ch'].shape[0]
@@ -547,20 +549,23 @@ class HOSVD(BaseStateTransition):
             U_out = self.__gather_param__(self.U_output, types=nodes.data['t'] if self.num_types > 1 else None)
             # U_out has shape bs x rank x h
             beta = thlp.sum_over(thlp.mul(nodes.data['gamma_r'].unsqueeze(2), U_out), 1)
+            gamma_r = nodes.data['gamma_r']
+            gamma_ch_all = nodes.data['gamma_ch_all']
+            beta_ch = nodes.data['beta_ch']
         else:
             beta = self.__gather_param__(self.p,
                                          types=nodes.data['t'] if self.num_types > 1 else None,
                                          pos=nodes.data['pos'])
+            bs = beta.size(0)
+            gamma_r = th.zeros((bs, self.rank))
+            gamma_ch_all = th.zeros([bs]+[self.rank+1 for i in range(self.max_output_degree)]+[self.rank])
+            beta_ch = thlp.zeros(bs, self.max_output_degree, self.h_size)
 
         beta = thlp.mul(x, beta)  # has shape (bs x h)
         # normalise
         beta, N_u = thlp.normalise(beta, 1, get_Z=True)
 
-        return {'beta': beta, 'N_u': N_u}
-
-    def down_message_func(self, edges):
-        pos = edges.dst['pos']
-        return {'eta_ch': edges.src['eta_ch'].gather(1, pos.view(-1, 1, 1).expand(-1, 1, self.h_size)).squeeze(1)}
+        return {'beta': beta, 'N_u': N_u, 'gamma_r': gamma_r, 'gamma_ch_all': gamma_ch_all, 'beta_ch': beta_ch}
 
     def down_reduce_func(self, nodes):
         eta_ch = nodes.mailbox['eta_ch'].squeeze(1)  # has shape (bs x h)
@@ -642,17 +647,11 @@ class TensorTrain(BaseStateTransition):
             self.p = nn.Parameter(th.empty(self.num_types, self.max_output_degree, self.h_size).squeeze(0),
                                   requires_grad=False)
 
-        # output rank
-        # self.R_output = nn.Parameter(th.empty(self.num_types, self.rank, self.rank).squeeze(0), requires_grad=False)
-
         # output mode matrix
         self.U_output = nn.Parameter(th.empty(self.num_types, self.rank, self.h_size).squeeze(0), requires_grad=False)
 
         self.init_parameters()
         self.reset_posterior()
-
-    def up_message_func(self, edges):
-        return {'beta_ch': edges.src['beta']}
 
     def up_reduce_func(self, nodes):
         bs = nodes.mailbox['beta_ch'].shape[0]
@@ -682,7 +681,7 @@ class TensorTrain(BaseStateTransition):
         gamma_r = gamma_less_l[:, n_ch-1, :-1]
 
         return {'gamma_less_l': gamma_less_l, 'gamma_r': gamma_r, 'beta_ch': beta_ch,
-                'n_ch': th.full((bs, 1), n_ch, dtype=th.long).squeeze(1)}
+                'n_ch': th.full([bs], n_ch, dtype=th.long)}
 
     def up_apply_node_func(self, nodes):
         x = nodes.data['evid']  # represents P(x_u | Q_u) have size bs x h
@@ -691,20 +690,26 @@ class TensorTrain(BaseStateTransition):
             U_out = self.__gather_param__(self.U_output, types=nodes.data['t'] if self.num_types > 1 else None)
             # U_out has shape bs x rank x h
             a = thlp.sum_over(thlp.mul(nodes.data['gamma_r'].unsqueeze(2), U_out), 1)
+            gamma_less_l = nodes.data['gamma_less_l']
+            gamma_r = nodes.data['gamma_r']
+            beta_ch = nodes.data['beta_ch']
+            n_ch = nodes.data['n_ch']
         else:
             a = self.__gather_param__(self.p,
                                          types=nodes.data['t'] if self.num_types > 1 else None,
                                          pos=nodes.data['pos'] if not self.pos_stationarity else None)
+            bs = a.size(0)
+            gamma_less_l = th.zeros((bs, self.max_output_degree, self.rank+1))
+            gamma_r = th.zeros((bs, self.rank))
+            beta_ch = th.zeros((bs, self.max_output_degree, self.h_size))
+            n_ch = th.zeros([bs], dtype=th.long)
 
         beta = thlp.mul(x, a)  # has shape (bs x h)
         # normalise
         beta, N_u = thlp.normalise(beta, 1, get_Z=True)
 
-        return {'beta': beta, 'N_u': N_u}
-
-    def down_message_func(self, edges):
-        pos = edges.dst['pos']
-        return {'eta_ch': edges.src['eta_ch'].gather(1, pos.view(-1, 1, 1).expand(-1, 1, self.h_size)).squeeze(1)}
+        return {'beta': beta, 'N_u': N_u, 'gamma_less_l': gamma_less_l, 'gamma_r': gamma_r, 'beta_ch': beta_ch,
+                'n_ch': n_ch}
 
     def down_reduce_func(self, nodes):
         eta_ch = nodes.mailbox['eta_ch'].squeeze(1)  # has shape (bs x h)
@@ -722,7 +727,6 @@ class TensorTrain(BaseStateTransition):
         is_internal = th.logical_not(is_leaf)
         n_ch_list = nodes.data['n_ch'][is_internal]-1
         gamma_r = nodes.data['gamma_r'][is_internal]  # has shape (bs x rank)
-        gamma_L = nodes.data['gamma_less_l'][is_internal].gather(1, n_ch_list.view(-1, 1, 1).expand(-1, 1, self.rank + 1)).squeeze(1)
         # has shape bs x rank+1
         gamma_less_l = nodes.data['gamma_less_l'][is_internal]  # has shape bs x L x rank+1
         beta_ch = nodes.data['beta_ch'][is_internal]  # has shape bs x L x h

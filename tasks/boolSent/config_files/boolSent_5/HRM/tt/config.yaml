@@ -8,7 +8,7 @@ experiment_config:
 others_config:
   gpu: -1
 trainer_config:
-  class: exputils.trainer.EMTrainer
+  class: exputils.trainers.EMTrainer
   params:
     batch_size: 50
     collate_fun:
@@ -19,7 +19,7 @@ trainer_config:
     eps_loss: 0.001
     evaluate_on_training_set: false
     n_epochs: 200
-tree_module_config:
+exp_module_config:
   class: models.prob.recursive.HRM
   params:
     h_size:
@@ -36,10 +36,10 @@ tree_module_config:
         - 2
         - 4
     x_emission_config:
-      class: models.prob.distribution.Categorical
+      class: thlogprob.distributions.Categorical
       params:
         num_labels: 2
     y_emission_config:
-      class: models.prob.distribution.Categorical
+      class: thlogprob.distributions.Categorical
       params:
         num_labels: 2
