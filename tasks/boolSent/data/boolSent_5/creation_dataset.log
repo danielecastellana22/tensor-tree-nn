@@ -1,0 +1,1 @@
+[2021-04-08 20:17:07,672] INFO:runner: Namespace(N=10000, all_labels=True, dataset_name='boolSent', h_size=2, max_height=8, max_output_degree=5, min_height=4, output_dir='data')

@@ -177,26 +177,31 @@ def write_vocabularies_file(f_name, list_vocs):
 def main(args):
     np.seterr(all='raise')
 
-    trees = []
-    if args.dataset_name != '':
-        dir = os.path.join(args.output_dir, 'toy_{}_{}'.format(args.type, args.dataset_name))
-    else:
-        dir = os.path.join(args.output_dir, 'toy_{}'.format(args.type))
+    name_2_type = {
+        'boolSent': 'bool',
+        'randomOpSent': 'full',
+        'markovianOpSent': 'markov',
+        'prodOpSent': 'prod',
+        'minMaxSent': 'minmax',
+        'medianSent': 'med'}
 
-    if not os.path.exists(dir):
-        os.makedirs(dir)
+    dataset_type = name_2_type[args.dataset_name]
+    dataset_dir = os.path.join(args.output_dir, '{}_{}'.format(args.dataset_name, args.max_output_degree))
 
-    log =  get_logger('runner', dir, file_name='creation_dataset.log', write_on_console=True)
+    if not os.path.exists(dataset_dir):
+        os.makedirs(dataset_dir)
 
-    aux_filename = os.path.join(dir, 'tensors.txt')
-    train_filename = os.path.join(dir, 'train.txt')
-    dev_filename = os.path.join(dir, 'dev.txt')
-    test_filename = os.path.join(dir, 'test.txt')
-    voc_filename = os.path.join(dir, 'vocabs.txt')
+    log = get_logger('runner', dataset_dir, file_name='creation_dataset.log', write_on_console=True)
+
+    aux_filename = os.path.join(dataset_dir, 'tensors.txt')
+    train_filename = os.path.join(dataset_dir, 'train.txt')
+    dev_filename = os.path.join(dataset_dir, 'dev.txt')
+    test_filename = os.path.join(dataset_dir, 'test.txt')
+    voc_filename = os.path.join(dataset_dir, 'vocabs.txt')
 
     log.info(str(args))
 
-    if args.type == 'full':
+    if dataset_type == 'full':
         sz_A = [args.h_size+1 for x in range(args.max_output_degree)]
         sz_A.append(args.h_size)
         A = np.random.randn(*sz_A)
@@ -209,7 +214,7 @@ def main(args):
 
         assign_label_fun = create_fun_assign_full(A, in_vocab, args.max_output_degree)
 
-    elif args.type == 'markov':
+    elif dataset_type == 'markov':
         mat_list = []
         for i in range(args.max_output_degree):
             if i==0:
@@ -227,25 +232,25 @@ def main(args):
 
         assign_label_fun = create_fun_assign_markov(mat_list, in_vocab, args.max_output_degree)
 
-    elif args.type == 'prod':
+    elif dataset_type == 'prod':
         ops_dict = {'PROD': np.prod}
         in_vocab_dict = {'1': 1, '-1': -1}
         write_vocabularies_file(voc_filename, [in_vocab_dict.keys(), in_vocab_dict.keys(), ops_dict.keys()])
         assign_label_fun = create_fun_assign_op_on_list(in_vocab_dict, ops_dict)
 
-    elif args.type == 'minmax':
+    elif dataset_type == 'minmax':
         ops_dict = {'MIN': np.min, 'MAX': np.max}
         in_vocab_dict = {str(x): x for x in range(10)}
         write_vocabularies_file(voc_filename, [in_vocab_dict.keys(), in_vocab_dict.keys(), ops_dict.keys()])
         assign_label_fun = create_fun_assign_op_on_list(in_vocab_dict, ops_dict)
 
-    elif args.type == 'med':
+    elif dataset_type == 'med':
         ops_dict = {'MED': lambda l: int(np.floor(np.median(l)))}
         in_vocab_dict = {str(x): x for x in range(10)}
         write_vocabularies_file(voc_filename, [in_vocab_dict.keys(), in_vocab_dict.keys(), ops_dict.keys()])
         assign_label_fun = create_fun_assign_op_on_list(in_vocab_dict, ops_dict)
 
-    elif args.type == 'bool':
+    elif dataset_type == 'bool':
         ops_dict = {'AND': lambda l: int(np.all(l)),
                     'OR': lambda l: int(np.any(l)),
                     'XOR': lambda l: int(np.logical_xor.reduce(l)),
@@ -260,6 +265,7 @@ def main(args):
     print_only_root_label = not args.all_labels
 
     count = {}
+    trees = []
     tot_nodes = 0
     for i in tqdm(range(args.N), desc='Creating trees: '):
         r = MyNode()
@@ -291,15 +297,14 @@ def main(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--N', type=int, default=10000)
+    parser.add_argument('-N', type=int, default=10000)
+    parser.add_argument('-L', '--max-output-degree', type=int, default=5)
     parser.add_argument('--min-height', type=int, default=4)
     parser.add_argument('--max-height', type=int, default=8)
-    parser.add_argument('--type', default='htens')
+    parser.add_argument('--dataset-name', default='boolSent')
     parser.add_argument('--output-dir', default='data')
     parser.add_argument('--h-size', type=int, default=2)
-    parser.add_argument('--dataset-name', default="")
-    parser.add_argument('--max-output-degree', type=int, default=5)
-    parser.add_argument('--all-labels', default=False, action='store_true')
+    parser.add_argument('--all-labels', default=True, action='store_true')
     args = parser.parse_args()
     # print(args)
     main(args)

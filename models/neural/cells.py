@@ -77,7 +77,10 @@ class LSTM(BaseCell):
 
     @classmethod
     def message_func(cls, edges):
-        return {'h': edges.src['h'], 'c': edges.src['c']}
+        if len(edges)>0:
+            return {'h': edges.src['h'], 'c': edges.src['c']}
+        else:
+            return {}#'h': edges.src['h'], 'c': edges.src['c']}
 
     def reduce_func(self, nodes, type_mask = None):
         if type_mask is None:
@@ -186,7 +189,10 @@ class TreeNet(BaseCell):
 
     @classmethod
     def message_func(cls, edges):
-        return {'h': edges.src['h'], 'c': edges.src['c'], 'pos': edges.data['pos']}
+        if len(edges)>0:
+            return {'h': edges.src['h'], 'c': edges.src['c'], 'pos': edges.data['pos']}
+        else:
+            return {}
 
     def reduce_func(self, nodes, type_mask=None):
         if type_mask is None:
@@ -269,7 +275,10 @@ class RNN(BaseCell):
 
     @classmethod
     def message_func(cls, edges):
-        return {'h': edges.src['h']}  # , 'pos': edges.data['pos']}
+        if len(edges)>0:
+            return {'h': edges.src['h']}  # , 'pos': edges.data['pos']}
+        else:
+            return {}
 
     def reduce_func(self, nodes, type_mask=None):
         if type_mask is None:
