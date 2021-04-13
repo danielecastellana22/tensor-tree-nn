@@ -51,6 +51,6 @@ exp_module_config:
     output_module_config:
       class: models.neural.others.MLP
       params:
-        num_classes: 10
+        out_size: 10
         num_layers: 2
         h_size: 20

@@ -37,7 +37,7 @@ def nltk_tree_to_nx(nltk_t, get_internal_node_dict, get_leaf_node_dict):
             attr_dict = get_internal_node_dict(node.label())
 
         if pa_id != -1:
-            attr_dict['pos'] = g.in_degrees(pa_id)
+            attr_dict['pos'] = g.in_degree(pa_id)
             g.add_node(my_id, **attr_dict)
             g.add_edge(my_id, pa_id)
         else:

@@ -70,7 +70,7 @@ class ConstTreeTransformer(BaseTransformer):
         new_t = t.copy(as_view=False)
 
         # remove root node
-        root_id = [u for u in new_t.nodes if new_t.out_degrees(u) == 0]
+        root_id = [u for u in new_t.nodes if new_t.out_degree(u) == 0]
         assert len(root_id) == 1
         root_id = root_id[0]
         assert new_t.in_degrees(root_id) == 1
@@ -295,7 +295,7 @@ class TreeNetTransformer(ConstTreeTransformer):
                     pos = 1
                 else:
                     pos = 0
-                if t.out_degrees(v) == 0:
+                if t.out_degree(v) == 0:
                     # v is leaf
                     pa_v = new_id
                     new_id += 1

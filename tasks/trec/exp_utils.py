@@ -70,14 +70,11 @@ class TrecCollateFun(CollateFun):
 
     def __call__(self, tuple_data):
         tree_list, coarse_label_list, fine_label_list = zip(*tuple_data)
-        batched_trees = dgl.batch(tree_list)
-        batched_trees.to(self.device)
+        batched_trees = dgl.batch(tree_list).to(self.device)
 
         if self.num_classes == 6:
-            out = th.tensor(coarse_label_list, dtype=th.long)
-            out.to(self.device)
+            out = th.tensor(coarse_label_list, dtype=th.long).to(self.device)
         else:
-            out = th.tensor(fine_label_list, dtype=th.long)
-            out.to(self.device)
+            out = th.tensor(fine_label_list, dtype=th.long).to(self.device)
 
         return [batched_trees], out

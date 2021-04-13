@@ -130,6 +130,5 @@ class SstParsedTreesPreprocessor(NlpParsedTreesPreprocessor):
 class SstCollateFun(CollateFun):
 
     def __call__(self, tuple_data):
-        batched_trees = dgl.batch(tuple_data)
-        batched_trees.to(self.device)
+        batched_trees = dgl.batch(tuple_data).to(self.device)
         return [batched_trees], batched_trees.ndata['y']

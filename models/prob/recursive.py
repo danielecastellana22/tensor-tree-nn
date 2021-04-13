@@ -65,7 +65,7 @@ class HRM(thlp.ProbModule):
                                 reduce_func=self.state_transition.up_reduce_func,
                                 apply_node_func=self.state_transition.up_apply_node_func)
 
-            root_ids = [i for i in range(t.number_of_nodes()) if t.out_degrees(i) == 0]
+            root_ids = [i for i in range(t.number_of_nodes()) if t.out_degree(i) == 0]
             beta_root_list.append(t.ndata['beta'][root_ids])
 
             loglike_list.append(t.ndata['N_u'].sum())
@@ -112,7 +112,7 @@ class HRM(thlp.ProbModule):
             t.ndata['is_leaf'][leaf_ids] = 1
 
             # set base case for downward recursion
-            root_ids = [i for i in range(t.number_of_nodes()) if t.out_degrees(i) == 0]
+            root_ids = [i for i in range(t.number_of_nodes()) if t.out_degree(i) == 0]
             t.ndata['beta'][root_ids] = eta_root_list[idx_t]
 
             t_rev = self.__reverse_dgl_batch__(t)

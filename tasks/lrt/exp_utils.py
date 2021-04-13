@@ -160,14 +160,10 @@ class LrtCollateFun(CollateFun):
     def __call__(self, tuple_data):
         a_tree_list, b_tree_list, out_list = zip(*tuple_data)
 
-        batched_a_trees = dgl.batch(a_tree_list)
-        batched_b_trees = dgl.batch(b_tree_list)
+        batched_a_trees = dgl.batch(a_tree_list).to(self.device)
+        batched_b_trees = dgl.batch(b_tree_list).to(self.device)
 
-        batched_a_trees.to(self.device)
-        batched_b_trees.to(self.device)
-
-        out_tens = th.tensor(out_list, dtype=th.long)
-        out_tens.to(self.device)
+        out_tens = th.tensor(out_list, dtype=th.long).to(self.device)
 
         return (batched_a_trees, batched_b_trees), out_tens
 

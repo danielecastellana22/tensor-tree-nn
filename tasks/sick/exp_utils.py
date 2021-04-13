@@ -86,21 +86,16 @@ class SickCollateFun(CollateFun):
 
     def __call__(self, tuple_data):
         a_tree_list, b_tree_list, relatedness_list, entailment_list = zip(*tuple_data)
-        batched_a_trees = dgl.batch(a_tree_list)
-        batched_b_trees = dgl.batch(b_tree_list)
-
-        batched_a_trees.to(self.device)
-        batched_b_trees.to(self.device)
+        batched_a_trees = dgl.batch(a_tree_list).to(self.device)
+        batched_b_trees = dgl.batch(b_tree_list).to(self.device)
 
         if self.output_type == 0:
-            score_list_th = th.tensor(relatedness_list)
-            target_distr = th.tensor(self.get_target_distribution(relatedness_list, 5))
-            target_distr.to(self.device)
-            score_list_th.to(self.device)
+            score_list_th = th.tensor(relatedness_list).to(self.device)
+            target_distr = th.tensor(self.get_target_distribution(relatedness_list, 5)).to(self.device)
+
             out = (target_distr.float(), score_list_th)
         else:
-            out = th.tensor(entailment_list, dtype=th.long)
-            out.to(self.device)
+            out = th.tensor(entailment_list, dtype=th.long).to(self.device)
 
         return (batched_a_trees, batched_b_trees), out
 

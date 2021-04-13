@@ -4,6 +4,4 @@ networkx==2.5.1
 nltk==3.4.5
 numpy==1.19.2
 scikit-learn==0.22.1
-yaml==0.1.7
-pyyaml==5.3
-matplotlib==3.1.1
+pyyaml>=5.4

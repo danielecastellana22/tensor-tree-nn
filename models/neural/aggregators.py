@@ -112,7 +112,7 @@ class Canonical(BaseAggregator):
 
 class Full(BaseAggregator):
 
-    def __init__(self, in_size, out_size, pos_stationarity, max_output_degree, t_size, n_aggr, rank):
+    def __init__(self, in_size, out_size, pos_stationarity, max_output_degree, t_size, n_aggr):
         super(Full, self).__init__(in_size, out_size, pos_stationarity, max_output_degree, t_size, n_aggr)
 
         in_size_list = [in_size] * max_output_degree

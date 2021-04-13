@@ -52,4 +52,4 @@ exp_module_config:
         - 10
         - 20
         - 50
-        num_classes: 5
+        out_size: 5

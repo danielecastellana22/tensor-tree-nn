@@ -87,7 +87,7 @@ def tree_sentence_to_tikz(dgl_G, idx2words, node_attr='x'):
             l = idx2words[l]
 
 
-        attr = '[]' if rev_t.out_degrees(u) == 0 else '[internal]'
+        attr = '[]' if rev_t.out_degree(u) == 0 else '[internal]'
         if ind == 0:
             out += '\\node{} {{{}}}'.format(attr, l)
         else:

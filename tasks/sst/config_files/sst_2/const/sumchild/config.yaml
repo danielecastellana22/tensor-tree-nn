@@ -55,4 +55,4 @@ exp_module_config:
         - 0
         - 500
         - 1000
-        num_classes: 2
+        out_size: 2

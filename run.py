@@ -11,7 +11,7 @@ def parse_arguments():
     # experiment params
     parser.add_argument('--config-file', dest='config_file')
     parser.add_argument('--debug', dest='debug', action='store_true')
-    parser.add_argument('--num-workers', dest='num_workers', default=10, type=int)
+    parser.add_argument('--num-workers', dest='num_workers', default=1, type=int)
     # TODO: add other args for recovery
     return parser.parse_args()
 
