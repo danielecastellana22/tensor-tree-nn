@@ -8,11 +8,9 @@ dataset_config:
   #dataset_class: experiments.sst.sst_dataset.SSTBinaryDataset
   # this folder must contains: train.pkl, dev.pkl, test.pkl
   data_dir: data/listOps/dgl/
-others_config:
-  gpu: -1
 trainer_config:
   class: exputils.trainerss.NeuralTrainer
-  training_params:
+  params:
     batch_size: 50
     early_stopping_patience: 5
     n_epochs: 100

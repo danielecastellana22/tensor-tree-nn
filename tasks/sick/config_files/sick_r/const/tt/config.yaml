@@ -14,7 +14,7 @@ others_config:
   gpu: -1
 trainer_config:
   class: exputils.trainerss.NeuralTrainer
-  training_params:
+  params:
     batch_size: [25, 40] #[10, 25, 40]
     early_stopping_patience: 10
     n_epochs: 100

@@ -1,19 +1,20 @@
 experiment_config:
   #experiment_class: tasks.toy.run_utils.NeuralToyExperiment
-  output_dir: results/boolSent/boolSent_2/RNN/canonical
+  output_dir: _results/boolSent/boolSent_2/RNN/canonical
   num_run: 3
   metric_class_list:
     - exputils.metrics.Accuracy
+  device: 'cpu'
+  seed: -1
 dataset_config:
-  #dataset_class: experiments.sst.sst_dataset.SSTBinaryDataset
-  # this folder must contains: train.pkl, dev.pkl, test.pkl
-  data_dir:  data/boolSent/dgl/boolSent_2
-others_config:
-  gpu: -1
+  class: tasks.boolSent.exp_utils.BoolSentLoader
+  params:
+    data_dir:  data/boolSent/dgl/boolSent_2
+    only_root: True
+    batch_size: 50
 trainer_config:
   class: exputils.trainers.NeuralTrainer
   training_params:
-    batch_size: 50
     early_stopping_patience: 5
     n_epochs: 100
     evaluate_on_training_set: False

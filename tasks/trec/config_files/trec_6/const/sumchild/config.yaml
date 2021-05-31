@@ -6,8 +6,6 @@ experiment_config:
   - exputils.metrics.Accuracy
   num_run: 3
   output_dir: results/trec_6/no_types/const/sumchild
-others_config:
-  gpu: -1
 training_config:
   class: exputils.trainerss.NeuralTrainer
   params:

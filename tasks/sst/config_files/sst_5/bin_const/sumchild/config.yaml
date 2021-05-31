@@ -7,8 +7,6 @@ experiment_config:
   - exputils.metrics.LeavesAccuracy
   num_run: 3
   output_dir: results/sst_5_with_leaf/no_types/bin_const/sumchild
-others_config:
-  gpu: -1
 training_config:
   class: exputils.trainerss.NeuralTrainer
   params:

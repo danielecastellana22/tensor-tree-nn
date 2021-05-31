@@ -7,8 +7,6 @@ experiment_config:
   - exputils.metrics.LeavesAccuracy
   num_run: 3
   output_dir: results/sst_2/no_types/const/canonical
-others_config:
-  gpu: -1
 training_config:
   class: exputils.trainerss.NeuralTrainer
   params:

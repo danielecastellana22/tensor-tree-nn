@@ -1,20 +1,19 @@
-dataset_config:
-  data_dir: data/boolSent/dgl/boolSent_3/
 experiment_config:
   metric_class_list:
   - exputils.metrics.Accuracy
   num_run: 3
-  output_dir: results/boolSent/boolSent_3/HRM/sp
-others_config:
-  gpu: -1
+  output_dir: _results/boolSent/boolSent_3/HRM/sp
+  device: 'cpu'
+  seed: -1
+dataset_config:
+  class: tasks.boolSent.exp_utils.BoolSentLoader
+  params:
+    data_dir:  data/boolSent/dgl/boolSent_3
+    only_root: False
+    batch_size: 50
 trainer_config:
   class: exputils.trainers.EMTrainer
-  params:
-    batch_size: 50
-    collate_fun:
-      class: tasks.boolSent.exp_utils.BoolSentCollateFun
-      params:
-        only_root: false
+  training_params:
     early_stopping_patience: 50
     eps_loss: 0.001
     evaluate_on_training_set: false

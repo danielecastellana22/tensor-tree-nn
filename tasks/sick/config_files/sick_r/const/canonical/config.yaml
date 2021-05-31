@@ -7,8 +7,6 @@ experiment_config:
   - tasks.sick.exp_utils.MseSICK
   num_run: 3
   output_dir: results/sick_r/no_types/const/canonical
-others_config:
-  gpu: -1
 training_config:
   class: exputils.trainerss.NeuralTrainer
   params:

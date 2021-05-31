@@ -7,11 +7,9 @@ dataset_config:
   #dataset_class: experiments.sst.sst_dataset.SSTBinaryDataset
   # this folder must contains: train.pkl, dev.pkl, test.pkl
   data_dir: /data/castellana/data/listOps/dgl/
-others_config:
-  gpu: -1
 trainer_config:
   class: exputils.trainerss.EMTrainer
-  training_params:
+  params:
     batch_size: 50
     early_stopping_patience: 50
     n_epochs: 200

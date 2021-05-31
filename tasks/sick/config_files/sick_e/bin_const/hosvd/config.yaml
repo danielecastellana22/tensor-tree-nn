@@ -6,8 +6,6 @@ experiment_config:
   - exputils.metrics.Accuracy
   num_run: 3
   output_dir: results/sick_e/no_types/bin_const/hosvd
-others_config:
-  gpu: -1
 training_config:
   class: exputils.trainerss.NeuralTrainer
   params:
