@@ -6,7 +6,7 @@ experiment_config:
   - exputils.metrics.Accuracy
   - exputils.metrics.LeavesAccuracy
   num_run: 3
-  output_dir: results/sst_5/no_types/bin_const/full
+  output_dir: _results/sst_5/no_types/bin_const/full
 training_config:
   class: exputils.trainerss.NeuralTrainer
   params:

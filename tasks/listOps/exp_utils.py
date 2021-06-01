@@ -5,7 +5,7 @@ from preprocessing.preprocessors import TreePreprocessor
 from exputils.datasets import ConstValues
 from exputils.serialisation import to_pkl_file
 from preprocessing.tree_conversions import string_to_nltk_tree, nltk_tree_to_nx
-from exputils.datasets import CollateFun
+from exputils.datasets import FileDatasetLoader
 import networkx as nx
 
 
@@ -84,14 +84,13 @@ class ListOpsPreprocessor(TreePreprocessor):
                 t.nodes[u]['y'] = op_fun(in_list)
 
 
-class ListOpsCollateFun(CollateFun):
+class ListOpsLoader(FileDatasetLoader):
 
-    def __init__(self, device, only_root=False):
-        super(ListOpsCollateFun, self).__init__(device)
+    def __init__(self, only_root, **kwargs):
+        super(ListOpsLoader, self).__init__(**kwargs)
         self.only_root = only_root
 
-    def __call__(self, tuple_data):
-        tree_list = tuple_data
+    def __collate_fun__(self, tree_list):
         batched_trees = dgl.batch(tree_list).to(self.device)
         if not self.only_root:
             out = batched_trees.ndata['y']

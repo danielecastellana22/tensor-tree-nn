@@ -14,7 +14,7 @@ dataset_config:
     batch_size: 50
 trainer_config:
   class: exputils.trainers.EMTrainer
-  training_params:
+  params:
     params:
       batch_size: 100
       collate_fun:

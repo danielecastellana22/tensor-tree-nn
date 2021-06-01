@@ -1,25 +1,23 @@
 experiment_config:
-  output_dir: results/listOps/prob/canonical
+  output_dir: _results/listOps/prob/canonical
   num_run: 3
   metric_class_list:
     - exputils.metrics.Accuracy
+  device: 'cpu'
+  seed: -1
 dataset_config:
-  #dataset_class: experiments.sst.sst_dataset.SSTBinaryDataset
-  # this folder must contains: train.pkl, dev.pkl, test.pkl
-  data_dir: data/listOps/dgl/
-  max_tr_elements: 10000
+  class: tasks.listOps.exp_utils.ListOpsLoader
+  params:
+    data_dir:  data/listOps/dgl/
+    only_root: False
+    batch_size: 50
 trainer_config:
   class: exputils.trainerss.EMTrainer
   params:
-    batch_size: 50
     early_stopping_patience: 50
     n_epochs: 200
     evaluate_on_training_set: False
     eps_loss: 0.001
-    collate_fun:
-      class: tasks.listOps.exp_utils.ListOpsCollateFun
-      params:
-        only_root: False
 exp_module_config:
   class: models.prob.recursive.HRM
   params:

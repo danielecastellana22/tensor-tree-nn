@@ -1,19 +1,20 @@
-dataset_config:
-  data_dir: data/sick/dgl_tree_net
-  output_type: relatedness
 experiment_config:
   metric_class_list:
   - tasks.sick.run_utils.PearsonSICK
   - tasks.sick.run_utils.MseSICK
   num_run: 3
-  output_dir: results/sick_r/no_types/tree_net/
+  output_dir: _results/sick_r/no_types/tree_net/
+  device: 'cpu'
+  seed: -1
+dataset_config:
+  class: tasks.sick.exp_utils.SickLoader
+  params:
+    data_dir: data/sick/dgl_tree_net
+    output_type: relatedness
+    batch_size: 25
 training_config:
   class: exputils.trainerss.NeuralTrainer
   params:
-    batch_size: 25
-    collate_fun:
-      class: tasks.sick.exp_utils.SickCollateFun
-      params: relatedness
     early_stopping_patience: 5
     evaluate_on_training_set: true
     loss_function:

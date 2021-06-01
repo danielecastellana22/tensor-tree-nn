@@ -1,12 +1,12 @@
 experiment_config:
-  output_dir: /data/castellana/results/trec_6/no_types/const/tt
+  output_dir: _results/trec_6/no_types/const/tt
   num_run: 3
   metric_class_list:
     - exputils.metrics.Accuracy
 dataset_config:
   #dataset_class: experiments.sst.sst_dataset.SSTBinaryDataset
   # this folder must contains: train.pkl, dev.pkl, test.pkl
-  data_dir: /data/castellana/data/trec/dgl_const
+  data_dir: data/trec/dgl_const
 others_config:
   #seed: 1949013946
   gpu: -1
@@ -40,7 +40,7 @@ exp_module_config:
       class: models.neural.others.VectorEmbedding
       params:
         embedding_type: pretrained
-        pretrained_embs: /data/castellana/data/trec/dgl_const/pretrained_embs.pkl
+        pretrained_embs: data/trec/dgl_const/pretrained_embs.pkl
         freeze: True
     output_module_config:
       class: models.neural.others.MLP

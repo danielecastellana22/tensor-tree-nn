@@ -14,7 +14,7 @@ dataset_config:
     batch_size: 50
 trainer_config:
   class: exputils.trainers.NeuralTrainer
-  training_params:
+  params:
     early_stopping_patience: 5
     n_epochs: 100
     evaluate_on_training_set: False

@@ -1,6 +1,6 @@
 import os
 from tqdm import tqdm
-from exputils.datasets import CollateFun
+from exputils.datasets import FileDatasetLoader
 import torch as th
 import torch.nn as nn
 import torch.nn.functional as F
@@ -73,10 +73,10 @@ class SickRelatednessLoss:
         return F.kl_div(output_model[0], true_label[0], reduction='batchmean')
 
 
-class SickCollateFun(CollateFun):
+class SickLoader(FileDatasetLoader):
 
-    def __init__(self, output_type, device):
-        super(SickCollateFun, self).__init__(device)
+    def __init__(self, output_type, **kwargs):
+        super(SickLoader, self).__init__(**kwargs)
         if output_type == 'relatedness':
             self.output_type = 0
         elif output_type == 'entailment':
@@ -84,7 +84,7 @@ class SickCollateFun(CollateFun):
         else:
             raise ValueError('Output type not known!')
 
-    def __call__(self, tuple_data):
+    def __collate_fun__(self, tuple_data):
         a_tree_list, b_tree_list, relatedness_list, entailment_list = zip(*tuple_data)
         batched_a_trees = dgl.batch(a_tree_list).to(self.device)
         batched_b_trees = dgl.batch(b_tree_list).to(self.device)

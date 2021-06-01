@@ -1,21 +1,22 @@
-dataset_config:
-  data_dir: data/sick/dgl_const
-  output_type: entailment
 experiment_config:
   metric_class_list:
   - exputils.metrics.Accuracy
   num_run: 3
-  output_dir: results/sick_e/no_types/const/canonical
+  output_dir: _results/sick_e/no_types/const/canonical
+  seed: -1
+  device: 'cpu'
+dataset_config:
+  class: tasks.sick.exp_utils.SickLoader
+    params:
+      data_dir: data/sick/dgl_const
+      output_type: entailment
+      batch_size:
+        - 10
+        - 25
+        - 40
 training_config:
   class: exputils.trainerss.NeuralTrainer
   params:
-    batch_size:
-    - 10
-    - 25
-    - 40
-    collate_fun:
-      class: torch.nn.CrossEntropyLoss
-      params: entailment
     early_stopping_patience: 5
     evaluate_on_training_set: true
     loss_function:

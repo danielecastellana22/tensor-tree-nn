@@ -13,7 +13,7 @@ dataset_config:
     batch_size: 50
 trainer_config:
   class: exputils.trainers.EMTrainer
-  training_params:
+  params:
     early_stopping_patience: 50
     eps_loss: 0.1
     evaluate_on_training_set: false

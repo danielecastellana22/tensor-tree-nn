@@ -1,5 +1,5 @@
 experiment_config:
-  output_dir: /data/castellana/results/sst_2_with_leaf/no_types/const/tt
+  output_dir: _results/sst_2_with_leaf/no_types/const/tt
   num_run: 3
   metric_class_list:
     - exputils.metrics.RootAccuracy
@@ -8,7 +8,7 @@ experiment_config:
 dataset_config:
   #dataset_class: experiments.sst.sst_dataset.SSTBinaryDataset
   # this folder must contains: train.pkl, dev.pkl, test.pkl
-  data_dir: /data/castellana/data/sst/dgl_const_2
+  data_dir: data/sst/dgl_const_2
 others_config:
   #seed: 1949013946
   gpu: -1
@@ -42,7 +42,7 @@ exp_module_config:
       class: models.neural.others.VectorEmbedding
       params:
         embedding_type: pretrained
-        pretrained_embs: /data/castellana/data/sst/dgl_const_2/pretrained_embs.pkl
+        pretrained_embs: data/sst/dgl_const_2/pretrained_embs.pkl
         freeze: False
     output_module_config:
       class: models.neural.others.MLP

@@ -1,17 +1,20 @@
 experiment_config:
   #experiment_class: tasks.toy.run_utils.NeuralToyExperiment
-  output_dir: results/listOps/RNN/sumchild
+  output_dir: _results/listOps/RNN/sumchild
   num_run: 3
   metric_class_list:
     - exputils.metrics.Accuracy
+  device: 'cpu'
+  seed: -1
 dataset_config:
-  #dataset_class: experiments.sst.sst_dataset.SSTBinaryDataset
-  # this folder must contains: train.pkl, dev.pkl, test.pkl
-  data_dir: data/listOps/dgl/
+  class: tasks.listOps.exp_utils.ListOpsLoader
+  params:
+    data_dir:  data/listOps/dgl/
+    only_root: True
+    batch_size: 50
 trainer_config:
   class: exputils.trainerss.NeuralTrainer
   params:
-    batch_size: 50
     early_stopping_patience: 10
     n_epochs: 100
     evaluate_on_training_set: False
@@ -21,10 +24,6 @@ trainer_config:
       class: torch.nn.CrossEntropyLoss
       params:
         ignore_index: -1
-    collate_fun:
-      class: tasks.listOps.exp_utils.ListOpsCollateFun
-      params:
-        only_root: True
 exp_module_config:
   class: models.neural.recursive.RecNN
   params:
