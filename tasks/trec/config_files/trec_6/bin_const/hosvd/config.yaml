@@ -1,21 +1,22 @@
-dataset_config:
-  data_dir: data/trec/dgl_bin_const
-  output_type: coarse
 experiment_config:
   metric_class_list:
   - exputils.metrics.Accuracy
   num_run: 3
   output_dir: _results/trec_6/no_types/bin_const/hosvd
+  device: 'cpu'
+  seed: -1
+dataset_config:
+  class: tasks.sst.exp_utils.SstLoader
+  params:
+    data_dir: data/trec/dgl_bin_const
+    output_type: coarse
+    batch_size:
+      - 10
+      - 25
+      - 40
 training_config:
   class: exputils.trainerss.NeuralTrainer
   params:
-    batch_size:
-    - 10
-    - 25
-    - 40
-    collate_fun:
-      class: tasks.trec.exp_utils.TrecCollateFun
-      params: coarse
     early_stopping_patience: 5
     evaluate_on_training_set: true
     loss_function:

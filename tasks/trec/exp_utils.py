@@ -1,6 +1,6 @@
 import os
 from tqdm import tqdm
-from exputils.datasets import CollateFun
+from exputils.datasets import FileDatasetLoader
 import torch as th
 import dgl
 from preprocessing.preprocessors import NlpParsedTreesPreprocessor
@@ -57,10 +57,10 @@ class TrecParsedTreesPreprocessor(NlpParsedTreesPreprocessor):
         self.__save_word_embeddings__()
 
 
-class TrecCollateFun(CollateFun):
+class TrecLoader(FileDatasetLoader):
 
-    def __init__(self, device, output_type):
-        super(TrecCollateFun, self).__init__(device)
+    def __init__(self, output_type, **kwargs):
+        super(TrecLoader, self).__init__(**kwargs)
         if output_type == 'coarse':
             self.num_classes = 6
         elif output_type == 'fine':
@@ -68,7 +68,7 @@ class TrecCollateFun(CollateFun):
         else:
             raise ValueError('Output type not known!')
 
-    def __call__(self, tuple_data):
+    def __collate_fun__(self, tuple_data):
         tree_list, coarse_label_list, fine_label_list = zip(*tuple_data)
         batched_trees = dgl.batch(tree_list).to(self.device)
 

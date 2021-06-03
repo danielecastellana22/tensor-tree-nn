@@ -5,17 +5,18 @@ experiment_config:
     - exputils.metrics.RootAccuracy
     - exputils.metrics.Accuracy
     - exputils.metrics.LeavesAccuracy
+  device: 'cpu'
+  seed: -1
 dataset_config:
-  #dataset_class: experiments.sst.sst_dataset.SSTBinaryDataset
-  # this folder must contains: train.pkl, dev.pkl, test.pkl
-  data_dir: data/sst/dgl_const_2
-others_config:
-  #seed: 1949013946
-  gpu: -1
+  class: tasks.sst.exp_utils.SstLoader
+  params:
+    data_dir: data/sst/dgl_const_2
+    batch_size:
+      - 10
+      - 25
 trainer_config:
   class: exputils.trainerss.NeuralTrainer
   params:
-    batch_size: [10, 25]
     early_stopping_patience: 5
     n_epochs: 100
     evaluate_on_training_set: False
@@ -25,8 +26,6 @@ trainer_config:
       class: torch.nn.CrossEntropyLoss
       params:
         ignore_index: -1
-    collate_fun:
-      class: tasks.sst.exp_utils.SstCollateFun
 exp_module_config:
   class: models.neural.recursive.RecNN
   params:

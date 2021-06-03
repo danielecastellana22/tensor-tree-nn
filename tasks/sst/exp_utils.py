@@ -1,7 +1,7 @@
 import os
 import networkx as nx
 from tqdm import tqdm
-from exputils.datasets import CollateFun
+from exputils.datasets import FileDatasetLoader
 import dgl
 from preprocessing.preprocessors import NlpParsedTreesPreprocessor
 from exputils.datasets import ConstValues
@@ -127,8 +127,8 @@ class SstParsedTreesPreprocessor(NlpParsedTreesPreprocessor):
             return False
 
 
-class SstCollateFun(CollateFun):
+class SstLoader(FileDatasetLoader):
 
-    def __call__(self, tuple_data):
+    def __collate_fun__(self, tuple_data):
         batched_trees = dgl.batch(tuple_data).to(self.device)
         return [batched_trees], batched_trees.ndata['y']
