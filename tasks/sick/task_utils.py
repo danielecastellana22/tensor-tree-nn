@@ -161,11 +161,11 @@ class RelatednessClassifier(nn.Module):
 
 class MseSICK(MSE):
 
-    def update_metric(self, out, gold_label):
-        super(MseSICK, self).update_metric(out[1], gold_label[1])
+    def update_metric(self, y_pred, y_true):
+        super(MseSICK, self).update_metric(y_pred[1], y_true[1])
 
 
 class PearsonSICK(Pearson):
 
-    def update_metric(self, out, gold_label):
-        super(PearsonSICK, self).update_metric(out[1], gold_label[1])
+    def update_metric(self, y_pred, y_true):
+        super(PearsonSICK, self).update_metric(y_pred[1], y_true[1])
