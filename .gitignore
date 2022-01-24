@@ -1,0 +1,12 @@
+.gitignore
+.idea
+_**
+!**__init__.py
+#**/__pycache__
+*.pkl
+**/.ipynb_checkpoints
+
+data/*
+!data/boolSent/
+data/boolSent/*
+!data/boolSent/raw
