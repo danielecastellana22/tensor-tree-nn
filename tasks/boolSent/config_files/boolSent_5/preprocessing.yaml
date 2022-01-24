@@ -1,3 +1,3 @@
-preprocessor_class: tasks.boolSent.exp_utils.BoolSentPreprocessor
+preprocessor_class: tasks.boolSent.task_utils.BoolSentPreprocessor
 input_dir: data/boolSent/raw/boolSent_5
 output_dir: data/boolSent/dgl/boolSent_5

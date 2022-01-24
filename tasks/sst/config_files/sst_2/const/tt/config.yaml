@@ -8,7 +8,7 @@ experiment_config:
   device: 'cpu'
   seed: -1
 dataset_config:
-  class: tasks.sst.exp_utils.SstLoader
+  class: tasks.sst.task_utils.SstLoader
   params:
     data_dir: data/sst/dgl_const_2
     batch_size:

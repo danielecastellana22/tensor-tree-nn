@@ -6,7 +6,7 @@ experiment_config:
   seed: -1
   device: 'cpu'
 dataset_config:
-  class: tasks.sick.exp_utils.SickLoader
+  class: tasks.sick.task_utils.SickLoader
     params:
       data_dir: data/sick/dgl_const
       output_type: entailment
@@ -45,7 +45,7 @@ exp_module_config:
         pretrained_embs: data/sick/dgl_const/pretrained_embs.pkl
     only_root_state: true
     output_module_config:
-      class: tasks.sick.exp_utils.EntailmentClassifier
+      class: tasks.sick.task_utils.EntailmentClassifier
       params:
         h_size:
         - 50

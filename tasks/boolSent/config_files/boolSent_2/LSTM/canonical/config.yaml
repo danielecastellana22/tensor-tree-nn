@@ -7,7 +7,7 @@ experiment_config:
   device: 'cpu'
   seed: -1
 dataset_config:
-  class: tasks.boolSent.exp_utils.BoolSentLoader
+  class: tasks.boolSent.task_utils.BoolSentLoader
   params:
     data_dir:  data/boolSent/dgl/boolSent_2
     only_root: True

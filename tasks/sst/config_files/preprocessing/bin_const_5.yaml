@@ -1,4 +1,4 @@
-preprocessor_class: tasks.sst.exp_utils.SstParsedTreesPreprocessor
+preprocessor_class: tasks.sst.task_utils.SstParsedTreesPreprocessor
 preprocessor_config:
   tree_type: bin_const
   tree_transformer_class: preprocessing.NLP.transformers.ConstTreeTransformer

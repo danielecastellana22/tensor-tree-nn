@@ -2,12 +2,12 @@ experiment_config:
   output_dir: _results/sick_r/no_types/const/tt
   num_run: 3
   metric_class_list:
-    - tasks.sick.exp_utils.PearsonSICK
-    - tasks.sick.exp_utils.MseSICK
+    - tasks.sick.task_utils.PearsonSICK
+    - tasks.sick.task_utils.MseSICK
   device: 'cpu'
   seed: -1
 dataset_config:
-  class: tasks.sick.exp_utils.SickLoader
+  class: tasks.sick.task_utils.SickLoader
   params:
     data_dir: data/sick/dgl_bin_const
     output_type: relatedness
@@ -23,7 +23,7 @@ trainer_config:
     optimiser:
       class: torch.optim.Adadelta
     loss_function:
-      class: tasks.sick.exp_utils.SickRelatednessLoss
+      class: tasks.sick.task_utils.SickRelatednessLoss
 exp_module_config:
   class: models.neural.recursive.RecNN
   params:
@@ -43,6 +43,6 @@ exp_module_config:
         pretrained_embs: data/sick/dgl_const/pretrained_embs.pkl
         freeze: True
     output_module_config:
-      class: tasks.sick.exp_utils.RelatednessClassifier
+      class: tasks.sick.task_utils.RelatednessClassifier
       params:
         h_size: [50, 100, 200]

@@ -6,7 +6,7 @@ experiment_config:
   device: 'cpu'
   seed: -1
 dataset_config:
-  class: tasks.listOps.exp_utils.ListOpsLoader
+  class: tasks.listOps.task_utils.ListOpsLoader
   params:
     data_dir:  data/listOps/dgl/
     only_root: False

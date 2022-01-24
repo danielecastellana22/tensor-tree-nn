@@ -6,7 +6,7 @@ experiment_config:
   device: 'cpu'
   seed: -1
 dataset_config:
-  class: tasks.sst.exp_utils.SstLoader
+  class: tasks.sst.task_utils.SstLoader
   params:
     data_dir: data/trec/dgl_bin_const
     output_type: coarse

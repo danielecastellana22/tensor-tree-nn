@@ -7,7 +7,7 @@ experiment_config:
   device: 'cpu'
   seed: -1
 dataset_config:
-  class: tasks.boolSent.exp_utils.BoolSentLoader
+  class: tasks.boolSent.task_utils.BoolSentLoader
   params:
     data_dir:  data/boolSent/dgl/boolSent_5
     only_root: True
@@ -24,10 +24,6 @@ trainer_config:
       class: torch.nn.CrossEntropyLoss
       params:
         ignore_index: -1
-    collate_fun:
-      class: tasks.boolSent.exp_utils.BoolSentCollateFun
-      params:
-        only_root: True
 exp_module_config:
   class: models.neural.recursive.RecNN
   params:

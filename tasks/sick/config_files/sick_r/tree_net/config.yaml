@@ -7,7 +7,7 @@ experiment_config:
   device: 'cpu'
   seed: -1
 dataset_config:
-  class: tasks.sick.exp_utils.SickLoader
+  class: tasks.sick.task_utils.SickLoader
   params:
     data_dir: data/sick/dgl_tree_net
     output_type: relatedness
@@ -18,7 +18,7 @@ training_config:
     early_stopping_patience: 5
     evaluate_on_training_set: true
     loss_function:
-      class: tasks.sick.exp_utils.SickRelatednessLoss
+      class: tasks.sick.task_utils.SickRelatednessLoss
     n_epochs: 100
     optimiser:
       class: torch.optim.Adam
@@ -45,7 +45,7 @@ exp_module_config:
         pretrained_embs: data/sick/dgl_tree_net/pretrained_embs.pkl
     only_root_state: true
     output_module_config:
-      class: tasks.sick.exp_utils.RelatednessClassifier
+      class: tasks.sick.task_utils.RelatednessClassifier
       params:
         h_size:
         - 50
