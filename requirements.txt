@@ -2,7 +2,7 @@ dgl==0.6.0post1
 tqdm==4.40.0
 networkx==2.5.1
 nltk==3.4.5
-numpy==1.19.2
+numpy==1.22.0
 scikit-learn==0.22.1
 pyyaml>=5.4
 --find-links https://download.pytorch.org/whl/torch_stable.html
