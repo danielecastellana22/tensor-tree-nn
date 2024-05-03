@@ -1,5 +1,5 @@
 dgl==0.6.0post1
-tqdm==4.40.0
+tqdm==4.66.3
 networkx==2.5.1
 nltk==3.4.5
 numpy==1.19.2
