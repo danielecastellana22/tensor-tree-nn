@@ -1,7 +1,3 @@
-[submodule "exputils"]
-	path = exputils
-	url = https://github.com/danielecastellana22/exputils
-    branch = main
 [submodule "thlogprob"]
 	path = thlogprob
 	url = https://github.com/danielecastellana22/thlogprob
