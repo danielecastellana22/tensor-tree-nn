@@ -75,14 +75,14 @@ class Accuracy(BaseMetric):
 class RootAccuracy(Accuracy):
 
     def update_metric(self, y_pred, y_true, in_data):
-        root_ids = [i for i in range(in_data.number_of_nodes()) if in_data.out_degree(i) == 0]
+        root_ids = [i for i in range(in_data.number_of_nodes()) if in_data.out_degrees(i) == 0]
         super(RootAccuracy, self).update_metric(y_pred[root_ids], y_true[root_ids], None)
 
 
 class RootChildrenAccuracy(Accuracy):
 
     def update_metric(self, y_pred, y_true, in_data):
-        root_ids = [i for i in range(in_data.number_of_nodes()) if in_data.out_degree(i) == 0]
+        root_ids = [i for i in range(in_data.number_of_nodes()) if in_data.out_degrees(i) == 0]
         root_ch_id = [i for i in range(in_data.number_of_nodes()) if i not in root_ids and in_data.successors(i).item() in root_ids]
         super(RootChildrenAccuracy, self).update_metric(y_pred[root_ch_id], y_true[root_ch_id], None)
 

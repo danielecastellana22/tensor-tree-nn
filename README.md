@@ -38,11 +38,11 @@ See the readme for more information.
     `python tasks/task_name/parse_raw_data raw_data_folder output_folder`
 3) Run the preprocessor using the command:
 
-    `python preprocess.py --config-file preproc_config_file`,<br>
+    `python -m exputilis.preprocess --config-file preproc_config_file`,<br>
     where `preproc_config_file` can be found in the folder `tasks/task_name/config_files`
 4) Run the experiment using the command:
 
-    `python run.py --config-file run_config_file`,<br>
+    `python -m exputils.run --config-file run_config_file`,<br>
     where `run_config_file` can be found in the folder `tasks/task_name/config_files`.
 
 

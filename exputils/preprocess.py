@@ -22,5 +22,5 @@ if __name__ == '__main__':
     os.makedirs(output_dir, exist_ok=True)
     eprint("Starts preprocessing function!")
 
-    p_obj = create_object_from_config(c.preprocessor, input_dir=input_dir, output_dir=output_dir)
+    p_obj = create_object_from_config(c.preprocessor, config=c)
     p_obj.preprocess()

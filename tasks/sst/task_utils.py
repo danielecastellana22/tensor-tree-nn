@@ -117,7 +117,7 @@ class SstParsedTreesPreprocessor(NlpParsedTreesPreprocessor):
             return tokenid_word_list
 
         # find the root
-        root_list = [x for x in t.nodes if t.out_degree(x) == 0]
+        root_list = [x for x in t.nodes if t.out_degrees(x) == 0]
         assert len(root_list) == 1
         _rec_assign(root_list[0], -1)
 

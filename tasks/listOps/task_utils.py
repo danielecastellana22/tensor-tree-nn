@@ -95,7 +95,7 @@ class ListOpsLoader(FileDatasetLoader):
         if not self.only_root:
             out = batched_trees.ndata['y']
         else:
-            root_ids = [i for i in range(batched_trees.number_of_nodes()) if batched_trees.out_degree(i) == 0]
+            root_ids = [i for i in range(batched_trees.number_of_nodes()) if batched_trees.out_degrees(i) == 0]
             out = batched_trees.ndata['y'][root_ids]
 
         return [batched_trees], out

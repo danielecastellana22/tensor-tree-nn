@@ -48,7 +48,7 @@ class TreePreprocessor(Preprocessor, ABC):
         in_degree_list = [d for u, d in t.in_degree]
         n_leaves = len([x for x in in_degree_list if x == 0])
         rev_t = t.reverse()
-        root = [u for u in t.nodes if t.out_degree(u) == 0][0]
+        root = [u for u in t.nodes if t.out_degrees(u) == 0][0]
         depth_list = {k:len(v)-1 for k,v in nx.shortest_path(rev_t, root).items()}
 
         # update dataset stats
@@ -201,6 +201,6 @@ class NlpParsedTreesPreprocessor(TreePreprocessor, ABC):
                     t.nodes[node_id]['t'] = ConstValues.NO_ELEMENT
 
         # find the root
-        root_list = [x for x in t.nodes if t.out_degree(x) == 0]
+        root_list = [x for x in t.nodes if t.out_degrees(x) == 0]
         assert len(root_list) == 1
         _rec_assign(root_list[0], -1)
